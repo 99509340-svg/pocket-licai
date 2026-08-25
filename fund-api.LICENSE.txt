@@ -1,0 +1,3 @@
+fund-api (https://github.com/zhangxiangliang/fund-api) — MIT License
+Copyright (c) 2026 zhangxiangliang
+数据来源：腾讯公开基金接口；仅用于学习与个人用途，请遵守第三方数据源条款。

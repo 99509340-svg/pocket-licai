@@ -1,0 +1,2425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563eb">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="口袋理财">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<title>口袋理财 · 收益管家</title>
+<style>
+:root{
+  --bg:#f4f6fa; --card:#ffffff; --line:#e6e9f0; --text:#1f2937; --muted:#6b7280;
+  --primary:#2563eb; --primary-soft:#eff6ff; --green:#059669; --green-soft:#ecfdf5;
+  --orange:#d97706; --orange-soft:#fffbeb; --red:#dc2626; --red-soft:#fef2f2;
+  --radius:14px; --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+header.top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+header.top h1{font-size:22px;font-weight:700;display:flex;align-items:center;gap:8px}
+header.top .sub{color:var(--muted);font-size:13px}
+.badge{background:var(--primary-soft);color:var(--primary);font-size:12px;padding:2px 10px;border-radius:999px;font-weight:600}
+.btn{border:none;cursor:pointer;font-size:14px;border-radius:10px;padding:9px 16px;font-weight:600;transition:.15s;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:#1d4ed8}
+.btn-ghost{background:#fff;color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{background:var(--bg)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#047857}
+.btn-danger{background:#fff;color:var(--red);border:1px solid #fecaca}
+.btn-danger:hover{background:var(--red-soft)}
+.btn-sm{padding:5px 10px;font-size:13px;border-radius:8px}
+/* 总览卡片 */
+.overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.oc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.oc .label{font-size:13px;color:var(--muted)}
+.oc .value{font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+.oc .delta{font-size:12px;margin-top:2px}
+.oc.hero{background:linear-gradient(135deg,#2563eb,#1e40af);border:none;color:#fff}
+.oc.hero .label,.oc.hero .delta{color:#dbeafe}
+.up{color:var(--green)} .down{color:var(--red)}
+/* 布局 */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.card h2{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card h2 .hint{font-size:12px;color:var(--muted);font-weight:400}
+/* 产品卡片 */
+.prod{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:#fff;transition:.15s}
+.prod:hover{box-shadow:var(--shadow);border-color:#c7d2fe}
+.prod .icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.t-demand{background:var(--blue-soft,#eff6ff)} .t-fixed{background:var(--green-soft)} .t-moneyfund{background:var(--orange-soft)} .t-fund{background:#f5f3ff} .t-custom{background:#f1f5f9}
+.prod .info{flex:1;min-width:0}
+.prod .info .name{font-weight:600;font-size:15px}
+.prod .info .meta{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod .nums{text-align:right;flex-shrink:0}
+.prod .nums .principal{font-size:13px;color:var(--muted)}
+.prod .nums .earn{font-size:15px;font-weight:700}
+.prod .actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;flex-shrink:0;max-width:200px}
+.empty{text-align:center;color:var(--muted);padding:34px 10px;font-size:14px}
+/* 表格 */
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{padding:8px 10px;text-align:right;border-bottom:1px solid #f1f3f8;font-variant-numeric:tabular-nums}
+th{color:var(--muted);font-weight:600;font-size:12.5px}
+td:first-child,th:first-child{text-align:left}
+tr:last-child td{border-bottom:none}
+/* 表单 */
+.form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
+.field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--text);outline:none}
+.field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.field .unit{font-size:11px;color:var(--muted);margin-top:3px}
+/* 模态 */
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal-bg.show{display:flex}
+.modal{background:#fff;border-radius:16px;max-width:640px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.modal h3{font-size:17px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.modal .close{cursor:pointer;color:var(--muted);font-size:20px;background:none;border:none}
+/* 标签页 */
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;cursor:pointer;color:var(--muted);font-weight:600}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+/* 日历 */
+.cal{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:8px}
+.day{background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px;text-align:center}
+.day .d{font-size:11.5px;color:var(--muted)}
+.day .v{font-size:15px;font-weight:700;margin-top:2px}
+.day.future{opacity:.55}
+.day.today{border-color:var(--primary);background:var(--primary-soft)}
+/* 提示 */
+.note{font-size:12px;color:var(--muted);background:#f8fafc;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:12px;line-height:1.7}
+.note b{color:var(--text)}
+.rate-editor{max-height:340px;overflow:auto}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:30px;line-height:1.8}
+canvas{width:100%;height:220px;display:block}
+/* 打印 */
+#printArea{display:none;font-size:13px;color:#000}
+#printArea .ph{margin-bottom:16px;border-bottom:2px solid #333;padding-bottom:8px}
+#printArea .ph h3{font-size:20px;margin:0 0 4px}
+#printArea .ph .meta{color:#444;font-size:12px;line-height:1.7}
+#printArea table{width:100%;border-collapse:collapse;margin-top:8px}
+#printArea th,#printArea td{border:1px solid #999;padding:6px 8px;text-align:right;font-size:12px}
+#printArea th{background:#f0f0f0}
+#printArea td:first-child,#printArea th:first-child{text-align:left}
+#printArea .sub{font-weight:700;background:#fafafa}
+#printArea .tot{font-weight:700}
+#printArea .sec{margin-top:14px}
+#printArea .sec h4{font-size:14px;margin:0 0 6px;border-left:4px solid #2563eb;padding-left:8px}
+@media print{
+  body *{visibility:hidden !important}
+  #printArea,#printArea *{visibility:visible !important}
+  #printArea{display:block !important;position:absolute;left:0;top:0;width:100%;padding:8mm 6mm}
+}
+
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>💰 口袋理财 · 收益管家 <span class="badge">本地版</span></h1>
+      <div class="sub">投入计算 · 每日收益 · 利率库 · 自定义产品 · 数据保存在本机浏览器</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost" onclick="showRateLib()">📊 利率库</button>
+      <button class="btn btn-primary" onclick="openAdd()">＋ 添加理财产品</button>
+    </div>
+  </header>
+
+  <!-- 总览 -->
+  <nav class="tabs" style="margin-bottom:18px">
+    <button class="tab active" id="tab-invest" onclick="showPage('invest')">📈 理财</button>
+    <button class="tab" id="tab-ledger" onclick="showPage('ledger')">🧾 记账</button>
+    <button class="tab" id="tab-asset" onclick="showPage('asset')">🏦 资产</button>
+    <button class="tab" id="tab-goal" onclick="showPage('goal')">🎯 目标</button>
+
+  </nav>
+  <div id="page-invest">
+
+  <div class="overview">
+    <div class="oc hero">
+      <div class="label">总资产（预估）</div>
+      <div class="value" id="ovTotal">¥0.00</div>
+      <div class="delta">本金 + 收益</div>
+    </div>
+    <div class="oc"><div class="label">总投入本金</div><div class="value" id="ovPrincipal">¥0.00</div><div class="delta" id="ovProducts">0 个产品</div></div>
+    <div class="oc"><div class="label">累计收益</div><div class="value up" id="ovEarn">¥0.00</div><div class="delta" id="ovEarnPct">—</div></div>
+    <div class="oc"><div class="label">今日收益</div><div class="value" id="ovToday">¥0.00</div><div class="delta" id="ovTodayNote">按当前利率预估</div></div>
+    <div class="oc"><div class="label">综合年化</div><div class="value" id="ovApr">—</div><div class="delta" id="ovAprNote">加权估算</div></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <!-- 产品列表 -->
+      <div class="card">
+        <h2>我的理财产品 <span class="hint">共 <span id="prodCount">0</span> 项</span></h2>
+        <div id="prodList"></div>
+        <div class="note">
+          <b>计算规则说明：</b>活期/货币基金按日计息（货基含每日复利）；定期在到期日结算本息，界面按持有天数摊算展示每日收益；基金按净值计算；自定义产品可选计息方式。所有结果均为<b>预估</b>，实际以机构结算为准。
+        </div>
+      </div>
+
+      <!-- 收益日历 -->
+      <div class="card">
+        <h2>每日收益日历 <span class="hint">过去 14 天 + 未来 14 天预估</span></h2>
+        <div class="tabs">
+          <button class="tab active" onclick="setCalView('day')" id="tabDay">每日</button>
+          <button class="tab" onclick="setCalView('cum')" id="tabCum">累计</button>
+        </div>
+        <div id="calGrid" class="cal"></div>
+      </div>
+    </div>
+
+    <div>
+      <!-- 收益曲线 -->
+      <div class="card">
+        <h2>收益曲线 <span class="hint">过去 60 天 + 未来 60 天预估</span></h2>
+        <canvas id="chart"></canvas>
+        <div class="note" id="chartLegend"></div>
+      </div>
+
+      <!-- 资产分布 -->
+      <div class="card">
+        <h2>资产分布</h2>
+        <div id="alloc"></div>
+      </div>
+    </div>
+  </div>
+
+    <div class="card">
+      <h2>🧮 定投 / 复利模拟器 <span class="hint">每月定投 × 年化 → N 年后多少钱</span></h2>
+      <div class="form-row">
+        <div class="field"><label>初始本金（元）</label><input id="sim_pv" type="number" min="0" step="0.01" placeholder="10000" oninput="calcSim()"></div>
+        <div class="field"><label>每月定投（元）</label><input id="sim_pmt" type="number" min="0" step="0.01" placeholder="2000" oninput="calcSim()"></div>
+        <div class="field"><label>年化收益率（%）</label><input id="sim_rate" type="number" min="0" step="0.1" placeholder="6" oninput="calcSim()"></div>
+        <div class="field"><label>投资年限（年）</label><input id="sim_years" type="number" min="1" max="60" step="1" placeholder="10" oninput="calcSim()"></div>
+      </div>
+      <div id="sim_result" class="note">填入参数后自动计算（按月度复利估算）</div>
+    </div>
+  </div><!-- /page-invest -->
+
+  <!-- ===== 记账页 ===== -->
+  <div id="page-ledger" style="display:none">
+    <div class="card" id="importHint">
+      <h2>📥 导入微信 / 支付宝账单 <span class="hint">一键导入 · 自动归类去重</span>
+        <button class="btn btn-ghost btn-sm" onclick="toggleImportHint()" id="importHintToggle">收起 ▼</button>
+      </h2>
+      <div id="importHintBody">
+        <div class="form-row" style="grid-template-columns:repeat(auto-fit,minmax(250px,1fr))">
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <b>📱 微信导出步骤</b>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.9">
+              ① 打开微信：<b>我 → 服务 → 钱包 → 账单</b><br>
+              ② 点右上角「常见问题」→「下载账单」<br>
+              ③ 选时间范围 + <b>用于个人对账</b> → 填邮箱<br>
+              ④ 收到压缩包，解压得到 <b>csv 文件</b>
+            </div>
+          </div>
+          <div style="background:var(--bg);border-radius:10px;padding:12px">
+            <b>📱 支付宝导出步骤</b>
+            <div style="font-size:13px;color:var(--muted);margin-top:4px;line-height:1.9">
+              ① 打开支付宝：<b>我的 → 账单</b><br>
+              ② 点右上角「…」→「开具交易流水证明」<br>
+              ③ 用途选「用于个人对账」→ 选时间 → 填邮箱<br>
+              ④ 收到邮件附件 <b>csv 文件</b>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="openImport()">⬆️ 去导入（选择 csv 文件）</button>
+          <span style="font-size:12px;color:var(--muted)">自动识别平台、金额清洗、退款跳过、智能归类、按单号去重</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧾 记账 <span class="hint">多场景适配 · 数据本地保存</span></h2>
+      <div class="tabs" id="sceneTabs">
+        <button class="tab active" onclick="setScene('daily')">🏠 日常</button>
+        <button class="tab" onclick="setScene('travel')">✈️ 旅游</button>
+        <button class="tab" onclick="setScene('business')">💼 差旅</button>
+        <button class="tab" onclick="setScene('family')">👨‍👩‍👧 家庭</button>
+      </div>
+      <div class="form-row">
+        <div class="field"><label>类型</label>
+          <select id="le_type" onchange="refreshCatSelect()"><option value="expense">支出</option><option value="income">收入</option></select>
+        </div>
+        <div class="field"><label>分类</label><select id="le_cat"></select></div>
+        <div class="field"><label>金额（元）</label><input id="le_amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="field"><label>日期</label><input id="le_date" type="date"></div>
+        <div class="field"><label>账户</label><select id="le_account"></select></div>
+        <div class="field"><label>备注</label><input id="le_note" placeholder="可选"></div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-primary" id="leSubmitBtn" onclick="submitEntry()">＋ 记一笔</button>
+        <input id="le_customCat" placeholder="自定义分类（可选，输入后直接作为新分类）" style="flex:1;min-width:200px;padding:9px 11px;border:1px solid var(--line);border-radius:9px">
+        <span class="hint" id="leEditHint" style="display:none;color:var(--orange)">正在编辑，点「保存修改」完成</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>本月统计 <span class="hint" id="leMonthHint"></span></h2>
+      <div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+        <div class="oc"><div class="label">本月收入</div><div class="value up" id="leMonthIncome">¥0.00</div></div>
+        <div class="oc"><div class="label">本月支出</div><div class="value down" id="leMonthExpense">¥0.00</div></div>
+        <div class="oc"><div class="label">本月结余</div><div class="value" id="leMonthBalance">¥0.00</div></div>
+        <div class="oc"><div class="label">累计记录</div><div class="value" id="leCount">0</div></div>
+      </div>
+      <div id="budgetRow" style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <b style="font-size:14px">🎯 月度预算</b>
+          <input id="bd_input" type="number" min="0" step="0.01" placeholder="如 5000" style="width:130px;padding:7px 10px;border:1px solid var(--line);border-radius:8px">
+          <button class="btn btn-ghost btn-sm" onclick="saveBudget()">保存预算</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearBudget()" id="bd_clearBtn" style="display:none">清除</button>
+        </div>
+        <div id="bd_progress"></div>
+      </div>
+      <div id="leCategoryBars" style="margin-top:12px"></div>
+      <div style="margin-top:16px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">近 6 个月收支趋势（绿=收入 红=支出 蓝=结余）</div>
+        <canvas id="trendChart" style="height:180px"></canvas>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <h2>🚦 花费限制提醒 <span class="hint">每日限额 + 分类预算，接近或超支自动提醒</span></h2>
+      <div id="reminderBanner" style="margin-bottom:12px"></div>
+      <div class="form-row">
+        <div class="field"><label>每日花费限额（元，可选）</label>
+          <input id="dl_input" type="number" min="0" step="0.01" placeholder="如 200" onchange="saveDailyLimit()">
+          <div class="unit" id="dl_today"></div>
+        </div>
+        <div class="field" style="display:flex;align-items:flex-end"><button class="btn btn-ghost" onclick="saveCatBudgets()">💾 保存分类限额</button></div>
+      </div>
+      <div id="catBudgetEditor"></div>
+    </div>
+
+    <div class="card">
+      <h2>🔔 周期提醒 <span class="hint">信用卡还款 / 房贷 / 房租 / 订阅</span></h2>
+      <div class="form-row">
+        <div class="field"><label>提醒名称</label><input id="rm_name" placeholder="如：信用卡还款 / 房租"></div>
+        <div class="field"><label>金额（元，可选）</label><input id="rm_amount" type="number" min="0" step="0.01"></div>
+        <div class="field"><label>周期</label>
+          <select id="rm_period"><option value="month">每月</option><option value="quarter">每季</option><option value="year">每年</option></select>
+        </div>
+        <div class="field"><label>下次日期</label><input id="rm_next" type="date"></div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="addReminder()">＋ 添加提醒</button>
+      <div id="rmList" style="margin-top:12px"></div>
+    </div>
+    <div class="card">
+      <h2>账单记录 <span class="hint">共 <span id="leRangeCount">0</span> 条</span>
+        <span style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="openPrint('detail')">🖨️ 明细账单</button>
+          <button class="btn btn-ghost btn-sm" onclick="openPrint('summary')">🖨️ 分类汇总</button>
+          <button class="btn btn-ghost btn-sm" onclick="openPrint('monthly')">🖨️ 月度报表</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCsv()">⬇️ 导出CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="openImport()">⬆️ 导入账单</button>
+
+        </span>
+      </h2>
+      <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:10px">
+      <div class="tabs" id="leFilterTabs" style="margin-bottom:10px">
+        <button class="tab active" onclick="setLedgerFilter('all')">全部场景</button>
+        <button class="tab" onclick="setLedgerFilter('daily')">🏠 日常</button>
+        <button class="tab" onclick="setLedgerFilter('travel')">✈️ 旅游</button>
+        <button class="tab" onclick="setLedgerFilter('business')">💼 差旅</button>
+        <button class="tab" onclick="setLedgerFilter('family')">👨‍👩‍👧 家庭</button>
+      </div>
+      <div id="leFilterHint" style="font-size:12px;color:var(--muted);margin-bottom:8px"></div>
+      <div id="leList"></div>
+    </div>
+  </div>
+
+  <!-- ===== 资产页 ===== -->
+  <div id="page-asset" style="display:none">
+    <div class="card">
+      <h2>🏦 资产统计 <span style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="openBalance()">🖨️ 资产负债表</button></span></h2>
+      <div class="overview">
+        <div class="oc hero"><div class="label">总资产</div><div class="value" id="asTotal">¥0.00</div><div class="delta" id="asTotalNote">现金 + 理财</div></div>
+        <div class="oc"><div class="label">现金 / 账户余额</div><div class="value" id="asCash">¥0.00</div><div class="delta" id="asCashNote">0 个账户</div></div>
+        <div class="oc"><div class="label">理财投资</div><div class="value" id="asInvest">¥0.00</div><div class="delta" id="asInvestNote">0 个产品</div></div>
+        <div class="oc"><div class="label">固定资产</div><div class="value" id="asFixed">¥0.00</div><div class="delta" id="asFixedNote">0 项</div></div>
+
+        <div class="oc"><div class="label">总负债</div><div class="value down" id="asDebt">¥0.00</div><div class="delta" id="asDebtNote">信用卡 / 贷款</div></div>
+        <div class="oc"><div class="label">净资产</div><div class="value" id="asNet">¥0.00</div><div class="delta" id="asNetNote">总资产 − 负债</div></div>
+      </div>
+      <div class="form-row" style="margin-top:12px">
+        <div class="field"><label>总负债（元，用于净资产计算）</label><input id="as_debt" type="number" min="0" step="0.01" placeholder="0" onchange="setDebt()"></div>
+        <div class="field"><label>月度固定支出（元，用于现金健康度评估）</label><input id="as_mexp" type="number" min="0" step="0.01" placeholder="0" onchange="setMonthlyExpense()"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏠 固定资产管理 <span class="hint">房产 / 汽车 / 收藏等非现金资产，计入总资产</span></h2>
+      <div class="form-row">
+        <div class="field"><label>资产名称</label><input id="fx_name" placeholder="如：自住房产 / 家用汽车"></div>
+        <div class="field"><label>类别</label>
+          <select id="fx_cat"><option>房产</option><option>汽车</option><option>贵金属</option><option>收藏品</option><option>数字资产</option><option>股权</option><option>其他</option></select>
+        </div>
+        <div class="field"><label>估值（元）</label><input id="fx_value" type="number" min="0" step="0.01" placeholder="如 2000000"></div>
+        <div class="field"><label>日期</label><input id="fx_date" type="date"></div>
+        <div class="field"><label>备注</label><input id="fx_note" placeholder="可选"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addFixed()">＋ 添加固定资产</button>
+      <div id="fxList" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>账户管理 <span class="hint">记账支出/收入会实时更新账户余额</span></h2>
+      <div id="asAccounts"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input id="as_newAcc" placeholder="新账户名称，如：招商银行卡" style="flex:1;padding:9px 11px;border:1px solid var(--line);border-radius:9px">
+        <input id="as_newAccBal" type="number" min="0" step="0.01" placeholder="初始余额" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px">
+        <button class="btn btn-ghost" onclick="addAccount()">＋ 添加账户</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏅 资产等级评估 <span class="hint">多维度趣味评分，仅供参考，不构成投资建议</span></h2>
+      <div class="tabs" id="gradeTabs" style="margin-bottom:12px">
+        <button class="tab active" onclick="setGradeSystem('grade')">S/A/B/C/D</button>
+        <button class="tab" onclick="setGradeSystem('a10')">A1–A10 资产段位</button>
+        <button class="tab" onclick="setGradeSystem('credit')">AAA–C 信用评级</button>
+        <button class="tab" onclick="setGradeSystem('score')">百分制</button>
+        <button class="tab" onclick="setGradeSystem('star')">★ 星级</button>
+      </div>
+
+      <div id="asGrade"></div>
+    </div>
+  </div>
+
+
+  <!-- ===== 目标页 ===== -->
+  <div id="page-goal" style="display:none">
+    <div class="card">
+      <h2>🎯 攒钱目标 <span class="hint">设定目标，自动算每月需存多少</span></h2>
+      <div class="overview">
+        <div class="oc hero"><div class="label">目标总进度</div><div class="value" id="glTotalPct">0%</div><div class="delta" id="glTotalNote">0 个目标</div></div>
+        <div class="oc"><div class="label">已存合计</div><div class="value up" id="glSaved">¥0.00</div><div class="delta">目标合计 <span id="glTarget">¥0.00</span></div></div>
+        <div class="oc"><div class="label">还差合计</div><div class="value" id="glRemain">¥0.00</div><div class="delta" id="glRemainNote">—</div></div>
+        <div class="oc"><div class="label">已达成</div><div class="value" id="glDone">0</div><div class="delta">个目标 🎉</div></div>
+      </div>
+      <div class="note"><b>建议：</b>先准备 3–6 个月支出的<b>应急金</b>（可放余额宝/货基），再规划大额目标（买房首付、购车、旅行等）。</div>
+    </div>
+
+    <div class="card">
+      <h2>我的目标</h2>
+      <div class="form-row">
+        <div class="field"><label>目标名称</label><input id="gl_name" placeholder="如：买房首付 / 日本旅行 / 应急金"></div>
+        <div class="field"><label>图标</label>
+          <select id="gl_icon"><option>🏠</option><option>🚗</option><option>✈️</option><option>🛡️</option><option>🎓</option><option>📱</option><option>💍</option><option>🎁</option><option>💼</option><option>🐷</option><option>其他</option></select>
+        </div>
+        <div class="field"><label>目标金额（元）</label><input id="gl_target" type="number" min="0" step="0.01" placeholder="如 500000"></div>
+        <div class="field"><label>目标日期</label><input id="gl_deadline" type="date"></div>
+        <div class="field"><label>已存金额（元）</label><input id="gl_saved" type="number" min="0" step="0.01" placeholder="0"></div>
+        <div class="field"><label>每月计划投入（元，可选）</label><input id="gl_monthly" type="number" min="0" step="0.01" placeholder="如 5000"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addGoal()">＋ 添加目标</button>
+      <div id="glList" style="margin-top:14px"></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:10px;flex-wrap:wrap">
+    <button class="btn btn-ghost btn-sm" onclick="exportBackup()">💾 备份数据</button>
+    <button class="btn btn-ghost btn-sm" onclick="document.getElementById('restoreFile').click()">📂 恢复数据</button>
+    <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="importBackupFile(this)">
+  </div>
+
+  <footer>
+    数据仅供个人参考，不构成投资建议 · 内置利率为 2026-08 公开参考值，请以银行/平台实际为准并可在「利率库」中修改<br>
+    所有数据仅保存在本机浏览器（localStorage），不会上传
+  </footer>
+</div>
+
+<!-- 添加/编辑产品模态 -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <h3><span id="modalTitle">添加理财产品</span><button class="close" onclick="closeModal()">✕</button></h3>
+    <div class="form-row">
+      <div class="field" style="grid-column:1/-1">
+        <label>产品名称</label>
+        <input id="f_name" placeholder="例如：工商银行·定期1年 / 余额宝 / 沪深300指数基金">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field"><label>产品类型</label>
+        <select id="f_type" onchange="onTypeChange()">
+          <option value="demand">银行活期</option>
+          <option value="fixed">银行定期</option>
+          <option value="moneyfund">货币基金（余额宝类）</option>
+          <option value="fund">基金（净值型）</option>
+          <option value="custom">自定义产品</option>
+        </select>
+      </div>
+      <div class="field"><label>投入本金（元）</label><input id="f_principal" type="number" min="0" step="0.01" placeholder="10000"></div>
+      <div class="field"><label>起投日期</label><input id="f_start" type="date"></div>
+    </div>
+
+    <div class="form-row" id="row_rate">
+      <div class="field" id="rateLabelWrap">
+        <label id="rateLabel">年利率（%）</label>
+        <input id="f_rate" type="number" min="0" step="0.0001" placeholder="0.95">
+        <div class="unit" id="rateHint">也可在「利率库」中查看参考值</div>
+      </div>
+      <div class="field" id="termWrap">
+        <label>存期</label>
+        <select id="f_term">
+          <option value="3">3 个月</option>
+          <option value="6">6 个月</option>
+          <option value="12">1 年</option>
+          <option value="24">2 年</option>
+          <option value="36">3 年</option>
+          <option value="60">5 年</option>
+        </select>
+      </div>
+      <div class="field" id="quickWrap" style="display:none">
+        <label>快捷填入利率</label>
+        <select id="f_quick" onchange="quickRate()"><option value="">— 从利率库选择 —</option></select>
+      </div>
+    </div>
+
+    <div class="form-row" id="row_fund" style="display:none">
+      <div class="field"><label>买入净值</label><input id="f_navBuy" type="number" min="0" step="0.0001" placeholder="1.5000"></div>
+      <div class="field"><label>当前净值</label><input id="f_navNow" type="number" min="0" step="0.0001" placeholder="1.6200"></div>
+      <div class="field"><label>当日涨跌幅（%，可留空）</label><input id="f_chg" type="number" step="0.0001" placeholder="0.50"></div>
+    </div>
+    <div id="fundSearchArea" style="display:none">
+      <div class="form-row">
+        <div class="field" style="grid-column:1/-1">
+          <label>🔍 搜索基金（名称/代码，联网查实时净值）</label>
+          <div style="display:flex;gap:8px">
+            <input id="f_fundKw" placeholder="例如：易方达消费 / 110022" style="flex:1">
+            <button type="button" class="btn btn-ghost" onclick="searchFundsUI()">搜索</button>
+          </div>
+          <div class="unit">数据来自腾讯公开接口（fund-api，MIT 协议）；添加后可在列表点「🔄净值」随时刷新</div>
+        </div>
+      </div>
+      <div id="fundResults"></div>
+      <input type="hidden" id="f_fundCode">
+    </div>
+
+    <div class="form-row" id="row_custom" style="display:none">
+      <div class="field"><label>计息方式</label>
+        <select id="f_mode">
+          <option value="daily-simple">按日计息（单利）</option>
+          <option value="daily-compound">按日计息（复利）</option>
+          <option value="maturity">到期一次性付息</option>
+        </select>
+      </div>
+      <div class="field"><label>期限（月，到期付息时填）</label><input id="f_termMonths" type="number" min="1" step="1" placeholder="12"></div>
+      <div class="field"><label>备注</label><input id="f_note" placeholder="可选"></div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:6px">
+      <button class="btn btn-ghost" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" id="modalSubmit" onclick="submitForm()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 利率库模态 -->
+<div class="modal-bg" id="rateModal">
+  <div class="modal" style="max-width:760px">
+    <h3>📊 利率库（可编辑）<button class="close" onclick="closeRateLib()">✕</button></h3>
+    <div class="tabs">
+      <button class="tab active" onclick="showRateTab('bank')" id="rtab_bank">银行存款</button>
+      <button class="tab" onclick="showRateTab('fund')" id="rtab_fund">货币基金</button>
+    </div>
+    <div class="rate-editor" id="rateEditor"></div>
+    <div class="note">
+      <b>说明：</b>内置为 2026-08 公开参考利率（国有大行挂牌价/部分股份行、城商行示例），不同银行、不同起存金额利率不同。
+      点击「保存利率」后按你的实际情况修改；添加产品时也可手动输入利率。<b>本应用为本地静态页，无法自动实时抓取全网利率</b>，如需实时数据可后续接入数据 API（见 README）。
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:10px">
+      <button class="btn btn-ghost" onclick="resetRates()">恢复默认</button>
+      <button class="btn btn-primary" onclick="saveRatesFromUI()">保存利率</button>
+    </div>
+  </div>
+</div>
+
+<script src="fund-api.iife.min.js"></script>
+<script>
+'use strict';
+/* ================= 利率库（2026-08 公开参考值，可编辑） ================= */
+const DEFAULT_RATES = {
+  banks: {
+    "工商银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "农业银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "中国银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "建设银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "交通银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "邮储银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.30} },
+    "招商银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.35} },
+    "兴业银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:0.95,24:1.05,36:1.25,60:1.35} },
+    "民生银行": { demand:0.05, fixed:{3:0.70,6:0.90,12:1.15,24:1.30,36:1.30,60:1.35} },
+    "中信银行": { demand:0.05, fixed:{3:0.65,6:0.85,12:1.15,24:1.25,36:1.30,60:1.35} },
+    "渤海银行": { demand:0.05, fixed:{3:0.88,6:1.14,12:1.30,24:1.45,36:1.85,60:1.85} },
+    "厦门银行": { demand:0.10, fixed:{3:0.90,6:1.10,12:1.25,24:1.40,36:1.50,60:1.55} },
+    "民泰银行": { demand:0.05, fixed:{3:1.00,6:1.20,12:1.40,24:1.55,36:1.70,60:1.80} },
+    "潍坊银行": { demand:0.10, fixed:{3:0.80,6:1.00,12:1.05,24:1.35,36:1.50,60:1.55} }
+  },
+  moneyFunds: {
+    "余额宝（天弘）": 0.90,
+    "零钱通（易方达）": 0.86,
+    "活期+（微众）": 0.95,
+    "朝朝宝（招商）": 0.88
+  },
+  note: "参考数据截至 2026-08；各银行利率随市场与起存金额浮动，请以实际为准"
+};
+
+/* ================= 数据模型 =================
+   Product:
+   { id, name, type, principal, start (YYYY-MM-DD),
+     rate (年化%), termMonths,           // fixed / 自定义到期
+     navBuy, navNow, chg,                // fund
+     mode,                               // custom: daily-simple|daily-compound|maturity
+     note }
+*/
+const STORE_KEY = "licai_app_v1";
+const RATE_KEY = "licai_rates_v1";
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function todayStr(){ const d=new Date(); return fmtDate(d); }
+function fmtDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0"); return y+"-"+m+"-"+dd; }
+function addDays(dateStr, n){ const d=new Date(dateStr+"T00:00:00"); d.setDate(d.getDate()+n); return d; }
+function dayDiff(from, to){ const a=new Date(from+"T00:00:00").getTime(), b=new Date(to+"T00:00:00").getTime(); return Math.round((b-a)/86400000); }
+
+let products = [];
+let rates = JSON.parse(JSON.stringify(DEFAULT_RATES));
+let editingId = null;
+let calView = "day";
+
+function loadState(){
+  try{ products = JSON.parse(localStorage.getItem(STORE_KEY)) || []; }catch(e){ products=[]; }
+  try{ const r = JSON.parse(localStorage.getItem(RATE_KEY)); if(r && r.banks) rates = r; }catch(e){}
+}
+function saveState(){ localStorage.setItem(STORE_KEY, JSON.stringify(products)); }
+function saveRates(){ localStorage.setItem(RATE_KEY, JSON.stringify(rates)); closeRateLib(); renderAll(); }
+
+/* ================= 计算引擎 ================= */
+function dayRate(pct){ return pct/100/365; }                     // 日利率
+function dailySimple(principal, pct){ return principal * dayRate(pct); }  // 单日利息
+
+// 单利累计：从 start 到 date，含 start 当日
+function simpleAccrued(principal, pct, start, date){
+  const days = Math.max(0, dayDiff(start, date) + 1);
+  return principal * dayRate(pct) * days;
+}
+// 复利累计（按日复利）：从 start 到 date
+function compoundAccrued(principal, pct, start, date){
+  const days = Math.max(0, dayDiff(start, date) + 1);
+  return principal * (Math.pow(1 + dayRate(pct), days) - 1);
+}
+// 定期到期收益（按整年+零头日简化：年化×年限，不足整年按天折算）
+function fixedMaturity(principal, pct, termMonths, start){
+  const end = addDays(start, Math.round(termMonths*30.4375));
+  return principal * (pct/100) * (termMonths/12);
+}
+// 定期：已产生收益（按已持有天数摊算，用于展示）
+function fixedAccrued(p, start){
+  const termDays = Math.round(p.termMonths*30.4375);
+  const held = Math.max(0, dayDiff(start, todayStr()) + 1);
+  const total = fixedMaturity(p.principal, p.rate, p.termMonths, start);
+  return total * Math.min(1, held/termDays);
+}
+// 净值基金
+function fundShares(p){ return p.navBuy>0 ? p.principal/p.navBuy : 0; }
+function fundValue(p, nav){ return fundShares(p) * nav; }
+function fundEarn(p){ return fundValue(p, p.navNow) - p.principal; }
+function fundToday(p){
+  const c = parseFloat(p.chg);
+  if(!isFinite(c) || !c) return 0;
+  return fundValue(p, p.navNow) * (c/100); // 当日涨跌金额 ≈ 当前市值×涨跌幅
+}
+
+// 单产品：累计收益（至今）
+function productEarn(p){
+  switch(p.type){
+    case "demand": return simpleAccrued(p.principal, p.rate, p.start, todayStr());
+    case "moneyfund": return compoundAccrued(p.principal, p.rate, p.start, todayStr());
+    case "fixed": return fixedAccrued(p, p.start);
+    case "fund": return fundEarn(p);
+    case "custom":
+      if(p.mode==="daily-compound") return compoundAccrued(p.principal, p.rate, p.start, todayStr());
+      if(p.mode==="maturity") return fixedAccrued(p, p.start);
+      return simpleAccrued(p.principal, p.rate, p.start, todayStr());
+  }
+  return 0;
+}
+// 单产品：今日收益（dateStr 默认为今天）
+function productDayEarn(p, dateStr){
+  const d = dateStr || todayStr();
+  switch(p.type){
+    case "demand": return dailySimple(p.principal, p.rate);
+    case "moneyfund": { // 复利：当日收益=当日初本金×日利率
+      const days = Math.max(0, dayDiff(p.start, d)); // 今天之前已复利天数
+      const base = p.principal * Math.pow(1+dayRate(p.rate), days);
+      return base * dayRate(p.rate);
+    }
+    case "fixed": {
+      const termDays = Math.round(p.termMonths*30.4375);
+      const total = fixedMaturity(p.principal, p.rate, p.termMonths, p.start);
+      return d===todayStr() ? total/termDays : (dayDiff(p.start,d)>=0 && dayDiff(p.start,d)<termDays ? total/termDays : 0);
+    }
+    case "fund": return d===todayStr() ? fundToday(p) : fundToday(p); // 展示用
+    case "custom":
+      if(p.mode==="daily-compound"){
+        const days = Math.max(0, dayDiff(p.start, d));
+        const base = p.principal * Math.pow(1+dayRate(p.rate), days);
+        return base * dayRate(p.rate);
+      }
+      if(p.mode==="maturity"){
+        const termDays = Math.round((p.termMonths||12)*30.4375);
+        const total = fixedMaturity(p.principal, p.rate, p.termMonths||12, p.start);
+        return total/termDays;
+      }
+      return dailySimple(p.principal, p.rate);
+  }
+  return 0;
+}
+// 单产品：未来某天（从 dateStr 起第 n 天）的当日收益（预估，用于日历/曲线未来段）
+function productFutureDay(p, dateStr){
+  switch(p.type){
+    case "demand": return dailySimple(p.principal, p.rate);
+    case "moneyfund": {
+      const days = Math.max(0, dayDiff(p.start, dateStr));
+      const base = p.principal * Math.pow(1+dayRate(p.rate), days);
+      return base * dayRate(p.rate);
+    }
+    case "fixed": {
+      const termDays = Math.round(p.termMonths*30.4375);
+      const total = fixedMaturity(p.principal, p.rate, p.termMonths, p.start);
+      const held = dayDiff(p.start, dateStr);
+      return (held>=0 && held<termDays) ? total/termDays : 0;
+    }
+    case "fund": return fundToday(p);
+    case "custom":
+      if(p.mode==="daily-compound"){
+        const days = Math.max(0, dayDiff(p.start, dateStr));
+        return p.principal*Math.pow(1+dayRate(p.rate), days)*dayRate(p.rate);
+      }
+      if(p.mode==="maturity"){
+        const termDays = Math.round((p.termMonths||12)*30.4375);
+        const total = fixedMaturity(p.principal, p.rate, p.termMonths||12, p.start);
+        return total/termDays;
+      }
+      return dailySimple(p.principal, p.rate);
+  }
+  return 0;
+}
+// 过去某天的收益：按该产品当天规则（定期/到期类摊算；净值型用当前收益均值回填，标注估算）
+function productPastDay(p, dateStr){
+  if(dayDiff(dateStr, todayStr()) > 0) return productFutureDay(p, dateStr);
+  if(dayDiff(dateStr, p.start) < 0) return 0; // 尚未起投
+  switch(p.type){
+    case "demand": return dailySimple(p.principal, p.rate);
+    case "moneyfund": {
+      const days = Math.max(0, dayDiff(p.start, dateStr));
+      return p.principal*Math.pow(1+dayRate(p.rate), days)*dayRate(p.rate);
+    }
+    case "fixed": {
+      const termDays = Math.round(p.termMonths*30.4375);
+      const total = fixedMaturity(p.principal, p.rate, p.termMonths, p.start);
+      const held = dayDiff(p.start, dateStr);
+      return (held>=0 && held<termDays) ? total/termDays : 0;
+    }
+    case "fund": { // 用当前收益/持有天数平均估算
+      const held = Math.max(1, dayDiff(p.start, todayStr())+1);
+      return fundEarn(p)/held;
+    }
+    case "custom":
+      if(p.mode==="daily-compound"){
+        const days = Math.max(0, dayDiff(p.start, dateStr));
+        return p.principal*Math.pow(1+dayRate(p.rate), days)*dayRate(p.rate);
+      }
+      if(p.mode==="maturity"){
+        const termDays = Math.round((p.termMonths||12)*30.4375);
+        const total = fixedMaturity(p.principal, p.rate, p.termMonths||12, p.start);
+        const held = dayDiff(p.start, dateStr);
+        return (held>=0 && held<termDays) ? total/termDays : 0;
+      }
+      return dailySimple(p.principal, p.rate);
+  }
+  return 0;
+}
+function sum(arr){ return arr.reduce((a,b)=>a+b,0); }
+
+/* ================= 格式化 ================= */
+const fmtMoney = n => "¥" + n.toLocaleString("zh-CN",{minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtNum = (n,d=2) => Number(n).toLocaleString("zh-CN",{minimumFractionDigits:d, maximumFractionDigits:d});
+function fmtPct(n){ return (n>=0?"+":"")+fmtNum(n,2)+"%"; }
+
+const TYPE_META = {
+  demand:{icon:"🏦",label:"银行活期",cls:"t-demand"},
+  fixed:{icon:"📜",label:"银行定期",cls:"t-fixed"},
+  moneyfund:{icon:"🛡️",label:"货币基金",cls:"t-moneyfund"},
+  fund:{icon:"📈",label:"基金",cls:"t-fund"},
+  custom:{icon:"🧩",label:"自定义",cls:"t-custom"}
+};
+
+/* ================= 总览 ================= */
+function renderOverview(){
+  const totalPrincipal = sum(products.map(p=>p.principal));
+  const totalEarn = sum(products.map(p=>productEarn(p)));
+  const totalValue = totalPrincipal + totalEarn;
+  const today = sum(products.map(p=>productDayEarn(p)));
+  const rateSum = sum(products.map(p=>{
+    const w = p.principal * (p.rate||0);
+    return p.type==="fund" ? 0 : w; // 基金用净值收益，不参与年化加权
+  }));
+  const rateBase = sum(products.filter(p=>p.type!=="fund").map(p=>p.principal));
+  const apr = rateBase>0 ? rateSum/rateBase : 0;
+
+  el("ovTotal").textContent = fmtMoney(totalValue);
+  el("ovPrincipal").textContent = fmtMoney(totalPrincipal);
+  el("ovProducts").textContent = products.length + " 个产品";
+  el("ovEarn").textContent = (totalEarn>=0?"+":"") + fmtMoney(totalEarn);
+  el("ovEarnPct").textContent = totalPrincipal>0 ? fmtPct(totalEarn/totalPrincipal*100) : "—";
+  el("ovToday").textContent = (today>=0?"+":"") + fmtMoney(today);
+  el("ovApr").textContent = apr>0 ? fmtNum(apr,2)+"%" : "—";
+  el("ovAprNote").textContent = rateBase>0 ? "按本金加权（不含基金）" : "加权估算";
+}
+
+/* ================= 产品列表 ================= */
+function renderProducts(){
+  const box = el("prodList");
+  el("prodCount").textContent = products.length;
+  if(!products.length){
+    box.innerHTML = '<div class="empty">还没有理财产品，点击右上角「＋ 添加理财产品」开始吧<br>例如：存 1 万元到余额宝，看看每天能赚多少</div>';
+    return;
+  }
+  box.innerHTML = products.map(p=>{
+    const m = TYPE_META[p.type]||TYPE_META.custom;
+    const earn = productEarn(p);
+    const today = productDayEarn(p);
+    const meta = describeMeta(p);
+    const earnCls = earn>=0?"up":"down";
+    return `<div class="prod">
+      <div class="icon ${m.cls}">${m.icon}</div>
+      <div class="info">
+        <div class="name">${esc(p.name)}</div>
+        <div class="meta">${esc(meta)}</div>
+      </div>
+      <div class="nums">
+        <div class="principal">本金 ${fmtMoney(p.principal)}</div>
+        <div class="earn ${earnCls}">${earn>=0?"+":""}${fmtMoney(earn)}</div>
+        <div class="principal">今日 ${today>=0?"+":""}${fmtMoney(today)}</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEdit('${p.id}')">编辑</button>
+        <button class="btn btn-ghost btn-sm" onclick="addFund('${p.id}')">＋追加</button>
+        ${p.type==="fund" ? `<button class="btn btn-ghost btn-sm" onclick="refreshNav('${p.id}')">🔄净值</button>` : ""}
+        <button class="btn btn-danger btn-sm" onclick="delProduct('${p.id}')">删除</button>
+      </div>
+    </div>`;
+  }).join("");
+}
+function describeMeta(p){
+  switch(p.type){
+    case "demand": return `活期 · 年化 ${fmtNum(p.rate,3)}% · ${p.start} 起存 · 按日计息`;
+    case "fixed": return `定期 ${p.termMonths} 个月 · 年化 ${fmtNum(p.rate,2)}% · ${p.start} 起存 · 到期付息`;
+    case "moneyfund": return `七日年化 ${fmtNum(p.rate,3)}% · ${p.start} 起投 · 每日复利`;
+    case "fund": return `买入净值 ${fmtNum(p.navBuy,4)} → 当前 ${fmtNum(p.navNow,4)} · ${fmtNum(fundShares(p),2)} 份`+(p.chg?` · 当日 ${fmtPct(p.chg)}`:"");
+    case "custom":
+      const modeMap={"daily-simple":"按日单利","daily-compound":"按日复利","maturity":`到期付息(${p.termMonths||12}个月)`};
+      return `${modeMap[p.mode]||""} · 年化 ${fmtNum(p.rate,2)}%${p.note?" · "+esc(p.note):""}`;
+  }
+  return "";
+}
+
+/* ================= 每日收益日历 ================= */
+function buildDaySeries(past=14, future=14){
+  const days=[]; const today=todayStr();
+  for(let i=-past;i<future;i++){
+    const d = addDays(today, i);
+    const ds = fmtDate(d);
+    let v=0;
+    if(i<0) v = sum(products.map(p=>productPastDay(p,ds)));
+    else if(i===0) v = sum(products.map(p=>productDayEarn(p)));
+    else v = sum(products.map(p=>productFutureDay(p,ds)));
+    days.push({ds, v, future:i>0, past:i<0, today:i===0});
+  }
+  return days;
+}
+function renderCalendar(){
+  const series = buildDaySeries(14,14);
+  const cumView = calView==="cum";
+  let cum=0;
+  const grid = el("calGrid");
+  grid.innerHTML = series.map(s=>{
+    cum += s.v;
+    const show = cumView ? cum : s.v;
+    const cls = (s.today?" today":"") + (s.future?" future":"");
+    const sign = show>=0?"":"-";
+    return `<div class="day${cls}">
+      <div class="d">${s.ds.slice(5)}${s.today?" · 今天":""}</div>
+      <div class="v ${show>=0?"up":"down"}">${sign}¥${fmtNum(Math.abs(show),2)}</div>
+    </div>`;
+  }).join("");
+}
+
+/* ================= 收益曲线 ================= */
+function renderChart(){
+  const cv = el("chart");
+  const ctx = cv.getContext("2d");
+  const W = cv.clientWidth || 800, H = 220;
+  cv.width = W * devicePixelRatio; cv.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+  // 过去60天累计收益 + 未来60天预估累计
+  const past=60, future=60;
+  const labels=[], cum=[]; let c=0;
+  const today=todayStr();
+  for(let i=-past;i<future;i++){
+    const ds = fmtDate(addDays(today,i));
+    let v;
+    if(i<0) v = sum(products.map(p=>productPastDay(p,ds)));
+    else if(i===0) v = sum(products.map(p=>productDayEarn(p)));
+    else v = sum(products.map(p=>productFutureDay(p,ds)));
+    c += v;
+    labels.push(ds); cum.push(c);
+  }
+  // 画布边距
+  const pad={l:50,r:12,t:14,b:24};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const maxV=Math.max(...cum,0), minV=Math.min(...cum,0);
+  const span=(maxV-minV)||1;
+  const y=v=>pad.t + ch - (v-minV)/span*ch;
+  const x=i=>pad.l + i/(cum.length-1)*cw;
+  // 网格
+  ctx.font="10px sans-serif"; ctx.fillStyle="#9ca3af"; ctx.strokeStyle="#eef1f6"; ctx.lineWidth=1;
+  for(let g=0; g<=4; g++){
+    const yy=pad.t+ch*g/4; const val=maxV-(maxV-minV)*g/4;
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(W-pad.r,yy); ctx.stroke();
+    ctx.fillText(fmtNum(val,1), 2, yy+3);
+  }
+  // 过去段（实线）+ 未来段（虚线）
+  const splitIdx = past; // 0-based index of today
+  const draw=(from,to,dash)=>{
+    ctx.beginPath(); ctx.setLineDash(dash);
+    for(let i=from;i<=to;i++){ const px=x(i), py=y(cum[i]); i===from?ctx.moveTo(px,py):ctx.lineTo(px,py); }
+    ctx.stroke();
+  };
+  ctx.strokeStyle="#2563eb"; ctx.lineWidth=2; draw(0,splitIdx,[]);
+  ctx.strokeStyle="#93c5fd"; draw(splitIdx,cum.length-1,[4,4]);
+  // 今天标记
+  ctx.setLineDash([]);
+  ctx.strokeStyle="#f59e0b"; ctx.lineWidth=1.2;
+  ctx.beginPath(); ctx.moveTo(x(splitIdx),pad.t); ctx.lineTo(x(splitIdx),pad.t+ch); ctx.stroke();
+  ctx.fillStyle="#d97706"; ctx.fillText("今天", x(splitIdx)-12, pad.t-3);
+  // 零线
+  if(minV<0 && maxV>0){
+    ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); ctx.moveTo(pad.l,y(0)); ctx.lineTo(W-pad.r,y(0)); ctx.stroke();
+  }
+  // 日期刻度
+  ctx.fillStyle="#9ca3af";
+  const tickN=5;
+  for(let t=0;t<=tickN;t++){
+    const idx=Math.round(t/(tickN)*(cum.length-1));
+    ctx.fillText(labels[idx].slice(5), x(idx)-12, H-6);
+  }
+  const todayE = cum[splitIdx] - (splitIdx>0?cum[splitIdx-1]:0);
+  el("chartLegend").innerHTML = `<b>蓝色实线</b>：过去 ${past} 天累计收益（已实现+摊算）　<b>浅蓝虚线</b>：未来 ${future} 天按当前利率预估　今日收益 ${todayE>=0?"+":""}${fmtMoney(todayE)}`;
+}
+
+/* ================= 资产分布 ================= */
+function renderAlloc(){
+  const box = el("alloc");
+  if(!products.length){ box.innerHTML='<div class="empty">添加产品后显示分布</div>'; return; }
+  const total = sum(products.map(p=>p.principal));
+  const groups={};
+  products.forEach(p=>{ const k=TYPE_META[p.type].label; groups[k]=(groups[k]||0)+p.principal; });
+  const items=Object.entries(groups).sort((a,b)=>b[1]-a[1]);
+  const grand=sum(items.map(i=>i[1]));
+  box.innerHTML = items.map(([k,v])=>{
+    const pct=v/grand*100;
+    return `<div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span>${k}</span><span><b>${fmtMoney(v)}</b> · ${fmtNum(pct,1)}%</span>
+      </div>
+      <div style="height:10px;background:#eef1f6;border-radius:6px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${colorFor(k)};border-radius:6px"></div>
+      </div>
+    </div>`;
+  }).join("");
+}
+function colorFor(k){
+  const map={"银行活期":"#60a5fa","银行定期":"#34d399","货币基金":"#fbbf24","基金":"#a78bfa","自定义":"#94a3b8"};
+  return map[k]||"#94a3b8";
+}
+
+/* ================= 工具 ================= */
+function el(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function closeModal(){ el("modal").classList.remove("show"); editingId=null; }
+function openAdd(){
+  editingId=null;
+  el("modalTitle").textContent="添加理财产品";
+  el("modalSubmit").textContent="保存";
+  el("f_name").value=""; el("f_principal").value=""; el("f_start").value=todayStr();
+  el("f_type").value="moneyfund"; el("f_rate").value=""; el("f_note").value="";
+  el("f_navBuy").value=""; el("f_navNow").value=""; el("f_chg").value="";
+  el("f_mode").value="daily-simple"; el("f_termMonths").value="12";
+  onTypeChange();
+  el("modal").classList.add("show");
+  el("f_name").focus();
+}
+function openEdit(id){
+  const p = products.find(x=>x.id===id); if(!p) return;
+  editingId=id;
+  el("modalTitle").textContent="编辑产品";
+  el("modalSubmit").textContent="保存修改";
+  el("f_name").value=p.name; el("f_principal").value=p.principal; el("f_start").value=p.start;
+  el("f_type").value=p.type; el("f_rate").value=p.rate;
+  el("f_note").value=p.note||"";
+  el("f_navBuy").value=p.navBuy||""; el("f_navNow").value=p.navNow||""; el("f_chg").value=p.chg||"";
+  el("f_mode").value=p.mode||"daily-simple"; el("f_termMonths").value=p.termMonths||12;
+  el("f_term").value=String(p.termMonths||12);
+  el("f_fundCode").value=p.fundCode||"";
+  el("f_fundKw").value="";
+  el("fundResults").innerHTML = p.fundCode ? '<div class="note" style="border-color:#a7f3d0;background:#ecfdf5">已关联基金代码：'+p.fundCode+'</div>' : "";
+  onTypeChange();
+  el("modal").classList.add("show");
+}
+function onTypeChange(){
+  const t = el("f_type").value;
+  el("row_fund").style.display = t==="fund" ? "grid" : "none";
+  el("fundSearchArea").style.display = t==="fund" ? "block" : "none";
+  el("row_custom").style.display = t==="custom" ? "grid" : "none";
+  el("row_rate").style.display = t==="fund" ? "none" : "grid";
+  const isFixed = t==="fixed";
+  el("termWrap").style.display = isFixed ? "block" : "none";
+  el("rateLabel").textContent = t==="moneyfund" ? "七日年化（%）" : (isFixed?"年利率（%）":"年化收益率（%）");
+  // 快捷利率下拉
+  const q = el("f_quick");
+  const showQuick = (t==="demand"||t==="fixed"||t==="moneyfund");
+  el("quickWrap").style.display = showQuick ? "block" : "none";
+  if(showQuick){
+    let opts = '<option value="">— 从利率库选择 —</option>';
+    if(t==="moneyfund"){
+      Object.entries(rates.moneyFunds).forEach(([k,v])=>opts+=`<option value="${v}">${esc(k)}：${fmtNum(v,2)}%</option>`);
+    }else{
+      Object.entries(rates.banks).forEach(([bk,b])=>{
+        if(t==="demand") opts+=`<option value="${b.demand}">${esc(bk)} 活期：${fmtNum(b.demand,2)}%</option>`;
+        else { const tm=el("f_term").value; const r=b.fixed[tm]; if(r!=null) opts+=`<option value="${r}">${esc(bk)} ${tm}个月：${fmtNum(r,2)}%</option>`; }
+      });
+    }
+    q.innerHTML=opts; q.value="";
+  }
+}
+function quickRate(){ const v=el("f_quick").value; if(v) el("f_rate").value=v; }
+function submitForm(){
+  const name = el("f_name").value.trim();
+  const principal = parseFloat(el("f_principal").value);
+  const start = el("f_start").value;
+  const type = el("f_type").value;
+  if(!name){ alert("请填写产品名称"); return; }
+  if(!isFinite(principal) || principal<=0){ alert("请填写有效的投入本金"); return; }
+  if(!start){ alert("请选择起投日期"); return; }
+  const p = { id: editingId||uid(), name, principal, start, type };
+  if(type!=="fund"){
+    const rate = parseFloat(el("f_rate").value);
+    if(!isFinite(rate) || rate<0){ alert("请填写年化收益率（%）"); return; }
+    p.rate = rate;
+  }
+  if(type==="fixed"){ p.termMonths = parseInt(el("f_term").value,10)||12; }
+  if(type==="fund"){
+    const nb=parseFloat(el("f_navBuy").value), nn=parseFloat(el("f_navNow").value);
+    if(!isFinite(nb)||nb<=0){ alert("请填写有效的买入净值"); return; }
+    if(!isFinite(nn)||nn<=0){ alert("请填写有效的当前净值"); return; }
+    p.navBuy=nb; p.navNow=nn;
+    const chg=parseFloat(el("f_chg").value); p.chg=isFinite(chg)?chg:null;
+    p.fundCode = el("f_fundCode").value || "";
+    p.rate = 0;
+  }
+  if(type==="custom"){
+    p.mode = el("f_mode").value;
+    p.termMonths = parseInt(el("f_termMonths").value,10)||12;
+    p.note = el("f_note").value.trim();
+  }
+  if(editingId){ const i=products.findIndex(x=>x.id===editingId); if(i>=0) products[i]=p; }
+  else products.push(p);
+  saveState(); closeModal(); renderAll();
+}
+function delProduct(id){
+  const p=products.find(x=>x.id===id); if(!p) return;
+  if(!confirm(`确定删除「${p.name}」吗？`)) return;
+  products = products.filter(x=>x.id!==id);
+  saveState(); renderAll();
+}
+
+/* ================= 利率库 ================= */
+let rateTab="bank";
+function showRateLib(){ rateTab="bank"; el("rateModal").classList.add("show"); renderRateEditor(); }
+function closeRateLib(){ el("rateModal").classList.remove("show"); }
+function showRateTab(t){ rateTab=t; el("rtab_bank").classList.toggle("active",t==="bank"); el("rtab_fund").classList.toggle("active",t==="fund"); renderRateEditor(); }
+function renderRateEditor(){
+  const box=el("rateEditor");
+  if(rateTab==="bank"){
+    const heads=['<th>银行</th>','<th>活期</th>','<th>3M</th>','<th>6M</th>','<th>1Y</th>','<th>2Y</th>','<th>3Y</th>','<th>5Y</th>'].join("");
+    const rows=Object.entries(rates.banks).map(([bk,b])=>{
+      const inp=(key)=>`<input type="number" step="0.01" min="0" style="width:64px;padding:5px 6px;border:1px solid var(--line);border-radius:6px" data-bank="${esc(bk)}" data-key="${key}" value="${b[key]??0}">`;
+      return `<tr><td><b>${esc(bk)}</b></td><td>${inp("demand")}</td><td>${inp("3")}</td><td>${inp("6")}</td><td>${inp("12")}</td><td>${inp("24")}</td><td>${inp("36")}</td><td>${inp("60")}</td></tr>`;
+    }).join("");
+    box.innerHTML = `<table><thead><tr>${heads}</tr></thead><tbody>${rows}</tbody></table>`;
+  }else{
+    const rows=Object.entries(rates.moneyFunds).map(([k,v])=>{
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f1f3f8">
+        <b style="flex:1">${esc(k)}</b>
+        <span style="color:var(--muted)">七日年化 %</span>
+        <input type="number" step="0.01" min="0" style="width:90px;padding:6px 8px;border:1px solid var(--line);border-radius:6px" data-fund="${esc(k)}" value="${v}">
+      </div>`;
+    }).join("");
+    box.innerHTML = rows;
+  }
+}
+function collectRates(){
+  // 从 DOM 收集（银行）
+  document.querySelectorAll("[data-bank]").forEach(inp=>{
+    const bk=inp.dataset.bank, key=inp.dataset.key;
+    if(!rates.banks[bk]) rates.banks[bk]={demand:0,fixed:{}};
+    const v=parseFloat(inp.value); if(isFinite(v)&&v>=0){
+      if(key==="demand") rates.banks[bk].demand=v; else rates.banks[bk].fixed[key]=v;
+    }
+  });
+  document.querySelectorAll("[data-fund]").forEach(inp=>{
+    const k=inp.dataset.fund, v=parseFloat(inp.value);
+    if(isFinite(v)&&v>=0) rates.moneyFunds[k]=v;
+  });
+}
+function saveRatesFromUI(){ collectRates(); saveRates(); }
+function resetRates(){ rates=JSON.parse(JSON.stringify(DEFAULT_RATES)); renderRateEditor(); }
+
+
+/* ================= 基金搜索 / 刷新净值 / 追加投入 ================= */
+function typeLabel(t){ return ({LOF:"LOF基金",ZS:"指数",GP:"股票",ETF:"ETF",HH:"混合",ZQ:"债券",QDII:"QDII"}[t]||t||"基金"); }
+async function searchFundsUI(){
+  const kw = el("f_fundKw").value.trim();
+  const box = el("fundResults");
+  if(!kw){ alert("请输入基金名称或代码"); return; }
+  if(typeof FundApi==="undefined"){ box.innerHTML='<div class="note">⚠️ 基金数据模块（fund-api）未加载，请确认 fund-api.iife.min.js 与 index.html 在同一目录</div>'; return; }
+  box.innerHTML = '<div class="note">⏳ 搜索中…</div>';
+  try{
+    const list = await FundApi.funds.auto.searchFunds(kw);
+    if(!list || !list.length){ box.innerHTML='<div class="note">未找到相关基金，换个关键词（如基金名称或 6 位代码）试试</div>'; return; }
+    const rows = list.slice(0,20).map(function(it){
+      var safeName = esc(it.name).replace(/'/g,"&#39;");
+      var safeType = esc(it.type||"").replace(/'/g,"&#39;");
+      return '<div class="prod" style="cursor:pointer" onclick="pickFund(\''+it.code+'\',\''+safeName+'\',\''+safeType+'\')">'+
+        '<div class="icon t-fund">📈</div>'+
+        '<div class="info"><div class="name">'+esc(it.name)+'</div><div class="meta">代码 '+esc(it.code)+' · '+esc(typeLabel(it.type))+'</div></div>'+
+        '<div class="actions"><button class="btn btn-primary btn-sm">选择</button></div>'+
+      '</div>';
+    }).join("");
+    box.innerHTML = rows;
+  }catch(e){
+    box.innerHTML = '<div class="note">⚠️ 搜索失败（网络或接口限制）：'+esc(e.message)+'</div>';
+  }
+}
+async function pickFund(code,name,type){
+  el("f_fundCode").value = code;
+  el("f_name").value = name;
+  try{
+    var f = await FundApi.funds.auto.getFund(code);
+    if(f && f.nav){
+      el("f_navNow").value = f.nav;
+      el("f_navBuy").value = f.nav;
+      el("f_chg").value = f.change!=null ? f.change : "";
+      var d = f.navDate||"";
+      el("fundResults").innerHTML = '<div class="note" style="border-color:#a7f3d0;background:#ecfdf5">✅ 已选「'+esc(name)+'」，当前净值 '+f.nav+(d?'（'+d+'）':'')+'，已自动填入买入/当前净值</div>';
+      return;
+    }
+  }catch(e){}
+  el("fundResults").innerHTML = '<div class="note">已选「'+esc(name)+'」（'+esc(code)+'），请手动填写当前净值</div>';
+}
+async function refreshNav(id){
+  var p = products.find(function(x){return x.id===id}); if(!p) return;
+  if(!p.fundCode){ alert("该基金没有关联代码，请编辑后重填"); return; }
+  if(typeof FundApi==="undefined"){ alert("基金数据模块未加载（fund-api.iife.min.js 缺失）"); return; }
+  try{
+    var f = await FundApi.funds.auto.getFund(p.fundCode);
+    if(f && f.nav){
+      p.navNow = f.nav;
+      p.chg = f.change!=null ? f.change : p.chg;
+      saveState(); renderAll();
+      alert('✅ 已更新「'+p.name+'」净值：'+f.nav+(f.navDate?'（'+f.navDate+'）':''));
+    } else { alert("未获取到净值数据"); }
+  }catch(e){ alert("刷新失败："+e.message); }
+}
+function addFund(id){
+  var p = products.find(function(x){return x.id===id}); if(!p) return;
+  var amt = parseFloat(prompt('向「'+p.name+'」追加投入金额（元）：'));
+  if(!isFinite(amt) || amt<=0) return;
+  if(p.type==="fund"){
+    var nav = (p.navNow>0?p.navNow:(p.navBuy||1));
+    var oldShares = (p.navBuy>0) ? p.principal/p.navBuy : 0;
+    var newShares = amt/nav;
+    p.navBuy = (oldShares*p.navBuy + newShares*nav) / (oldShares+newShares);
+    p.principal += amt;
+  } else {
+    p.principal += amt;
+  }
+  saveState(); renderAll();
+  alert('✅ 已追加 '+fmtMoney(amt)+'，当前本金 '+fmtMoney(p.principal));
+}
+
+/* ================= 主流程 ================= */
+function renderAll(){ renderOverview(); renderProducts(); renderCalendar(); renderChart(); renderAlloc(); }
+function setCalView(v){ calView=v; el("tabDay").classList.toggle("active",v==="day"); el("tabCum").classList.toggle("active",v==="cum"); renderCalendar(); }
+function onResize(){ renderChart(); }
+
+loadState();
+renderAll();
+window.addEventListener("resize", onResize);
+
+/* ================= 记账 / 资产 / 打印 ================= */
+const LEDGER_KEY = "licai_ledger_v1";
+const ASSET_KEY = "licai_asset_v1";
+
+const SCENES = {
+  daily:    { label:"🏠 日常", expense:["餐饮","交通","购物","居住","水电煤","通讯","医疗","教育","娱乐","人情","服饰","宠物","其他"] },
+  travel:   { label:"✈️ 旅游", expense:["交通","住宿","餐饮","门票","购物","纪念品","保险","通讯","签证","其他"] },
+  business: { label:"💼 差旅", expense:["交通","住宿","餐饮","通讯","办公","应酬","其他"] },
+  family:   { label:"👨‍👩‍👧 家庭", expense:["餐饮","居住","水电煤","子女","医疗","家居","娱乐","人情","教育","其他"] }
+};
+const INCOME_CATS = ["工资","奖金","理财收益","红包","兼职","报销","退款","其他收入"];
+
+let ledger = { entries: [], accounts: [] };
+let currentScene = "daily";
+let leEditId = null;
+let assetCfg = { debt: 0, monthlyExpense: 0 };
+
+function loadLedger(){
+  try{ const d = JSON.parse(localStorage.getItem(LEDGER_KEY)); if(d && d.entries) ledger = d; }catch(e){}
+  if(!Array.isArray(ledger.accounts) || !ledger.accounts.length){
+    ledger.accounts = ["现金","银行卡","微信","支付宝","余额宝"].map(name=>({name, initial:0}));
+  }
+  try{ const a = JSON.parse(localStorage.getItem(ASSET_KEY)); if(a) assetCfg = Object.assign(assetCfg, a); }catch(e){}
+}
+function saveLedger(){ localStorage.setItem(LEDGER_KEY, JSON.stringify(ledger)); }
+function saveAssetCfg(){ localStorage.setItem(ASSET_KEY, JSON.stringify(assetCfg)); }
+
+/* ---------- 记账：表单 ---------- */
+function setScene(s){
+  currentScene = s;
+  document.querySelectorAll("#sceneTabs .tab").forEach((b,i)=>{
+    b.classList.toggle("active", ["daily","travel","business","family"][i]===s);
+  });
+  refreshCatSelect();
+}
+function refreshCatSelect(){
+  const t = el("le_type").value;
+  const cats = t==="expense" ? SCENES[currentScene].expense : INCOME_CATS;
+  const sel = el("le_cat");
+  sel.innerHTML = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
+}
+function refreshAccountSelect(){
+  const sel = el("le_account");
+  const cur = sel.value;
+  sel.innerHTML = ledger.accounts.map(a=>`<option value="${esc(a.name)}">${esc(a.name)}</option>`).join("");
+  if(cur && ledger.accounts.some(a=>a.name===cur)) sel.value = cur;
+}
+function submitEntry(){
+  const amount = parseFloat(el("le_amount").value);
+  const date = el("le_date").value || todayStr();
+  const type = el("le_type").value;
+  const category = el("le_customCat").value.trim() || el("le_cat").value;
+  const account = el("le_account").value;
+  const note = el("le_note").value.trim();
+  if(!isFinite(amount) || amount<=0){ alert("请填写有效的金额"); return; }
+  if(!category){ alert("请选择或输入分类"); return; }
+  const entry = { id: leEditId || uid(), type, category, amount, date, account, note, scene: currentScene };
+  if(leEditId){ const i = ledger.entries.findIndex(e=>e.id===leEditId); if(i>=0) ledger.entries[i] = entry; leEditId=null; }
+  else ledger.entries.push(entry);
+  saveLedger();
+  el("le_amount").value=""; el("le_note").value=""; el("le_customCat").value="";
+  el("leSubmitBtn").textContent = "＋ 记一笔";
+  el("leEditHint").style.display = "none";
+  renderLedgerAll();
+}
+function editEntry(id){
+  const e = ledger.entries.find(x=>x.id===id); if(!e) return;
+  leEditId = id;
+  el("le_type").value = e.type;
+  el("le_amount").value = e.amount;
+  el("le_date").value = e.date;
+  el("le_account").value = e.account;
+  el("le_note").value = e.note||"";
+  el("le_customCat").value = SCENES[currentScene].expense.includes(e.category)||INCOME_CATS.includes(e.category) ? "" : e.category;
+  refreshCatSelect();
+  if(!(el("le_cat").options && Array.from(el("le_cat").options).some(o=>o.value===e.category))) el("le_customCat").value = e.category;
+  refreshAccountSelect();
+  el("leSubmitBtn").textContent = "💾 保存修改";
+  el("leEditHint").style.display = "inline";
+  el("le_amount").focus();
+}
+function delEntry(id){
+  const e = ledger.entries.find(x=>x.id===id); if(!e) return;
+  if(!confirm(`删除这条记录？\n${e.date} ${e.type==="income"?"收入":"支出"} ¥${fmtNum(e.amount)} ${e.category}`)) return;
+  ledger.entries = ledger.entries.filter(x=>x.id!==id);
+  if(leEditId===id){ leEditId=null; el("leSubmitBtn").textContent="＋ 记一笔"; el("leEditHint").style.display="none"; }
+  saveLedger(); renderLedgerAll();
+}
+function addAccount(){
+  const name = el("as_newAcc").value.trim();
+  if(!name){ alert("请输入账户名称"); return; }
+  if(ledger.accounts.some(a=>a.name===name)){ alert("账户已存在"); return; }
+  const initial = parseFloat(el("as_newAccBal").value) || 0;
+  ledger.accounts.push({name, initial});
+  el("as_newAcc").value=""; el("as_newAccBal").value="";
+  saveLedger(); renderLedgerAll(); renderAsset();
+}
+
+/* ---------- 记账：统计 ---------- */
+function accountBalance(name){
+  const acc = ledger.accounts.find(a=>a.name===name);
+  let bal = acc ? acc.initial : 0;
+  ledger.entries.forEach(e=>{ if(e.account===name) bal += e.type==="income" ? e.amount : -e.amount; });
+  return bal;
+}
+function entriesOfMonth(entries, ym){
+  return entries.filter(e=>e.date.slice(0,7)===ym);
+}
+function renderLedgerAll(){
+  // 本月统计
+  const ym = todayStr().slice(0,7);
+  renderBudget(ym);
+  renderReminders();
+  renderCatBudgetEditor();
+  renderTrend();
+  renderRemindersAll();
+  const me = entriesOfMonth(ledger.entries, ym);
+  const inc = sum(me.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(me.filter(e=>e.type==="expense").map(e=>e.amount));
+  el("leMonthIncome").textContent = fmtMoney(inc);
+  el("leMonthExpense").textContent = fmtMoney(exp);
+  el("leMonthBalance").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
+  el("leMonthHint").textContent = ym.replace("-","年") + "月";
+  el("leCount").textContent = ledger.entries.length;
+  // 分类占比（本月支出）
+  const box = el("leCategoryBars");
+  const fme = entriesOfMonth(filteredEntries(), ym);
+  const fexp = sum(fme.filter(e=>e.type==="expense").map(e=>e.amount));
+  if(!fme.filter(e=>e.type==="expense").length){
+    box.innerHTML = '<div class="empty" style="padding:16px">当前范围内本月还没有支出记录</div>';
+  }else{
+    const m = {};
+    fme.filter(e=>e.type==="expense").forEach(e=>{ m[e.category]=(m[e.category]||0)+e.amount; });
+    const items = Object.entries(m).sort((a,b)=>b[1]-a[1]);
+    box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">本月支出分类占比（'+(ledgerFilter==="all"?"全部场景":(SCENES[ledgerFilter]?SCENES[ledgerFilter].label:"当前范围"))+'）</div>' + items.map(([k,v])=>{
+      const pct = fexp>0 ? v/fexp*100 : 0;
+      return `<div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>${esc(k)}</span><span>${fmtMoney(v)} · ${fmtNum(pct,1)}%</span></div>
+        <div style="height:8px;background:#eef1f6;border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:5px"></div></div>
+      </div>`;
+    }).join("");
+  }
+  // 列表
+  const list = el("leList");
+  const fname = {all:"全部场景",daily:"日常",travel:"旅游",business:"差旅",family:"家庭"}[ledgerFilter]||"全部场景";
+  el("leFilterHint").textContent = "当前筛选：" + fname + (ledgerFilter!=="all" ? "（列表与分类占比仅显示该场景）" : "");
+  const sorted = [...filteredEntries()].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  el("leRangeCount").textContent = sorted.length;
+  if(!sorted.length){
+    list.innerHTML = '<div class="empty">还没有记账记录，用上方表单记第一笔吧</div>';
+  }else{
+    let html = ""; let lastDate = "";
+    sorted.forEach(e=>{
+      if(e.date!==lastDate){
+        const dayInc = sum(sorted.filter(x=>x.date===e.date && x.type==="income").map(x=>x.amount));
+        const dayExp = sum(sorted.filter(x=>x.date===e.date && x.type==="expense").map(x=>x.amount));
+        html += `<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--muted);padding:10px 2px 4px;border-top:1px dashed #eee"><span><b style="color:var(--text)">${esc(e.date)}</b></span><span>支 ${fmtMoney(dayExp)}　收 ${fmtMoney(dayInc)}</span></div>`;
+        lastDate = e.date;
+      }
+      const cls = e.type==="income" ? "up" : "down";
+      const sign = e.type==="income" ? "+" : "-";
+      html += `<div class="prod" style="padding:9px 6px;margin-bottom:0;border:none;border-bottom:1px solid #f1f3f8">
+        <div class="icon ${e.type==="income"?"t-moneyfund":"t-custom"}" style="width:34px;height:34px;font-size:16px">${e.type==="income"?"💹":"💸"}</div>
+        <div class="info"><div class="name" style="font-size:14px">${esc(e.category)} <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(e.scene==="daily"?"日常":SCENES[e.scene]?SCENES[e.scene].label.replace(/^[^ ]+ /,""):"日常")} · ${esc(e.account)}</span></div>
+        <div class="meta">${esc(e.note||"")}</div></div>
+        <div class="nums"><div class="earn ${cls}">${sign}${fmtMoney(e.amount)}</div></div>
+        <div class="actions"><button class="btn btn-ghost btn-sm" onclick="editEntry('${e.id}')">改</button><button class="btn btn-danger btn-sm" onclick="delEntry('${e.id}')">删</button></div>
+      </div>`;
+    });
+    list.innerHTML = html;
+  }
+}
+
+/* ---------- CSV 导出 ---------- */
+function exportCsv(){
+  if(!ledger.entries.length){ alert("没有可导出的记录"); return; }
+  const rows = [["日期","类型","分类","金额","账户","场景","备注"]];
+  ledger.entries.forEach(e=>rows.push([e.date, e.type==="income"?"收入":"支出", e.category, e.amount, e.account, SCENES[e.scene]?SCENES[e.scene].label:"日常", e.note||""]));
+  const csv = rows.map(r=>r.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "记账账单_"+todayStr()+".csv";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+
+/* ---------- 打印账单 ---------- */
+function openPrint(type){
+  const area = el("printArea");
+  const now = todayStr();
+  const gen = "生成时间："+now+"　"+(ledger.entries.length?"共 "+ledger.entries.length+" 条记录":"暂无记录");
+  if(type==="detail") area.innerHTML = printDetail(gen);
+  else if(type==="summary") area.innerHTML = printSummary(gen);
+  else area.innerHTML = printMonthly(gen);
+  window.print();
+}
+function printHeader(title, gen){
+  return `<div class="ph"><h3>${esc(title)}</h3><div class="meta">口袋理财 · 收益管家　|　${esc(gen)}</div></div>`;
+}
+function printDetail(gen){
+  const sorted = [...ledger.entries].sort((a,b)=>a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  let h = printHeader("账单明细", gen);
+  h += `<table><thead><tr><th>序号</th><th>日期</th><th>类型</th><th>分类</th><th>账户</th><th>备注</th><th>金额（元）</th></tr></thead><tbody>`;
+  let inc=0, exp=0;
+  sorted.forEach((e,i)=>{
+    if(e.type==="income") inc+=e.amount; else exp+=e.amount;
+    h += `<tr><td>${i+1}</td><td>${esc(e.date)}</td><td>${e.type==="income"?"收入":"支出"}</td><td>${esc(e.category)}</td><td>${esc(e.account)}</td><td>${esc(e.note||"")}</td><td>${e.type==="income"?"+":"-"}${fmtNum(e.amount)}</td></tr>`;
+  });
+  h += `</tbody></table><div style="margin-top:10px;font-size:12px">支出合计：<b>¥${fmtNum(exp)}</b>　收入合计：<b>¥${fmtNum(inc)}</b>　结余：<b>¥${fmtNum(inc-exp)}</b></div>`;
+  return h;
+}
+function printSummary(gen){
+  let h = printHeader("账单分类汇总", gen);
+  const group = type=>{
+    const m={}; let total=0;
+    ledger.entries.filter(e=>e.type===type).forEach(e=>{ m[e.category]=(m[e.category]||0)+e.amount; total+=e.amount; });
+    const items=Object.entries(m).sort((a,b)=>b[1]-a[1]);
+    let t=`<table><thead><tr><th>分类</th><th>金额（元）</th><th>占比</th></tr></thead><tbody>`;
+    items.forEach(([k,v])=>{ t+=`<tr><td>${esc(k)}</td><td>${fmtNum(v)}</td><td>${total>0?fmtNum(v/total*100,1):"0.0"}%</td></tr>`; });
+    t+=`<tr class="tot"><td>合计</td><td>${fmtNum(total)}</td><td>100%</td></tr></tbody></table>`;
+    return t;
+  };
+  h += `<div class="sec"><h4>支出分类</h4>${group("expense")||"<p>无</p>"}</div>`;
+  h += `<div class="sec"><h4>收入分类</h4>${group("income")||"<p>无</p>"}</div>`;
+  const inc = sum(ledger.entries.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(ledger.entries.filter(e=>e.type==="expense").map(e=>e.amount));
+  h += `<div style="margin-top:10px;font-size:12px">总计：收入 <b>¥${fmtNum(inc)}</b>　支出 <b>¥${fmtNum(exp)}</b>　结余 <b>¥${fmtNum(inc-exp)}</b></div>`;
+  return h;
+}
+function printMonthly(gen){
+  let h = printHeader("月度统计报表", gen);
+  // 按月分组
+  const months = {};
+  ledger.entries.forEach(e=>{ const ym=e.date.slice(0,7); (months[ym]=months[ym]||[]).push(e); });
+  const keys = Object.keys(months).sort().reverse();
+  let t = `<table><thead><tr><th>月份</th><th>收入（元）</th><th>支出（元）</th><th>结余（元）</th><th>记录数</th></tr></thead><tbody>`;
+  if(keys.length){
+    keys.forEach(ym=>{
+      const es=months[ym];
+      const inc=sum(es.filter(e=>e.type==="income").map(e=>e.amount));
+      const exp=sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
+      t+=`<tr><td>${ym}</td><td>${fmtNum(inc)}</td><td>${fmtNum(exp)}</td><td>${fmtNum(inc-exp)}</td><td>${es.length}</td></tr>`;
+    });
+  }else{ t+=`<tr><td colspan="5">暂无数据</td></tr>`; }
+  t += "</tbody></table>";
+  h += `<div class="sec"><h4>月度收支</h4>${t}</div>`;
+  // 资产快照
+  const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
+  const invest = investTotalValue();
+  const total = cash + invest;
+  const debt = assetCfg.debt||0;
+  const net = total - debt;
+  h += `<div class="sec"><h4>资产快照</h4>
+    <table><tbody>
+    <tr><td>现金 / 账户余额</td><td>¥${fmtNum(cash)}</td></tr>
+    <tr><td>理财投资</td><td>¥${fmtNum(invest)}</td></tr>
+    <tr><td>总资产</td><td>¥${fmtNum(total)}</td></tr>
+    <tr><td>总负债</td><td>¥${fmtNum(debt)}</td></tr>
+    <tr class="tot"><td>净资产</td><td>¥${fmtNum(net)}</td></tr>
+    </tbody></table></div>`;
+  return h;
+}
+
+/* ---------- 资产统计与等级评估 ---------- */
+function investTotalValue(){
+  return sum(products.map(p=>p.principal + productEarn(p)));
+}
+function renderAsset(){
+  const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
+  const invest = investTotalValue();
+  const fixed = fixedTotal();
+  const debt = assetCfg.debt||0;
+  const total = cash + invest + fixed;
+  const net = total - debt;
+  el("asTotal").textContent = fmtMoney(total);
+  el("asCash").textContent = fmtMoney(cash);
+  el("asInvest").textContent = fmtMoney(invest);
+  el("asFixed").textContent = fmtMoney(fixed);
+  el("asDebt").textContent = "-" + fmtMoney(debt);
+  el("asNet").textContent = fmtMoney(net);
+  el("asCashNote").textContent = ledger.accounts.length + " 个账户";
+  el("asInvestNote").textContent = products.length + " 个产品";
+  el("asFixedNote").textContent = fixedAssets.length + " 项";
+  el("asTotalNote").textContent = "现金 " + fmtMoney(cash) + " + 理财 " + fmtMoney(invest) + " + 固定 " + fmtMoney(fixed);
+  el("as_debt").value = debt || "";
+  el("as_mexp").value = assetCfg.monthlyExpense || "";
+  // 账户表
+  const accBox = el("asAccounts");
+  if(!ledger.accounts.length){ accBox.innerHTML='<div class="empty">暂无账户</div>'; }
+  else{
+    accBox.innerHTML = `<table><thead><tr><th>账户</th><th>初始余额</th><th>当前余额</th><th></th></tr></thead><tbody>` +
+      ledger.accounts.map(a=>{
+        const bal = accountBalance(a.name);
+        return `<tr><td><b>${esc(a.name)}</b></td><td>${fmtMoney(a.initial||0)}</td><td class="${bal>=0?"up":"down"}">${fmtMoney(bal)}</td><td><button class="btn btn-danger btn-sm" onclick="delAccount('${esc(a.name)}')">删除</button></td></tr>`;
+      }).join("") + `</tbody></table>`;
+  }
+  renderFixed();
+  renderGrade(total, net, cash, invest, fixed);
+}
+function delAccount(name){
+  if(!confirm("删除账户「"+name+"」？该账户的记账记录仍保留")) return;
+  ledger.accounts = ledger.accounts.filter(a=>a.name!==name);
+  saveLedger(); renderLedgerAll(); renderAsset();
+}
+function setDebt(){ assetCfg.debt = parseFloat(el("as_debt").value)||0; saveAssetCfg(); renderAsset(); }
+function setMonthlyExpense(){ assetCfg.monthlyExpense = parseFloat(el("as_mexp").value)||0; saveAssetCfg(); renderAsset(); }
+
+function renderGrade(total, net, cash, invest){
+  const mexp = assetCfg.monthlyExpense||0;
+  const ym = todayStr().slice(0,7);
+  const es = entriesOfMonth(ledger.entries, ym);
+  const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
+  let score=0; const dims=[]; const tips=[];
+  // 1) 净资产规模（30）
+  let s1=0;
+  if(net>=1000000) s1=30; else if(net>=500000) s1=26; else if(net>=200000) s1=21; else if(net>=100000) s1=16; else if(net>=50000) s1=11; else if(net>=10000) s1=6; else s1=2;
+  dims.push({name:"净资产规模", score:s1, max:30, note: net>=1000000?"净资产 ≥ 100 万，财务安全垫充足": net>=100000?"净资产已达 10 万级": net>=10000?"净资产 1 万级，继续积累": "净资产偏低，先建立 1 万元安全垫"});
+  score+=s1;
+  // 2) 现金健康度（25）
+  let s2;
+  if(mexp>0){ if(cash>=mexp*3) s2=25; else if(cash>=mexp*2) s2=20; else if(cash>=mexp) s2=14; else if(cash>=mexp*0.5) s2=8; else s2=3; }
+  else s2=18;
+  dims.push({name:"现金健康度", score:s2, max:25, note: mexp>0 ? (cash>=mexp*3?"现金可覆盖 3 个月以上支出，抗风险能力强": cash>=mexp?"现金可覆盖约 "+fmtNum(cash/mexp,1)+" 个月支出，建议 ≥3 个月":"现金不足 1 个月支出，建议准备 3-6 个月应急金") : "未设置月度固定支出，此项按中性计（建议在资产页填写）"});
+  score+=s2;
+  // 3) 投资占比（25）
+  const investPct = total>0 ? invest/total*100 : 0;
+  let s3;
+  if(total<=0) s3=5;
+  else if(investPct>=20 && investPct<=60) s3=25;
+  else if(investPct>=10 && investPct<20) s3=18;
+  else if(investPct>60 && investPct<=80) s3=18;
+  else if(investPct>0 && investPct<10) s3=10;
+  else s3=5;
+  dims.push({name:"投资配置", score:s3, max:25, note: total>0 ? (investPct>=20&&investPct<=60?"投资占比 "+fmtNum(investPct,1)+"%，配置较合理（20%-60%）": investPct===0?"暂无投资，可考虑按风险偏好配置部分稳健产品":"投资占比 "+fmtNum(investPct,1)+"%，建议结合风险偏好调整") : "暂无资产，先记账攒下第一桶金"});
+  score+=s3;
+  // 4) 储蓄率（20）
+  let s4;
+  if(inc>0){ const rate=(inc-exp)/inc*100; if(rate>=40) s4=20; else if(rate>=20) s4=15; else if(rate>=0) s4=8; else s4=0; }
+  else s4=10;
+  dims.push({name:"储蓄率", score:s4, max:20, note: inc>0 ? (inc-exp>=0?"本月储蓄率 "+fmtNum((inc-exp)/inc*100,1)+"%":"本月支出超过收入，注意控制") : "本月暂无收入记录，按中性计"});
+  score+=s4;
+  // 等级
+  let grade, gcolor, gdesc;
+  if(score>=90){ grade="S"; gcolor="#d97706"; gdesc="资产自由 · 配置优秀"; }
+  else if(score>=75){ grade="A"; gcolor="#059669"; gdesc="资产优秀 · 稳步增值"; }
+  else if(score>=60){ grade="B"; gcolor="#2563eb"; gdesc="资产良好 · 继续积累"; }
+  else if(score>=40){ grade="C"; gcolor="#7c3aed"; gdesc="资产一般 · 有待提升"; }
+  else { grade="D"; gcolor="#dc2626"; gdesc="资产薄弱 · 从记账开始"; }
+  const box = el("asGrade");
+  box.innerHTML = `<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px">
+    <div style="width:96px;height:96px;border-radius:50%;background:${gcolor};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px ${gcolor}44">
+      <span style="font-size:34px;font-weight:800;line-height:1">${grade}</span>
+      <span style="font-size:11px;opacity:.9">${score} 分</span>
+    </div>
+    <div><div style="font-size:18px;font-weight:700;color:${gcolor}">资产等级：${grade} 级 · ${esc(gdesc)}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">净资产 ${fmtMoney(net)} · 总资产 ${fmtMoney(total)} · 现金 ${fmtMoney(cash)} · 投资 ${fmtMoney(invest)}</div></div>
+  </div>` +
+  dims.map(d=>`<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span><b>${esc(d.name)}</b></span><span>${d.score}/${d.max} 分</span></div>
+    <div style="height:9px;background:#eef1f6;border-radius:5px;overflow:hidden"><div style="width:${d.score/d.max*100}%;height:100%;background:${gcolor};border-radius:5px"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(d.note)}</div>
+  </div>`).join("") +
+  `<div class="note"><b>说明：</b>评分基于净资产规模、现金健康度、投资配置、储蓄率四个维度（满分 100），为趣味参考，不构成投资建议；数据来源为你录入的记账与理财信息。</div>`;
+}
+
+/* ---------- 页面切换 ---------- */
+function showPage(name){
+  ["invest","ledger","asset","goal"].forEach(n=>{
+    el("page-"+n).style.display = n===name ? "block" : "none";
+    el("tab-"+n).classList.toggle("active", n===name);
+  });
+  if(name==="ledger"){ if(!el("le_date").value) el("le_date").value=todayStr(); refreshCatSelect(); refreshAccountSelect(); renderLedgerAll(); }
+  if(name==="asset") renderAsset();
+  if(name==="invest") renderAll();
+  if(name==="goal") renderGoalAll();
+}
+
+
+/* ================= 月度预算 / 场景筛选 / 资产负债表 ================= */
+let ledgerFilter = "all";
+function filteredEntries(){
+  if(ledgerFilter==="all") return ledger.entries;
+  return ledger.entries.filter(e=>e.scene===ledgerFilter);
+}
+function setLedgerFilter(f){
+  ledgerFilter = f;
+  const map = {all:0, daily:1, travel:2, business:3, family:4};
+  document.querySelectorAll("#leFilterTabs .tab").forEach((b,i)=>{ b.classList.toggle("active", i===map[f]); });
+  renderLedgerAll();
+}
+function saveBudget(){
+  const v = parseFloat(el("bd_input").value);
+  if(!isFinite(v) || v<0){ alert("请输入有效的预算金额"); return; }
+  ledger.monthlyBudget = v;
+  saveLedger(); renderLedgerAll();
+}
+function clearBudget(){
+  ledger.monthlyBudget = null;
+  el("bd_input").value = "";
+  saveLedger(); renderLedgerAll();
+}
+function renderBudget(ym){
+  const bd = ledger.monthlyBudget;
+  el("bd_input").value = bd!=null ? bd : "";
+  el("bd_clearBtn").style.display = bd!=null ? "inline-block" : "none";
+  const box = el("bd_progress");
+  if(bd==null || bd<=0){
+    box.innerHTML = '<div style="font-size:12px;color:var(--muted)">设置月度预算后，这里会显示使用进度和超支提醒</div>';
+    return;
+  }
+  const used = sum(entriesOfMonth(ledger.entries, ym).filter(e=>e.type==="expense").map(e=>e.amount));
+  const pct = Math.min(100, used/bd*100);
+  const left = bd - used;
+  const over = left < 0;
+  box.innerHTML =
+    '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>已用 <b>'+fmtMoney(used)+'</b> / '+fmtMoney(bd)+'</span>'+
+    '<span class="'+(over?"down":"up")+'"><b>'+(over?"已超支 "+fmtMoney(-left):"剩余 "+fmtMoney(left))+'</b></span></div>'+
+    '<div style="height:10px;background:#eef1f6;border-radius:6px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+(over?"#dc2626":pct>80?"#d97706":"#059669")+';border-radius:6px"></div></div>'+
+    (over?'<div style="font-size:12px;color:var(--red);margin-top:4px">⚠️ 本月支出已超预算 '+fmtMoney(-left)+'，注意控制</div>':'');
+}
+function openBalance(){ el("printArea").innerHTML = printBalance(); window.print(); }
+function printBalance(){
+  const now = todayStr();
+  let out = printHeader("资产负债表", "编制日期："+now+"　单位：元");
+  let cash=0, cashRows="";
+  ledger.accounts.forEach(a=>{
+    const b = accountBalance(a.name); cash += b;
+    cashRows += '<tr><td>'+esc(a.name)+'</td><td>'+fmtNum(b)+'</td></tr>';
+  });
+  let invest=0, invRows="";
+  products.forEach(p=>{
+    const v = p.principal + productEarn(p); invest += v;
+    const t = TYPE_META[p.type]?TYPE_META[p.type].label:"理财";
+    invRows += '<tr><td>'+esc(p.name)+'（'+t+'）</td><td>'+fmtNum(p.principal)+'</td><td>'+fmtNum(productEarn(p))+'</td><td>'+fmtNum(v)+'</td></tr>';
+  });
+  let fixed=0, fixedRows="";
+  fixedAssets.forEach(a=>{ fixed += a.value||0; fixedRows += '<tr><td>'+esc(a.name)+'（'+esc(a.category)+'）</td><td>'+fmtNum(a.value||0)+'</td><td>'+esc(a.note||"")+'</td></tr>'; });
+  const debt = assetCfg.debt||0;
+  const total = cash + invest + fixed;
+  const net = total - debt;
+  out += '<div class="sec"><h4>一、资产</h4><table><thead><tr><th>项目</th><th>账面金额</th><th>备注</th></tr></thead><tbody>'+
+    '<tr><td>现金及银行存款</td><td>'+fmtNum(cash)+'</td><td>'+ledger.accounts.length+' 个账户</td></tr>'+
+    '<tr><td>理财投资</td><td>'+fmtNum(invest)+'</td><td>'+products.length+' 个产品</td></tr>'+
+    '<tr><td>固定资产</td><td>'+fmtNum(fixed)+'</td><td>'+fixedAssets.length+' 项</td></tr>'+
+    '<tr class="tot"><td>资产合计</td><td>'+fmtNum(total)+'</td><td></td></tr></tbody></table></div>';
+  out += '<div class="sec"><h4>二、负债</h4><table><tbody>'+
+    '<tr><td>总负债</td><td>'+fmtNum(debt)+'</td></tr>'+
+    '<tr class="tot"><td>负债合计</td><td>'+fmtNum(debt)+'</td></tr></tbody></table></div>';
+  out += '<div class="sec"><h4>三、净资产</h4><table><tbody>'+
+    '<tr class="tot"><td>净资产（资产 − 负债）</td><td>'+fmtNum(net)+'</td></tr></tbody></table></div>';
+  out += '<div class="sec"><h4>附表 1：账户余额明细</h4><table><thead><tr><th>账户</th><th>当前余额</th></tr></thead><tbody>'+
+    (cashRows||'<tr><td colspan="2">无账户</td></tr>')+'</tbody></table></div>';
+  out += '<div class="sec"><h4>附表 2：理财投资明细</h4><table><thead><tr><th>产品</th><th>本金</th><th>收益</th><th>市值</th></tr></thead><tbody>'+
+    (invRows||'<tr><td colspan="4">无理财产品</td></tr>')+'</tbody></table></div>';
+  out += '<div class="sec"><h4>附表 3：固定资产明细</h4><table><thead><tr><th>资产</th><th>估值</th><th>备注</th></tr></thead><tbody>'+
+    (fixedRows||'<tr><td colspan="3">无固定资产</td></tr>')+'</tbody></table></div>';
+  const ym = now.slice(0,7);
+  const es = entriesOfMonth(ledger.entries, ym);
+  const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
+  out += '<div class="sec"><h4>附表 4：本月收支（'+ym+'）</h4><table><tbody>'+
+    '<tr><td>本月收入</td><td>'+fmtNum(inc)+'</td></tr>'+
+    '<tr><td>本月支出</td><td>'+fmtNum(exp)+'</td></tr>'+
+    '<tr class="tot"><td>本月结余</td><td>'+fmtNum(inc-exp)+'</td></tr></tbody></table></div>';
+  out += '<div style="margin-top:14px;font-size:11px;color:#666">本表由「口袋理财 · 收益管家」根据你录入的数据生成，仅供个人参考；理财市值按当前参数预估，实际以机构结算为准。</div>';
+  return out;
+}
+
+
+/* ================= 固定资产 + 多评级体系 ================= */
+const FIXED_KEY = "licai_fixed_v1";
+let fixedAssets = [];
+let gradeSystem = "grade"; // grade | a10 | score | star
+
+function loadFixed(){
+  try{ fixedAssets = JSON.parse(localStorage.getItem(FIXED_KEY)) || []; }catch(e){ fixedAssets=[]; }
+}
+function saveFixed(){ localStorage.setItem(FIXED_KEY, JSON.stringify(fixedAssets)); }
+function fixedTotal(){ return sum(fixedAssets.map(a=>a.value||0)); }
+
+function addFixed(){
+  const name = el("fx_name").value.trim();
+  const value = parseFloat(el("fx_value").value);
+  if(!name){ alert("请输入资产名称"); return; }
+  if(!isFinite(value) || value<0){ alert("请输入有效的估值金额"); return; }
+  fixedAssets.push({ id: uid(), name, category: el("fx_cat").value, value, date: el("fx_date").value || todayStr(), note: el("fx_note").value.trim() });
+  saveFixed();
+  el("fx_name").value=""; el("fx_value").value=""; el("fx_note").value="";
+  renderFixed(); renderAsset();
+}
+function delFixed(id){
+  const a = fixedAssets.find(x=>x.id===id); if(!a) return;
+  if(!confirm("删除固定资产「"+a.name+"」（估值 "+fmtMoney(a.value)+"）？")) return;
+  fixedAssets = fixedAssets.filter(x=>x.id!==id);
+  saveFixed(); renderFixed(); renderAsset();
+}
+function renderFixed(){
+  const box = el("fxList");
+  el("fx_date").value = el("fx_date").value || todayStr();
+  if(!fixedAssets.length){
+    box.innerHTML = '<div class="empty" style="padding:16px">还没有固定资产，例如房产、汽车、贵金属等</div>';
+    return;
+  }
+  const total = fixedTotal();
+  box.innerHTML = fixedAssets.map(a=>{
+    const icon = {房产:"🏠",汽车:"🚗",贵金属:"🥇",收藏品:"🖼️",数字资产:"🪙",股权:"📄",其他:"📦"}[a.category]||"📦";
+    return `<div class="prod" style="padding:10px 8px">
+      <div class="icon t-custom" style="background:#f0fdf4">${icon}</div>
+      <div class="info">
+        <div class="name" style="font-size:14px">${esc(a.name)} <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(a.category)} · ${esc(a.date)}</span></div>
+        <div class="meta">${esc(a.note||"")}</div>
+      </div>
+      <div class="nums"><div class="earn">${fmtMoney(a.value)}</div><div class="principal">估值</div></div>
+      <div class="actions"><button class="btn btn-danger btn-sm" onclick="delFixed('${a.id}')">删除</button></div>
+    </div>`;
+  }).join("") + `<div style="text-align:right;font-size:13px;margin-top:8px">固定资产合计：<b>${fmtMoney(total)}</b>（${fixedAssets.length} 项）</div>`;
+}
+
+/* ---------- 多评级体系 ---------- */
+function setGradeSystem(s){
+  gradeSystem = s;
+  const map = {grade:0, a10:1, credit:2, score:3, star:4};
+  document.querySelectorAll("#gradeTabs .tab").forEach((b,i)=>{ b.classList.toggle("active", i===map[s]); });
+  renderAsset();
+}
+function gradeBadge(score){
+  if(gradeSystem==="credit"){
+    // 三等九级信用评级（中国人民银行规定的主流标准，AAA 最优）
+    const G = [
+      {label:"AAA", color:"#d97706", desc:"资产质量极优，财务安全垫充足（90–100 分）"},
+      {label:"AA",  color:"#059669", desc:"资产质量优秀，抗风险能力强（80–89 分）"},
+      {label:"A",   color:"#2563eb", desc:"资产质量良好，较为稳健（70–79 分）"},
+      {label:"BBB", color:"#0d9488", desc:"资产质量一般，需持续积累（60–69 分）"},
+      {label:"BB",  color:"#7c3aed", desc:"资产质量偏弱，处于投机区间（50–59 分）"},
+      {label:"B",   color:"#db2777", desc:"资产质量较弱，需要改善（40–49 分）"},
+      {label:"CCC", color:"#dc2626", desc:"资产质量很差，风险较高（30–39 分）"},
+      {label:"CC",  color:"#b91c1c", desc:"资产质量极差（20–29 分）"},
+      {label:"C",   color:"#7f1d1d", desc:"资产基础薄弱，从记账重新开始（<20 分）"}
+    ];
+    const idx = score>=90?0 : score>=80?1 : score>=70?2 : score>=60?3 : score>=50?4 : score>=40?5 : score>=30?6 : score>=20?7 : 8;
+    return G[idx];
+  }
+  if(gradeSystem==="score"){
+    return { label: score+" 分", color:"#2563eb", desc: score>=90?"资产极优": score>=75?"资产优秀": score>=60?"资产良好": score>=40?"资产一般":"资产待提升" };
+  }
+  if(gradeSystem==="star"){
+    const n = Math.max(1, Math.min(5, Math.round(score/20)));
+    const stars = "★".repeat(n) + "☆".repeat(5-n);
+    const descs = {5:"五星 · 非常优秀",4:"四星 · 表现良好",3:"三星 · 中等水平",2:"两星 · 有待提升",1:"一星 · 从基础开始"};
+    return { label: stars, color:"#f59e0b", desc: descs[n] };
+  }
+  const g = score>=90 ? {label:"S",color:"#d97706",desc:"资产自由 · 配置优秀"} : score>=75 ? {label:"A",color:"#059669",desc:"资产优秀 · 稳步增值"} : score>=60 ? {label:"B",color:"#2563eb",desc:"资产良好 · 继续积累"} : score>=40 ? {label:"C",color:"#7c3aed",desc:"资产一般 · 有待提升"} : {label:"D",color:"#dc2626",desc:"资产薄弱 · 从记账开始"};
+  return g;
+}
+function renderGrade(total, net, cash, invest, fixed){
+  if(gradeSystem==="a10"){ renderAssetGrade(net, fixed); return; }
+  const mexp = assetCfg.monthlyExpense||0;
+  const ym = todayStr().slice(0,7);
+  const es = entriesOfMonth(ledger.entries, ym);
+  const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
+  let score=0; const dims=[]; const tips=[];
+  // 1) 净资产规模（30）
+  let s1=0;
+  if(net>=1000000) s1=30; else if(net>=500000) s1=26; else if(net>=200000) s1=21; else if(net>=100000) s1=16; else if(net>=50000) s1=11; else if(net>=10000) s1=6; else s1=2;
+  dims.push({name:"净资产规模", score:s1, max:30, note: net>=1000000?"净资产 ≥ 100 万，财务安全垫充足": net>=100000?"净资产已达 10 万级": net>=10000?"净资产 1 万级，继续积累": "净资产偏低，先建立 1 万元安全垫"});
+  score+=s1;
+  // 2) 现金健康度（25）
+  let s2;
+  if(mexp>0){ if(cash>=mexp*3) s2=25; else if(cash>=mexp*2) s2=20; else if(cash>=mexp) s2=14; else if(cash>=mexp*0.5) s2=8; else s2=3; }
+  else s2=18;
+  dims.push({name:"现金健康度", score:s2, max:25, note: mexp>0 ? (cash>=mexp*3?"现金可覆盖 3 个月以上支出，抗风险能力强": cash>=mexp?"现金可覆盖约 "+fmtNum(cash/mexp,1)+" 个月支出，建议 ≥3 个月":"现金不足 1 个月支出，建议准备 3-6 个月应急金") : "未设置月度固定支出，此项按中性计（建议在资产页填写）"});
+  score+=s2;
+  // 3) 投资配置（25）——理财占（现金+理财+固定资产）比例
+  const investBase = cash + invest + fixed;
+  const investPct = investBase>0 ? invest/investBase*100 : 0;
+  let s3;
+  if(investBase<=0) s3=5;
+  else if(investPct>=20 && investPct<=60) s3=25;
+  else if(investPct>=10 && investPct<20) s3=18;
+  else if(investPct>60 && investPct<=80) s3=18;
+  else if(investPct>0 && investPct<10) s3=10;
+  else s3=5;
+  dims.push({name:"投资配置", score:s3, max:25, note: investBase>0 ? (investPct>=20&&investPct<=60?"投资占比 "+fmtNum(investPct,1)+"%，配置较合理（20%-60%）": investPct===0?"暂无投资，可考虑配置部分稳健产品":"投资占比 "+fmtNum(investPct,1)+"%，建议结合风险偏好调整") : "暂无资产，先记账攒下第一桶金"});
+  score+=s3;
+  // 4) 储蓄率（20）
+  let s4;
+  if(inc>0){ const rate=(inc-exp)/inc*100; if(rate>=40) s4=20; else if(rate>=20) s4=15; else if(rate>=0) s4=8; else s4=0; }
+  else s4=10;
+  dims.push({name:"储蓄率", score:s4, max:20, note: inc>0 ? (inc-exp>=0?"本月储蓄率 "+fmtNum((inc-exp)/inc*100,1)+"%":"本月支出超过收入，注意控制") : "本月暂无收入记录，按中性计"});
+  score+=s4;
+  // 等级（按所选体系）
+  const g = gradeBadge(score);
+  const sysName = {grade:"S/A/B/C/D 四级", a10:"A1–A10 资产段位（网络版）", credit:"AAA–C 信用评级（三等九级）", score:"百分制", star:"五星制"}[gradeSystem];
+  const box = el("asGrade");
+  box.innerHTML = `<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px">
+    <div style="width:96px;height:96px;border-radius:50%;background:${g.color};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px ${g.color}44">
+      <span style="font-size:24px;font-weight:800;line-height:1.2;text-align:center;padding:0 6px">${esc(g.label)}</span>
+      <span style="font-size:11px;opacity:.9">${score} 分</span>
+    </div>
+    <div><div style="font-size:18px;font-weight:700;color:${g.color}">资产等级：${esc(g.label)} · ${esc(g.desc)}</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:4px">当前评级体系：${sysName}　（点击上方页签切换）</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:2px">净资产 ${fmtMoney(net)} · 总资产 ${fmtMoney(total)} · 现金 ${fmtMoney(cash)} · 投资 ${fmtMoney(invest)} · 固定 ${fmtMoney(fixed)}</div></div>
+  </div>` +
+  dims.map(d=>`<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px"><span><b>${esc(d.name)}</b></span><span>${d.score}/${d.max} 分</span></div>
+    <div style="height:9px;background:#eef1f6;border-radius:5px;overflow:hidden"><div style="width:${d.score/d.max*100}%;height:100%;background:${g.color};border-radius:5px"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(d.note)}</div>
+  </div>`).join("") +
+  `<div class="note"><b>说明：</b>评分基于净资产规模、现金健康度、投资配置、储蓄率四个维度（满分 100），可切换多种评级呈现方式；数据来源为你录入的记账、理财与固定资产信息，为趣味参考，不构成投资建议。</div>`;
+}
+
+
+/* A1-A10 网络资产段位：A=Asset，数字=资产位数（A7.5=500万） */
+function renderAssetGrade(net, fixed){
+  const box = el("asGrade");
+  const neg = net < 0;
+  const absNet = Math.abs(net);
+  let digits = 1, first = 0;
+  if(absNet >= 10){ digits = Math.floor(Math.log10(absNet)) + 1; first = Math.floor(absNet / Math.pow(10, digits-1)); }
+  else { first = Math.floor(absNet); }
+  const lvl = Math.max(1, Math.min(10, digits));
+  const labels = {1:"零钱",2:"月光 / 学生",3:"攒钱起步",4:"困难户",5:"温饱层",6:"小资",7:"中产",8:"富裕群体",9:"高净值人士",10:"顶尖富豪"};
+  const descs = {1:"个位资产（0–9 元）",2:"十位资产（10–99 元）",3:"百位资产（100–999 元）",4:"千位资产（1,000–9,999 元）",5:"万位资产（1 万–9.9 万）",6:"十万位资产（10 万–99.9 万）",7:"百万位资产（100 万–999 万）",8:"千万位资产（1,000 万–9,999 万）",9:"亿位资产（1 亿–9.99 亿）",10:"十亿位资产（10 亿以上）"};
+  const colors = {1:"#94a3b8",2:"#64748b",3:"#7c3aed",4:"#7c3aed",5:"#7c3aed",6:"#2563eb",7:"#059669",8:"#059669",9:"#d97706",10:"#d97706"};
+  const detail = neg ? "A0" : "A"+digits+"."+first;
+  const next = Math.pow(10, digits);
+  const gap = neg ? absNet : (net >= 1e10 ? 0 : next - net);
+  const gapTxt = neg ? "净资产为负，先储蓄还债，再开始积累" :
+    (lvl >= 10 ? "已进入十亿级（A10），网络段位顶点 🎉" :
+     "距升到 A"+(lvl+1)+"（"+fmtMoney(next)+"）还差 "+fmtMoney(gap));
+  box.innerHTML = '<div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:14px">'+
+    '<div style="width:104px;height:104px;border-radius:50%;background:'+colors[lvl]+';color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 6px 18px '+colors[lvl]+'44">'+
+      '<span style="font-size:30px;font-weight:800;line-height:1.1">'+detail+'</span>'+
+      '<span style="font-size:11px;opacity:.9">净资产段位</span>'+
+    '</div>'+
+    '<div style="flex:1;min-width:220px">'+
+      '<div style="font-size:18px;font-weight:700;color:'+colors[lvl]+'">网络资产段位：A'+lvl+' · '+labels[lvl]+'</div>'+
+      '<div style="font-size:13px;color:var(--muted);margin-top:4px">'+descs[lvl]+' · 净资产 '+fmtMoney(net)+'（含固定资产 '+fmtMoney(fixed)+'）</div>'+
+      '<div style="font-size:13px;margin-top:4px"><b>'+gapTxt+'</b></div>'+
+    '</div></div>'+
+    '<div class="note"><b>说明：</b>这是网络流行的"A 系列财富段位"评估法——A=Asset（资产），数字=资产位数（首位作为小数），例如 A7.5 表示 500 万；A1 最低（零钱），A10=10 亿以上（顶尖富豪）。按你的<b>净资产</b>（现金 + 理财 + 固定资产 − 负债）自动评估，仅供娱乐参考，不构成投资建议。</div>';
+}
+
+
+/* ================= 微信/支付宝账单导入 ================= */
+const IMPORTED_KEY = "licai_imported_v1";
+let importState = null;
+
+function openImport(){
+  el("importModal").classList.add("show");
+  el("imp_preview").innerHTML = "";
+  el("imp_opts").style.display = "none";
+  el("imp_confirm").style.display = "none";
+  el("imp_file").value = "";
+  importState = null;
+  el("imp_account").innerHTML = ledger.accounts.map(a=>`<option value="${esc(a.name)}">${esc(a.name)}</option>`).join("");
+}
+function closeImport(){ el("importModal").classList.remove("show"); importState=null; }
+
+function readBillText(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onerror = ()=>reject(new Error("读取文件失败"));
+    r.onload = ()=>{
+      const buf = new Uint8Array(r.result);
+      try{
+        let text = new TextDecoder("utf-8", {fatal:true}).decode(buf);
+        if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
+        resolve(text);
+      }catch(e){
+        try{ resolve(new TextDecoder("gb18030").decode(buf)); }
+        catch(e2){ reject(new Error("无法解码文件编码（请另存为 UTF-8）")); }
+      }
+    };
+    r.readAsArrayBuffer(file);
+  });
+}
+function parseCSV(text){
+  const rows=[]; let row=[], cur="", inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){ if(text[i+1]==='"'){ cur+='"'; i++; } else inQ=false; }
+      else cur+=c;
+    }else{
+      if(c==='"') inQ=true;
+      else if(c===','){ row.push(cur); cur=""; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=""; }
+      else if(c!=='\r') cur+=c;
+    }
+  }
+  if(cur.length || row.length){ row.push(cur); rows.push(row); }
+  return rows.filter(r=>r.some(c=>c.trim()!==""));
+}
+function detectPlatform(rows){
+  for(const r of rows){
+    const j=r.join(" ");
+    if(j.includes("交易时间") && j.includes("收/支")){
+      if(j.includes("交易单号")) return "wechat";
+      if(j.includes("交易订单号")) return "alipay";
+      return j.includes("商品") ? "wechat" : "alipay";
+    }
+  }
+  return null;
+}
+function findHeader(rows){
+  for(let i=0;i<rows.length;i++){ if(rows[i].join(",").includes("交易时间") && rows[i].join(",").includes("收/支")) return i; }
+  return -1;
+}
+function cleanMoney(s){
+  const n = parseFloat(String(s||"").replace(/[¥￥,\s]/g,""));
+  return isFinite(n) ? n : 0;
+}
+function mapBillCategory(text){
+  const t = String(text||"");
+  const rules = [
+    ["餐饮",["餐饮","吃饭","餐厅","美食","外卖","咖啡","奶茶","肯德基","麦当劳","必胜客","小吃","饭店","食堂","美团","饿了么","夜宵","早餐","午餐","晚餐","汉堡","面馆","蛋糕","面包"]],
+    ["交通",["出行","打车","滴滴","地铁","公交","高铁","火车","机票","加油","停车","单车","租车","运输","交通","油费","高速","顺风车","船票","航空"]],
+    ["购物",["超市","便利店","购物","百货","淘宝","天猫","京东","拼多多","商场","零售","沃尔玛","永辉","盒马","零食","日用品","商店"]],
+    ["居住",["房租","物业","水电","燃气","供暖","水费","电费","煤气"]],
+    ["通讯",["话费","流量","宽带","移动","联通","电信","充值","通信"]],
+    ["医疗",["医院","药店","诊所","医疗","药品","挂号","门诊","体检","医药"]],
+    ["娱乐",["电影","游戏","视频","会员","KTV","娱乐","直播","音乐","门票","景区","演出","抖音","爱奇艺","腾讯视频","网易云"]],
+    ["教育",["教育","培训","课程","学费","书","网课","考试","书店"]],
+    ["服饰",["服饰","服装","衣服","鞋","箱包","穿搭","优衣库","耐克","阿迪"]],
+    ["人情",["红包","转账","礼金","礼物","份子","随礼"]]
+  ];
+  for(const [cat, keys] of rules){ if(keys.some(k=>t.includes(k))) return cat; }
+  return "其他";
+}
+function parseBill(rows, platform){
+  const hi = findHeader(rows);
+  if(hi<0) return [];
+  const head = rows[hi];
+  const idx = {};
+  head.forEach((h,i)=>{ idx[h.trim().replace(/^"|"$/g,"")] = i; });
+  const entries = [];
+  const g = (r,k)=>{ const j=idx[k]; return (j!=null && j<r.length) ? r[j].replace(/^"|"$/g,"") : ""; };
+  for(let i=hi+1;i<rows.length;i++){
+    const r = rows[i];
+    const date = g(r,"交易时间").trim();
+    const type = g(r,"收/支").trim();
+    const rawAmount = g(r,"金额(元)") || g(r,"金额");
+    const status = (g(r,"当前状态")||g(r,"交易状态")).trim();
+    if(!/^\d{4}-\d{2}-\d{2}/.test(date)) continue;
+    if(status && status.includes("退款") && !type) continue;
+    const amt = cleanMoney(rawAmount);
+    if(amt<=0) continue;
+    let etype;
+    if(type.includes("收入")) etype="income";
+    else if(type.includes("支出")) etype="expense";
+    else continue;
+    const item = platform==="wechat" ? g(r,"商品") : g(r,"商品说明");
+    const peer = g(r,"交易对方");
+    const catText = platform==="wechat" ? (item+" "+peer) : (g(r,"交易分类")+" "+item+" "+peer);
+    const noteParts = [peer, item, platform==="wechat" ? g(r,"交易类型") : g(r,"交易分类")].filter(Boolean).join(" · ");
+    const tid = (platform==="wechat" ? g(r,"交易单号") : g(r,"交易订单号")).trim();
+    entries.push({ date: date.slice(0,10), type: etype, category: mapBillCategory(catText), amount: amt, note: noteParts.slice(0,80), tid });
+  }
+  return entries;
+}
+function entryDedupKey(e){ return e.tid || (e.date+"|"+e.type+"|"+Math.round(e.amount*100)+"|"+e.note); }
+function dedupImported(entries){
+  let ids=[]; try{ ids = JSON.parse(localStorage.getItem(IMPORTED_KEY))||[]; }catch(err){}
+  const idSet = new Set(ids);
+  const newEntries=[]; let skipped=0;
+  for(const e of entries){
+    const key = entryDedupKey(e);
+    if(idSet.has(key)){ skipped++; continue; }
+    idSet.add(key); newEntries.push(e);
+  }
+  return { newEntries, skipped, ids: Array.from(idSet) };
+}
+async function onFileSelected(){
+  const f = el("imp_file").files && el("imp_file").files[0];
+  if(!f) return;
+  el("imp_preview").innerHTML = '<div class="note">⏳ 正在解析…</div>';
+  try{
+    const text = await readBillText(f);
+    const rows = parseCSV(text);
+    const platform = detectPlatform(rows);
+    if(!platform){
+      el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 无法识别账单格式：未找到「交易时间 / 收/支」表头。请确认是微信支付或支付宝导出的 CSV 文件。</div>';
+      return;
+    }
+    const entries = parseBill(rows, platform);
+    const dedup = dedupImported(entries);
+    importState = { platform, entries: dedup.newEntries, rawCount: entries.length };
+    el("imp_platform").value = platform==="wechat" ? "微信支付" : "支付宝";
+    el("imp_opts").style.display = "grid";
+    const inc = sum(dedup.newEntries.filter(e=>e.type==="income").map(e=>e.amount));
+    const exp = sum(dedup.newEntries.filter(e=>e.type==="expense").map(e=>e.amount));
+    let prev = '<div class="note" style="border-color:#a7f3d0;background:#ecfdf5">识别为 <b>'+(platform==="wechat"?"微信支付":"支付宝")+'</b> 账单：共解析 <b>'+entries.length+'</b> 条，去重后新增 <b>'+dedup.newEntries.length+'</b> 条（跳过已导入 '+dedup.skipped+' 条）<br>新增支出 <b>'+fmtMoney(exp)+'</b> · 收入 <b>'+fmtMoney(inc)+'</b></div>';
+    prev += '<div style="max-height:280px;overflow:auto;margin-top:10px"><table><thead><tr><th>日期</th><th>收/支</th><th>分类</th><th>金额</th><th>备注</th></tr></thead><tbody>' +
+      dedup.newEntries.slice(0,80).map(e=>'<tr><td>'+e.date+'</td><td>'+(e.type==="income"?"收入":"支出")+'</td><td>'+esc(e.category)+'</td><td>'+(e.type==="income"?"+":"-")+fmtNum(e.amount)+'</td><td>'+esc(e.note)+'</td></tr>').join("") +
+      '</tbody></table></div>';
+    if(dedup.newEntries.length>80) prev += '<div style="font-size:12px;color:var(--muted)">…共 '+dedup.newEntries.length+' 条（仅预览前 80 条）</div>';
+    if(!dedup.newEntries.length) prev = '<div class="note">所有记录都已导入过，无需重复导入</div>';
+    el("imp_preview").innerHTML = prev;
+    el("imp_confirm").style.display = dedup.newEntries.length ? "inline-block" : "none";
+  }catch(err){
+    el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 解析失败：'+esc(err.message)+'</div>';
+  }
+}
+function doImport(){
+  if(!importState || !importState.entries.length){ alert("没有可导入的记录"); return; }
+  const account = el("imp_account").value;
+  const scene = el("imp_scene").value;
+  importState.entries.forEach(e=>{
+    ledger.entries.push({ id: uid(), type:e.type, category:e.category, amount:e.amount, date:e.date, account, note:e.note, scene });
+  });
+  let ids=[]; try{ ids = JSON.parse(localStorage.getItem(IMPORTED_KEY))||[]; }catch(err){}
+  ids = Array.from(new Set(ids.concat(importState.entries.map(entryDedupKey))));
+  localStorage.setItem(IMPORTED_KEY, JSON.stringify(ids));
+  const n = importState.entries.length;
+  saveLedger();
+  closeImport();
+  renderLedgerAll();
+  alert("✅ 成功导入 "+n+" 条账单到「"+account+"」");
+}
+
+
+/* ================= 攒钱目标管理 ================= */
+const GOAL_KEY = "licai_goals_v1";
+let goals = [];
+
+function loadGoals(){
+  try{ goals = JSON.parse(localStorage.getItem(GOAL_KEY)) || []; }catch(e){ goals=[]; }
+}
+function saveGoals(){ localStorage.setItem(GOAL_KEY, JSON.stringify(goals)); }
+function goalMonthsLeft(deadline){
+  const t = new Date(deadline+"T00:00:00"), n = new Date();
+  return (t - n) / (1000*60*60*24*30.4375);
+}
+function addGoal(){
+  const name = el("gl_name").value.trim();
+  const target = parseFloat(el("gl_target").value);
+  const deadline = el("gl_deadline").value;
+  if(!name){ alert("请输入目标名称"); return; }
+  if(!isFinite(target) || target<=0){ alert("请输入有效的目标金额"); return; }
+  if(!deadline){ alert("请选择目标日期"); return; }
+  const saved = parseFloat(el("gl_saved").value) || 0;
+  const monthly = parseFloat(el("gl_monthly").value) || 0;
+  goals.push({ id: uid(), name, icon: el("gl_icon").value, target, deadline, saved, monthly });
+  saveGoals();
+  el("gl_name").value=""; el("gl_target").value=""; el("gl_deadline").value=""; el("gl_saved").value=""; el("gl_monthly").value="";
+  renderGoalAll();
+}
+function delGoal(id){
+  const g = goals.find(x=>x.id===id); if(!g) return;
+  if(!confirm("删除目标「"+g.name+"」？")) return;
+  goals = goals.filter(x=>x.id!==id);
+  saveGoals(); renderGoalAll();
+}
+function investGoal(id){
+  const g = goals.find(x=>x.id===id); if(!g) return;
+  const amt = parseFloat(prompt("向「"+g.name+"」投入金额（元）："));
+  if(!isFinite(amt) || amt<=0) return;
+  g.saved += amt;
+  saveGoals(); renderGoalAll();
+  if(g.saved >= g.target) alert("🎉 恭喜！「"+g.name+"」已达成目标！");
+  else alert("✅ 已投入 "+fmtMoney(amt)+"，当前进度 "+fmtNum(g.saved/g.target*100,1)+"%");
+}
+function renderGoalAll(){
+  const totalSaved = sum(goals.map(g=>g.saved));
+  const totalTarget = sum(goals.map(g=>g.target));
+  const done = goals.filter(g=>g.saved>=g.target).length;
+  el("glSaved").textContent = fmtMoney(totalSaved);
+  el("glTarget").textContent = fmtMoney(totalTarget);
+  el("glRemain").textContent = fmtMoney(Math.max(0,totalTarget-totalSaved));
+  el("glDone").textContent = done;
+  el("glTotalPct").textContent = totalTarget>0 ? fmtNum(totalSaved/totalTarget*100,1)+"%" : "0%";
+  el("glTotalNote").textContent = goals.length + " 个目标" + (done? " · 已达成 "+done+" 个 🎉" : "");
+  el("glRemainNote").textContent = totalTarget>0 ? "还差 "+(goals.length-done)+" 个目标未达成" : "添加目标开始规划";
+  const box = el("glList");
+  if(!goals.length){
+    box.innerHTML = '<div class="empty" style="padding:20px">还没有目标。先定一个小目标：比如 3 个月攒 1 万应急金 💪</div>';
+    return;
+  }
+  box.innerHTML = goals.map(g=>{
+    const pct = g.target>0 ? Math.min(100, g.saved/g.target*100) : 0;
+    const remain = Math.max(0, g.target-g.saved);
+    const monthsLeft = goalMonthsLeft(g.deadline);
+    const doneFlag = g.saved>=g.target;
+    let calcLine;
+    if(doneFlag){
+      calcLine = '<span style="color:var(--green);font-weight:700">🎉 已达成目标！</span>';
+    }else if(monthsLeft<=0){
+      calcLine = '<span style="color:var(--red)">⚠️ 已过目标日期，还需 '+fmtMoney(remain)+'</span>';
+    }else{
+      const needPerMonth = remain/monthsLeft;
+      const ml = Math.ceil(monthsLeft);
+      let eta = "";
+      if(g.monthly>0){
+        const etaMonths = Math.ceil(remain/g.monthly);
+        const etaDate = addDays(todayStr(), Math.round(etaMonths*30.4375));
+        eta = " · 按每月 "+fmtMoney(g.monthly)+" 投入，预计 <b>"+fmtDate(etaDate).slice(0,7)+"</b> 达成";
+        if(etaMonths<=ml) calcLine = '剩余 <b>'+ml+' 个月</b>，每月需存 <b>'+fmtMoney(needPerMonth)+'</b>，你的计划可行 ✅'+eta;
+        else calcLine = '剩余 <b>'+ml+' 个月</b>，按当前计划（每月 '+fmtMoney(g.monthly)+'）<b>无法按期达成</b>，需每月至少 <b>'+fmtMoney(needPerMonth)+'</b>'+eta;
+      }else{
+        calcLine = '剩余 <b>'+ml+' 个月</b>，平均每月需存 <b>'+fmtMoney(needPerMonth)+'</b>'+(g.monthly>0?"":"（可填「每月计划投入」查看预计达成日期）");
+      }
+    }
+    return '<div class="card" style="margin-bottom:12px;padding:14px">'+
+      '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">'+
+        '<div style="font-size:30px">'+esc(g.icon)+'</div>'+
+        '<div style="flex:1;min-width:180px">'+
+          '<div style="font-weight:700;font-size:15px">'+esc(g.name)+'</div>'+
+          '<div style="font-size:12px;color:var(--muted)">目标 '+fmtMoney(g.target)+' · 已存 '+fmtMoney(g.saved)+' · 目标日期 '+esc(g.deadline)+'</div>'+
+        '</div>'+
+        '<div style="text-align:right"><div style="font-size:20px;font-weight:800;color:var(--primary)">'+fmtNum(pct,1)+'%</div><div style="font-size:12px;color:var(--muted)">'+fmtMoney(remain)+'</div></div>'+
+        '<div class="actions">'+
+          '<button class="btn btn-ghost btn-sm" onclick="investGoal(\''+g.id+'\')">💰 投入</button>'+
+          '<button class="btn btn-danger btn-sm" onclick="delGoal(\''+g.id+'\')">删除</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="height:12px;background:#eef1f6;border-radius:8px;overflow:hidden;margin:10px 0 8px"><div style="width:'+pct+'%;height:100%;background:'+(doneFlag?"#059669":pct>=80?"#d97706":"#2563eb")+';border-radius:8px"></div></div>'+
+      '<div style="font-size:13px;color:var(--text)">'+calcLine+'</div>'+
+    '</div>';
+  }).join("");
+}
+
+
+/* ================= 导入提示 / 花费限制提醒 ================= */
+function toggleImportHint(){
+  const body = el("importHintBody");
+  const show = body.style.display !== "none";
+  body.style.display = show ? "none" : "block";
+  el("importHintToggle").textContent = show ? "展开 ▼" : "收起 ▼";
+}
+function saveDailyLimit(){
+  const v = parseFloat(el("dl_input").value) || 0;
+  ledger.dailyLimit = v>0 ? v : null;
+  saveLedger(); renderLedgerAll();
+}
+function collectCatBudgets(){
+  const map = {};
+  document.querySelectorAll(".cb-input").forEach(inp=>{
+    const v = parseFloat(inp.value) || 0;
+    if(v>0) map[inp.dataset.cat] = v;
+  });
+  return map;
+}
+function saveCatBudgets(){
+  ledger.catBudgets = collectCatBudgets();
+  saveLedger(); renderLedgerAll();
+  alert("✅ 分类限额已保存，超支会自动提醒");
+}
+function renderCatBudgetEditor(){
+  const box = el("catBudgetEditor");
+  const cats = ["餐饮","交通","购物","居住","通讯","医疗","娱乐","教育","服饰","人情","其他"];
+  const ym = todayStr().slice(0,7);
+  const used = {};
+  ledger.entries.filter(e=>e.type==="expense" && e.date.slice(0,7)===ym).forEach(e=>{ used[e.category]=(used[e.category]||0)+e.amount; });
+  const budgets = ledger.catBudgets||{};
+  box.innerHTML = '<table><thead><tr><th>分类</th><th>本月已用</th><th>月限额（元）</th><th>进度</th></tr></thead><tbody>' +
+    cats.map(c=>{
+      const u = used[c]||0;
+      const limit = budgets[c]||0;
+      const pct = limit>0 ? Math.min(100, u/limit*100) : 0;
+      const over = limit>0 && u>limit;
+      const warn = limit>0 && !over && pct>=80;
+      const bar = limit>0
+        ? '<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:8px;background:#eef1f6;border-radius:5px;overflow:hidden"><div style="width:'+pct+'%;height:100%;background:'+(over?"#dc2626":warn?"#d97706":"#059669")+';border-radius:5px"></div></div><span style="font-size:12px;'+(over?"color:var(--red);font-weight:700":warn?"color:var(--orange)":"")+';white-space:nowrap">'+(over?"超支 "+fmtMoney(u-limit):warn?"接近上限":fmtNum(pct,0)+"%")+'</span></div>'
+        : '<span style="color:var(--muted);font-size:12px">未设</span>';
+      return '<tr><td><b>'+c+'</b></td><td>'+(u>0?fmtMoney(u):"—")+'</td>'+
+        '<td><input type="number" min="0" step="0.01" class="cb-input" data-cat="'+c+'" value="'+(limit||"")+'" placeholder="不限" style="width:92px;padding:5px 7px;border:1px solid var(--line);border-radius:6px"></td>'+
+        '<td>'+bar+'</td></tr>';
+    }).join("") + '</tbody></table>';
+}
+function renderReminders(){
+  const box = el("reminderBanner");
+  const warns = [];
+  const ym = todayStr().slice(0,7);
+  const today = todayStr();
+  const todayExp = sum(ledger.entries.filter(e=>e.type==="expense" && e.date===today).map(e=>e.amount));
+  // 每日限额
+  if(ledger.dailyLimit>0){
+    if(todayExp>ledger.dailyLimit) warns.push({type:"red", text:"今日已花 "+fmtMoney(todayExp)+"，超每日限额 "+fmtMoney(ledger.dailyLimit)+"（超 "+fmtMoney(todayExp-ledger.dailyLimit)+"）"});
+    else if(todayExp>=ledger.dailyLimit*0.8) warns.push({type:"yellow", text:"今日已花 "+fmtMoney(todayExp)+"，已达每日限额 "+fmtNum(todayExp/ledger.dailyLimit*100,0)+"%"});
+  }
+  // 月度总预算
+  if(ledger.monthlyBudget>0){
+    const mexp = sum(entriesOfMonth(ledger.entries,ym).filter(e=>e.type==="expense").map(e=>e.amount));
+    if(mexp>ledger.monthlyBudget) warns.push({type:"red", text:"本月总支出 "+fmtMoney(mexp)+" 已超月度预算 "+fmtMoney(ledger.monthlyBudget)+"（超 "+fmtMoney(mexp-ledger.monthlyBudget)+"）"});
+    else if(mexp>=ledger.monthlyBudget*0.8) warns.push({type:"yellow", text:"本月已用 "+fmtMoney(mexp)+"，已达月度预算 "+fmtNum(mexp/ledger.monthlyBudget*100,0)+"%"});
+  }
+  // 分类限额
+  const used={};
+  ledger.entries.filter(e=>e.type==="expense" && e.date.slice(0,7)===ym).forEach(e=>{ used[e.category]=(used[e.category]||0)+e.amount; });
+  Object.entries(ledger.catBudgets||{}).forEach(([c,limit])=>{
+    if(limit<=0) return;
+    const u = used[c]||0;
+    if(u>limit) warns.push({type:"red", text:"分类「"+c+"」本月已花 "+fmtMoney(u)+"，超限额 "+fmtMoney(u-limit)});
+    else if(u>=limit*0.8) warns.push({type:"yellow", text:"分类「"+c+"」已达限额 "+fmtNum(u/limit*100,0)+"%"});
+  });
+  el("dl_today").textContent = "今日已花 " + fmtMoney(todayExp) + (ledger.dailyLimit>0 ? " / 限额 " + fmtMoney(ledger.dailyLimit) : "");
+  if(!warns.length){
+    box.innerHTML = '<div style="font-size:13px;color:var(--green);background:var(--green-soft);border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px">✅ 暂无超支提醒。设置「每日限额 / 分类限额 / 月度预算」后会自动盯梢。</div>';
+    return;
+  }
+  box.innerHTML = warns.map(w=>'<div style="padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;'+(w.type==="red"?"background:var(--red-soft);color:var(--red);border:1px solid #fecaca":"background:var(--orange-soft);color:var(--orange);border:1px solid #fde68a")+'">'+(w.type==="red"?"🔴":"🟡")+' '+w.text+'</div>').join("");
+}
+
+
+/* ================= 备份/恢复 · 定投模拟 · 周期提醒 · 趋势 · 搜索 ================= */
+/* ---------- 数据备份 / 恢复 ---------- */
+function collectBackup(){
+  let importedIds=[];
+  try{ importedIds = JSON.parse(localStorage.getItem(IMPORTED_KEY))||[]; }catch(e){}
+  return { app:"口袋理财·收益管家", version:2, date: todayStr(), products, rates, ledger, fixedAssets, goals, assetCfg, importedIds };
+}
+function exportBackup(){
+  const data = collectBackup();
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "口袋理财备份_"+todayStr()+".json";
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+function importBackupFile(input){
+  const f = input.files && input.files[0];
+  input.value = "";
+  if(!f) return;
+  const r = new FileReader();
+  r.onerror = ()=>alert("读取文件失败");
+  r.onload = ()=>{
+    try{
+      const data = JSON.parse(r.result);
+      if(!data || typeof data!=="object" || (!data.products && !data.ledger)) throw new Error("不是有效的备份文件");
+      if(!confirm("恢复将覆盖当前全部数据（理财/记账/资产/目标），确定继续？")) return;
+      const set = (k,v)=>{ if(v!==undefined) localStorage.setItem(k, JSON.stringify(v)); };
+      set("licai_app_v1", data.products); set("licai_rates_v1", data.rates);
+      set("licai_ledger_v1", data.ledger); set("licai_fixed_v1", data.fixedAssets);
+      set("licai_goals_v1", data.goals); set("licai_asset_v1", data.assetCfg);
+      set(IMPORTED_KEY, data.importedIds);
+      loadState(); loadLedger(); loadFixed(); loadGoals();
+      renderAll(); renderLedgerAll(); renderAsset(); renderGoalAll();
+      alert("✅ 恢复成功！数据已加载");
+    }catch(e){ alert("⚠️ 恢复失败："+e.message); }
+  };
+  r.readAsText(f, "utf-8");
+}
+
+/* ---------- 定投 / 复利模拟 ---------- */
+function calcSim(){
+  const box = el("sim_result");
+  const pv = parseFloat(el("sim_pv").value)||0;
+  const pmt = parseFloat(el("sim_pmt").value)||0;
+  const rate = parseFloat(el("sim_rate").value)||0;
+  const years = parseFloat(el("sim_years").value)||0;
+  if(years<=0){ box.innerHTML='请填写有效的投资年限'; return; }
+  const r = rate/100/12;
+  const n = Math.round(years*12);
+  const fv = pv*Math.pow(1+r,n) + (r>0 ? pmt*((Math.pow(1+r,n)-1)/r) : pmt*n);
+  const totalInvest = pv + pmt*n;
+  const earn = fv - totalInvest;
+  const pct = totalInvest>0 ? earn/totalInvest*100 : 0;
+  box.innerHTML = '<div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin:0">'+
+    '<div class="oc"><div class="label">'+years+' 年后总资产</div><div class="value" style="color:var(--primary)">'+fmtMoney(fv)+'</div></div>'+
+    '<div class="oc"><div class="label">总投入</div><div class="value">'+fmtMoney(totalInvest)+'</div><div class="delta">本金 '+fmtMoney(pv)+' + 定投 '+fmtMoney(pmt*n)+'</div></div>'+
+    '<div class="oc"><div class="label">累计收益</div><div class="value up">+'+(earn>=0?"":"-")+fmtMoney(Math.abs(earn))+'</div><div class="delta">收益率 '+fmtPct(pct)+'</div></div>'+
+    '</div>'+
+    '<div style="font-size:12px;color:var(--muted);margin-top:8px">按年化 '+fmtNum(rate,1)+'%、每月复利估算（'+fmtNum(rate/12,3)+'%/月），不含税费与波动；实际收益以产品为准。</div>';
+}
+
+/* ---------- 周期提醒 ---------- */
+const REMINDER_KEY = "licai_reminders_v1";
+let reminders = [];
+function loadReminders(){ try{ reminders = JSON.parse(localStorage.getItem(REMINDER_KEY))||[]; }catch(e){ reminders=[]; } }
+function saveReminders(){ localStorage.setItem(REMINDER_KEY, JSON.stringify(reminders)); }
+function nextCycle(dateStr, period){
+  const d = new Date(dateStr+"T00:00:00");
+  if(period==="month") d.setMonth(d.getMonth()+1);
+  else if(period==="quarter") d.setMonth(d.getMonth()+3);
+  else d.setFullYear(d.getFullYear()+1);
+  return fmtDate(d);
+}
+function addReminder(){
+  const name = el("rm_name").value.trim();
+  const next = el("rm_next").value;
+  if(!name){ alert("请输入提醒名称"); return; }
+  if(!next){ alert("请选择下次日期"); return; }
+  reminders.push({ id: uid(), name, amount: parseFloat(el("rm_amount").value)||0, period: el("rm_period").value, next });
+  saveReminders();
+  el("rm_name").value=""; el("rm_amount").value=""; el("rm_next").value="";
+  renderRemindersAll();
+}
+function delReminder(id){
+  const r = reminders.find(x=>x.id===id); if(!r) return;
+  if(!confirm("删除提醒「"+r.name+"」？")) return;
+  reminders = reminders.filter(x=>x.id!==id);
+  saveReminders(); renderRemindersAll();
+}
+function markReminder(id){
+  const r = reminders.find(x=>x.id===id); if(!r) return;
+  r.next = nextCycle(r.next, r.period);
+  saveReminders(); renderRemindersAll();
+  alert("✅ 已标记「"+r.name+"」处理，下次 "+r.next);
+}
+function renderRemindersAll(){
+  const box = el("rmList");
+  if(!reminders.length){ box.innerHTML='<div class="empty" style="padding:14px">还没有周期提醒。比如信用卡还款日、房租、房贷、订阅续费</div>'; return; }
+  const today = todayStr();
+  box.innerHTML = reminders.sort((a,b)=>a.next.localeCompare(b.next)).map(r=>{
+    const days = dayDiff(today, r.next);
+    const overdue = days < 0;
+    const soon = days>=0 && days<=7;
+    const periodTxt = {month:"每月",quarter:"每季",year:"每年"}[r.period]||r.period;
+    const when = overdue ? '<span style="color:var(--red);font-weight:700">已逾期 '+(-days)+' 天 ⚠️</span>' : (days===0?'<span style="color:var(--orange);font-weight:700">就是今天！</span>':(soon?'<span style="color:var(--orange);font-weight:700">还有 '+days+' 天</span>':'还有 '+days+' 天'));
+    return '<div class="prod" style="padding:10px 8px">'+
+      '<div class="icon t-moneyfund" style="background:var(--orange-soft)">🔔</div>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+esc(r.name)+(r.amount>0?' <span style="font-weight:400;color:var(--muted);font-size:12px">'+fmtMoney(r.amount)+'</span>':'')+'</div>'+
+      '<div class="meta">'+periodTxt+' · 下次 '+esc(r.next)+'</div></div>'+
+      '<div class="nums"><div class="earn" style="font-size:13px">'+when+'</div></div>'+
+      '<div class="actions"><button class="btn btn-ghost btn-sm" onclick="markReminder(\''+r.id+'\')">✓ 已处理</button>'+
+      '<button class="btn btn-danger btn-sm" onclick="delReminder(\''+r.id+'\')">删除</button></div></div>';
+  }).join("");
+}
+
+/* ---------- 月度收支趋势图 ---------- */
+function renderTrend(){
+  const cv = el("trendChart");
+  if(!cv || !cv.getContext) return;
+  const ctx = cv.getContext("2d");
+  const W = cv.clientWidth || 800, H = 180;
+  cv.width = W * devicePixelRatio; cv.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+  const now = new Date();
+  const months = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+  }
+  const incs=[], exps=[];
+  months.forEach(ym=>{
+    const es = entriesOfMonth(ledger.entries, ym);
+    incs.push(sum(es.filter(e=>e.type==="income").map(e=>e.amount)));
+    exps.push(sum(es.filter(e=>e.type==="expense").map(e=>e.amount)));
+  });
+  const maxV = Math.max(1, ...incs, ...exps);
+  const pad={l:46,r:10,t:10,b:22};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const bw = cw/months.length/3.5;
+  const y=v=>pad.t + ch - (v/maxV)*ch;
+  ctx.font="10px sans-serif"; ctx.fillStyle="#9ca3af";
+  for(let g=0;g<=3;g++){
+    const yy=pad.t+ch*g/3, val=maxV*(1-g/3);
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(W-pad.r,yy); ctx.strokeStyle="#eef1f6"; ctx.stroke();
+    ctx.fillText(val>=10000?(val/10000).toFixed(1)+"万":Math.round(val), 2, yy+3);
+  }
+  months.forEach((ym,i)=>{
+    const cx = pad.l + cw*(i+0.5)/months.length;
+    const bars = [[incs[i],"#059669"],[exps[i],"#ef4444"]];
+    bars.forEach(([v,color],j)=>{
+      if(v<=0) return;
+      const bh = (v/maxV)*ch;
+      ctx.fillStyle=color;
+      ctx.fillRect(cx - bw*1.5 + j*bw, y(v), bw*0.7, bh);
+    });
+    // 结余
+    const bal = incs[i]-exps[i];
+    if(bal!==0){
+      const by = y(Math.abs(bal));
+      ctx.fillStyle = bal>0 ? "#3b82f6" : "#f59e0b";
+      ctx.fillRect(cx + bw*0.5, by, bw*0.7, y(0)-by);
+    }
+    ctx.fillStyle="#9ca3af";
+    ctx.fillText(ym.slice(5)+"月", cx-12, H-6);
+  });
+  ctx.setLineDash([]);
+  if(maxV>0){
+    ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); ctx.moveTo(pad.l,y(0)); ctx.lineTo(W-pad.r,y(0)); ctx.stroke();
+  }
+}
+
+/* ---------- 记录搜索 ---------- */
+let ledgerSearch = "";
+function setLedgerSearch(v){ ledgerSearch = (v||"").trim(); renderLedgerAll(); }
+function filteredEntries(){
+  if(ledgerSearch){
+    const kw = ledgerSearch.toLowerCase();
+    return ledger.entries.filter(e=>
+      e.category.toLowerCase().includes(kw) ||
+      (e.note||"").toLowerCase().includes(kw) ||
+      e.account.toLowerCase().includes(kw) ||
+      String(e.amount).includes(kw)
+    );
+  }
+  if(ledgerFilter==="all") return ledger.entries;
+  return ledger.entries.filter(e=>e.scene===ledgerFilter);
+}
+
+loadLedger();
+
+
+
+
+loadFixed();
+loadGoals();
+loadReminders();
+</script>
+
+<div class="modal-bg" id="importModal">
+  <div class="modal" style="max-width:740px">
+    <h3>⬆️ 导入微信 / 支付宝账单 <button class="close" onclick="closeImport()">✕</button></h3>
+    <div class="form-row">
+      <div class="field" style="grid-column:1/-1">
+        <label>选择账单 CSV 文件（微信支付 / 支付宝 App 内导出的 csv）</label>
+        <input type="file" id="imp_file" accept=".csv,text/csv" onchange="onFileSelected()">
+        <div class="unit">微信：我 → 支付 → 钱包 → 账单 → 常见问题 → 下载账单；支付宝：我的 → 账单 → 开具交易流水证明 / 下载</div>
+      </div>
+    </div>
+    <div class="form-row" id="imp_opts" style="display:none">
+      <div class="field"><label>识别平台</label><input id="imp_platform" disabled></div>
+      <div class="field"><label>导入到账户</label><select id="imp_account"></select></div>
+      <div class="field"><label>归属场景</label>
+        <select id="imp_scene"><option value="daily">日常</option><option value="travel">旅游</option><option value="business">差旅</option><option value="family">家庭</option></select>
+      </div>
+    </div>
+    <div id="imp_preview"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+      <button class="btn btn-ghost" onclick="closeImport()">取消</button>
+      <button class="btn btn-primary" id="imp_confirm" style="display:none" onclick="doImport()">确认导入</button>
+    </div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+<script>
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
+}
+</script>
+</body>
+</html>
