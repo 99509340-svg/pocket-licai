@@ -1841,6 +1841,15 @@ function openImport(){
   el("imp_file").value = "";
   importState = null;
   el("imp_account").innerHTML = ledger.accounts.map(a=>`<option value="${esc(a.name)}">${esc(a.name)}</option>`).join("");
+  lastImportInfo(true);
+  const drop = el("imp_drop");
+  drop.ondragover = e=>{ e.preventDefault(); drop.style.borderColor = "var(--primary)"; };
+  drop.ondragleave = ()=>{ drop.style.borderColor = ""; };
+  drop.ondrop = e=>{
+    e.preventDefault(); drop.style.borderColor = "";
+    const files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+    if(files.length) processImportFiles(files);
+  };
 }
 function closeImport(){ el("importModal").classList.remove("show"); importState=null; }
 
@@ -1959,21 +1968,29 @@ function dedupImported(entries){
   return { newEntries, skipped, ids: Array.from(idSet) };
 }
 async function onFileSelected(){
-  const f = el("imp_file").files && el("imp_file").files[0];
-  if(!f) return;
-  el("imp_preview").innerHTML = '<div class="note">⏳ 正在解析…</div>';
+  const files = el("imp_file").files ? Array.from(el("imp_file").files) : [];
+  if(!files.length) return;
+  await processImportFiles(files);
+}
+async function processImportFiles(files){
+  el("imp_preview").innerHTML = '<div class="note">⏳ 正在解析 '+files.length+' 个文件…</div>';
   try{
-    const text = await readBillText(f);
-    const rows = parseCSV(text);
-    const platform = detectPlatform(rows);
-    if(!platform){
+    const all=[]; const platforms=new Set();
+    for(const f of files){
+      const text = await readBillText(f);
+      const rows = parseCSV(text);
+      const platform = detectPlatform(rows);
+      if(platform){ platforms.add(platform); all.push.apply(all, parseBill(rows, platform)); }
+    }
+    if(!platforms.size){
       el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 无法识别账单格式：未找到「交易时间 / 收/支」表头。请确认是微信支付或支付宝导出的 CSV 文件。</div>';
       return;
     }
-    const entries = parseBill(rows, platform);
+    const platform = Array.from(platforms).join("+");
+    const entries = all;
     const dedup = dedupImported(entries);
     importState = { platform, entries: dedup.newEntries, rawCount: entries.length };
-    el("imp_platform").value = platform==="wechat" ? "微信支付" : "支付宝";
+    el("imp_platform").value = Array.from(platforms).map(p=>p==="wechat"?"微信支付":"支付宝").join(" + ");
     el("imp_opts").style.display = "grid";
     const inc = sum(dedup.newEntries.filter(e=>e.type==="income").map(e=>e.amount));
     const exp = sum(dedup.newEntries.filter(e=>e.type==="expense").map(e=>e.amount));
@@ -1989,6 +2006,16 @@ async function onFileSelected(){
     el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 解析失败：'+esc(err.message)+'</div>';
   }
 }
+function lastImportInfo(showInModal){
+  let last="";
+  try{ last = localStorage.getItem("licai_last_import")||""; }catch(e){}
+  const box = el("imp_last");
+  if(!box) return {days: Infinity};
+  if(!last){ if(showInModal) box.textContent = "尚未导入过账单（建议每周同步一次）"; return {days: Infinity}; }
+  const days = Math.max(0, dayDiff(last, todayStr()));
+  if(showInModal) box.textContent = "上次导入账单："+last+"（"+days+" 天前）";
+  return {days};
+}
 function doImport(){
   if(!importState || !importState.entries.length){ alert("没有可导入的记录"); return; }
   const account = el("imp_account").value;
@@ -2001,6 +2028,7 @@ function doImport(){
   localStorage.setItem(IMPORTED_KEY, JSON.stringify(ids));
   const n = importState.entries.length;
   saveLedger();
+  try{ localStorage.setItem("licai_last_import", todayStr()); }catch(e){}
   closeImport();
   renderLedgerAll();
   alert("✅ 成功导入 "+n+" 条账单到「"+account+"」");
@@ -2182,11 +2210,18 @@ function renderReminders(){
     else if(u>=limit*0.8) warns.push({type:"yellow", text:"分类「"+c+"」已达限额 "+fmtNum(u/limit*100,0)+"%"});
   });
   el("dl_today").textContent = "今日已花 " + fmtMoney(todayExp) + (ledger.dailyLimit>0 ? " / 限额 " + fmtMoney(ledger.dailyLimit) : "");
+  // 账单导入到期提醒（半自动同步）
+  const lastInfo = lastImportInfo();
+  if(lastInfo.days>=7) warns.push({type:"blue", text:"距上次导入账单已 "+lastInfo.days+" 天，点「⬆️ 导入账单」可同步微信/支付宝最新消费"});
   if(!warns.length){
     box.innerHTML = '<div style="font-size:13px;color:var(--green);background:var(--green-soft);border:1px solid #a7f3d0;padding:8px 12px;border-radius:8px">✅ 暂无超支提醒。设置「每日限额 / 分类限额 / 月度预算」后会自动盯梢。</div>';
     return;
   }
-  box.innerHTML = warns.map(w=>'<div style="padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;'+(w.type==="red"?"background:var(--red-soft);color:var(--red);border:1px solid #fecaca":"background:var(--orange-soft);color:var(--orange);border:1px solid #fde68a")+'">'+(w.type==="red"?"🔴":"🟡")+' '+w.text+'</div>').join("");
+  box.innerHTML = warns.map(w=>{
+    const style = w.type==="red" ? "background:var(--red-soft);color:var(--red);border:1px solid #fecaca" : w.type==="blue" ? "background:var(--primary-soft);color:var(--primary);border:1px solid #bfdbfe" : "background:var(--orange-soft);color:var(--orange);border:1px solid #fde68a";
+    const icon = w.type==="red" ? "🔴" : w.type==="blue" ? "🔵" : "🟡";
+    return '<div style="padding:8px 12px;border-radius:8px;margin-bottom:6px;font-size:13px;'+style+'">'+icon+' '+w.text+'</div>';
+  }).join("");
 }
 
 
@@ -2396,8 +2431,12 @@ loadReminders();
     <div class="form-row">
       <div class="field" style="grid-column:1/-1">
         <label>选择账单 CSV 文件（微信支付 / 支付宝 App 内导出的 csv）</label>
-        <input type="file" id="imp_file" accept=".csv,text/csv" onchange="onFileSelected()">
-        <div class="unit">微信：我 → 支付 → 钱包 → 账单 → 常见问题 → 下载账单；支付宝：我的 → 账单 → 开具交易流水证明 / 下载</div>
+        <input type="file" id="imp_file" accept=".csv,text/csv" multiple onchange="onFileSelected()">
+        <div class="unit">可一次选择多个 csv（微信 + 支付宝可同时导入）</div>
+        <div id="imp_drop" style="border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;margin-top:8px;background:var(--bg);font-size:13px;color:var(--muted)">
+          📥 也可以把 csv 文件<b>直接拖到这里</b>
+        </div>
+        <div class="unit" id="imp_last" style="margin-top:6px"></div>
       </div>
     </div>
     <div class="form-row" id="imp_opts" style="display:none">
