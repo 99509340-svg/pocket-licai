@@ -119,9 +119,126 @@ canvas{width:100%;height:220px;display:block}
   #printArea{display:block !important;position:absolute;left:0;top:0;width:100%;padding:8mm 6mm}
 }
 
+/* ================= 移动端 v2 主题（高级 · 简洁） ================= */
+:root{
+  --bg:#f4f6fb; --card:#ffffff; --line:#e8ebf2; --text:#111827; --muted:#6b7280;
+  --primary:#3b82f6; --primary2:#6366f1; --primary-soft:#eff6ff;
+  --green:#10b981; --green-soft:#ecfdf5; --orange:#f59e0b; --orange-soft:#fffbeb;
+  --red:#ef4444; --red-soft:#fef2f2;
+  --radius:18px; --radius-sm:12px;
+  --shadow:0 4px 20px rgba(15,23,42,.06); --shadow-lg:0 12px 32px rgba(59,130,246,.25);
+}
+@media (prefers-color-scheme: dark){
+  :root:not(.force-light){
+    --bg:#0f1115; --card:#1a1d24; --line:#2a2e38; --text:#e7e9ee; --muted:#9aa1ad;
+    --primary:#60a5fa; --primary2:#818cf8; --primary-soft:#1e293b;
+    --green:#34d399; --green-soft:#0f2a22; --orange:#fbbf24; --orange-soft:#2a2312;
+    --red:#f87171; --red-soft:#2a1416;
+    --shadow:0 4px 20px rgba(0,0,0,.35);
+  }
+}
+body.dark{
+  --bg:#0f1115; --card:#1a1d24; --line:#2a2e38; --text:#e7e9ee; --muted:#9aa1ad;
+  --primary:#60a5fa; --primary2:#818cf8; --primary-soft:#1e293b;
+  --green:#34d399; --green-soft:#0f2a22; --orange:#fbbf24; --orange-soft:#2a2312;
+  --red:#f87171; --red-soft:#2a1416;
+  --shadow:0 4px 20px rgba(0,0,0,.35);
+}
+body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.btn{border-radius:12px}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 6px 16px rgba(59,130,246,.28)}
+.btn-primary:active{transform:scale(.97)}
+.oc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.oc .value{font-variant-numeric:tabular-nums}
+.oc.hero{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:var(--shadow-lg)}
+.prod{border-radius:14px}
+input,select,.field input,.field select{border-radius:11px;background:var(--card);color:var(--text)}
+.note{background:var(--bg);border-color:var(--line)}
+/* 底部导航 */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);z-index:40;padding:6px 2px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(15,23,42,.08)}
+.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);background:none;border:none;padding:5px 0;cursor:pointer;font-family:inherit}
+.bottom-nav button .bi{font-size:22px;line-height:1.1}
+.bottom-nav button.active{color:var(--primary);font-weight:600}
+@media(min-width:769px){.bottom-nav{display:none}}
+/* 首页 Hero */
+.home-hero{background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:26px;color:#fff;padding:24px 22px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.home-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12)}
+.home-hero .lbl{font-size:13px;opacity:.85}
+.home-hero .big{font-size:36px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
+.home-hero .row{display:flex;gap:22px;margin-top:16px}
+.home-hero .cell .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.home-hero .cell .k{font-size:11.5px;opacity:.8;margin-top:1px}
+/* 快捷操作 */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.quick-btn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;box-shadow:var(--shadow);transition:.15s;font-family:inherit}
+.quick-btn:active{transform:scale(.94)}
+.quick-btn .qi{font-size:24px}
+.quick-btn .qt{font-weight:600}
+
+/* 顶栏 + 主题切换按钮 */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
+.topbar .brand{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800}
+.topbar .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.theme-toggle{background:var(--card);border:1px solid var(--line);border-radius:12px;width:38px;height:38px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+/* 移动端布局优化 */
+@media(max-width:768px){
+  .wrap{padding:10px 14px 96px}
+  header.top{display:none}
+  .overview{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+  .oc{padding:14px}
+  .oc .value{font-size:20px}
+  .oc.hero{grid-column:span 2}
+  .card{padding:16px;margin-bottom:14px;border-radius:20px}
+  .card h2{font-size:15.5px}
+  .grid{grid-template-columns:1fr;gap:0}
+  .form-row{grid-template-columns:1fr 1fr;gap:10px}
+  .prod{gap:10px;padding:12px 10px}
+  .prod .icon{width:38px;height:38px;font-size:19px;border-radius:11px}
+  .prod .nums .principal{font-size:12px}
+  .prod .nums .earn{font-size:14px}
+  .actions{max-width:none}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+  .tab{white-space:nowrap;padding:7px 13px}
+  table{display:block;overflow-x:auto;white-space:nowrap}
+  #catBudgetEditor table{display:table}
+  .cal{grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:6px}
+  .day{padding:6px 4px}
+  .day .v{font-size:13px}
+  .modal{padding:18px;max-height:90vh;overflow:auto}
+  .bottom-nav{display:flex}
+  .note{font-size:12px}
+  .rate-editor{max-height:50vh}
+  canvas{height:170px}
+  footer{font-size:11px;padding-bottom:20px}
+}
+@media(min-width:769px){
+  .bottom-nav{display:none}
+  .topbar{display:none}
+}
+/* 首页卡片区 */
+.home-section-title{font-size:14px;font-weight:700;color:var(--muted);margin:18px 2px 10px;display:flex;align-items:center;gap:6px}
+.home-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.home-actions .btn{flex:1;min-width:120px;justify-content:center;padding:12px 10px;font-size:14px}
+/* 数字动画/强调 */
+.up{color:var(--green)} .down{color:var(--red)}
+/* 弹窗现代感 */
+.modal{border-radius:22px;box-shadow:0 24px 60px rgba(15,23,42,.3)}
+.modal h3{font-size:18px}
+/* 空状态 */
+.empty{color:var(--muted);padding:30px 10px}
+/* 暗色下表格与输入 */
+body.dark .field input,body.dark .field select{background:#14161c;border-color:#2a2e38;color:#e7e9ee}
+body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
+
 </style>
 </head>
 <body>
+<div class="topbar" id="topbar">
+  <div class="brand"><span class="logo">💰</span><span>口袋理财</span></div>
+  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="切换主题">🌙</button>
+</div>
+
 <div class="wrap">
   <header class="top">
     <div>
@@ -135,6 +252,33 @@ canvas{width:100%;height:220px;display:block}
   </header>
 
   <!-- 总览 -->
+  <div id="page-home">
+    <div class="home-hero">
+      <div class="lbl">净资产</div>
+      <div class="big" id="hmNet">¥0.00</div>
+      <div class="row">
+        <div class="cell"><div class="v" id="hmCash">¥0</div><div class="k">现金/账户</div></div>
+        <div class="cell"><div class="v" id="hmInvest">¥0</div><div class="k">理财投资</div></div>
+        <div class="cell"><div class="v up" id="hmToday">+¥0</div><div class="k">今日收益</div></div>
+      </div>
+    </div>
+    <div class="quick-grid">
+      <button class="quick-btn" onclick="quickAdd()"><span class="qi">✏️</span><span class="qt">记一笔</span></button>
+      <button class="quick-btn" onclick="showPage('ledger');setTimeout(openImport,100)"><span class="qi">📥</span><span class="qt">导账单</span></button>
+      <button class="quick-btn" onclick="showPage('asset')"><span class="qi">🏦</span><span class="qt">看资产</span></button>
+      <button class="quick-btn" onclick="showPage('goal')"><span class="qi">🎯</span><span class="qt">立目标</span></button>
+    </div>
+    <div class="home-section-title">📅 本月概况</div>
+    <div class="overview" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
+      <div class="oc"><div class="label">本月收入</div><div class="value up" id="hmMin">¥0.00</div></div>
+      <div class="oc"><div class="label">本月支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
+      <div class="oc"><div class="label">本月结余</div><div class="value" id="hmMbal">¥0.00</div></div>
+      <div class="oc"><div class="label">目标进度</div><div class="value" id="hmGoal">0%</div></div>
+    </div>
+    <div class="home-section-title">🔔 提醒</div>
+    <div id="hmReminders"></div>
+  </div>
+
   <nav class="tabs" style="margin-bottom:18px">
     <button class="tab active" id="tab-invest" onclick="showPage('invest')">📈 理财</button>
     <button class="tab" id="tab-ledger" onclick="showPage('ledger')">🧾 记账</button>
@@ -1551,14 +1695,21 @@ function renderGrade(total, net, cash, invest){
 
 /* ---------- 页面切换 ---------- */
 function showPage(name){
-  ["invest","ledger","asset","goal"].forEach(n=>{
-    el("page-"+n).style.display = n===name ? "block" : "none";
-    el("tab-"+n).classList.toggle("active", n===name);
+  ["home","invest","ledger","asset","goal"].forEach(n=>{
+    const pg = el("page-"+n);
+    if(pg) pg.style.display = n===name ? "block" : "none";
+    const tb = el("tab-"+n);
+    if(tb) tb.classList.toggle("active", n===name);
+  });
+  document.querySelectorAll("#bottomNav button").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("data-page")===name);
   });
   if(name==="ledger"){ if(!el("le_date").value) el("le_date").value=todayStr(); refreshCatSelect(); refreshAccountSelect(); renderLedgerAll(); }
   if(name==="asset") renderAsset();
   if(name==="invest") renderAll();
   if(name==="goal") renderGoalAll();
+  if(name==="home") renderHome();
+  window.scrollTo(0,0);
 }
 
 
@@ -2257,7 +2408,8 @@ function importBackupFile(input){
       set("licai_ledger_v1", data.ledger); set("licai_fixed_v1", data.fixedAssets);
       set("licai_goals_v1", data.goals); set("licai_asset_v1", data.assetCfg);
       set(IMPORTED_KEY, data.importedIds);
-      loadState(); loadLedger(); loadFixed(); loadGoals();
+      loadState(); 
+loadLedger(); loadFixed(); loadGoals();
       renderAll(); renderLedgerAll(); renderAsset(); renderGoalAll();
       alert("✅ 恢复成功！数据已加载");
     }catch(e){ alert("⚠️ 恢复失败："+e.message); }
@@ -2423,6 +2575,63 @@ loadLedger();
 loadFixed();
 loadGoals();
 loadReminders();
+/* ================= 移动端首页 & 主题 ================= */
+function renderHome(){
+  const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
+  const invest = investTotalValue();
+  const fixed = fixedTotal();
+  const debt = assetCfg.debt||0;
+  const net = cash + invest + fixed - debt;
+  const today = sum(products.map(p=>productDayEarn(p)));
+  const ym = todayStr().slice(0,7);
+  const es = entriesOfMonth(ledger.entries, ym);
+  const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
+  el("hmNet").textContent = fmtMoney(net);
+  el("hmCash").textContent = fmtMoney(cash);
+  el("hmInvest").textContent = fmtMoney(invest+fixed);
+  el("hmToday").textContent = (today>=0?"+":"") + fmtMoney(today);
+  el("hmMin").textContent = fmtMoney(inc);
+  el("hmMexp").textContent = fmtMoney(exp);
+  el("hmMbal").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
+  const totalTarget = sum(goals.map(g=>g.target));
+  const totalSaved = sum(goals.map(g=>g.saved));
+  el("hmGoal").textContent = totalTarget>0 ? fmtNum(totalSaved/totalTarget*100,1)+"%" : "—";
+  const box = el("hmReminders");
+  const warns = [];
+  const todayExp = sum(ledger.entries.filter(e=>e.type==="expense" && e.date===todayStr()).map(e=>e.amount));
+  if(ledger.dailyLimit>0 && todayExp>ledger.dailyLimit) warns.push("🔴 今日支出超每日限额");
+  if(ledger.monthlyBudget>0){
+    const me = sum(entriesOfMonth(ledger.entries,ym).filter(e=>e.type==="expense").map(e=>e.amount));
+    if(me>ledger.monthlyBudget) warns.push("🔴 本月支出已超预算 "+fmtMoney(me-ledger.monthlyBudget));
+    else if(me>=ledger.monthlyBudget*0.8) warns.push("🟡 本月预算已用 "+fmtNum(me/ledger.monthlyBudget*100,0)+"%");
+  }
+  reminders.forEach(r=>{ const d=dayDiff(todayStr(), r.next); if(d<=3) warns.push("🔔 「"+r.name+"」"+(d<0?"已逾期 "+(-d)+" 天":"还有 "+d+" 天")); });
+  const lastInfo = lastImportInfo();
+  if(lastInfo.days>=7) warns.push("🔵 该导入新账单了（"+lastInfo.days+" 天未同步）");
+  const goalsDone = goals.filter(g=>g.saved>=g.target).length;
+  if(goalsDone>0) warns.push("🎉 恭喜！"+goalsDone+" 个目标已达成");
+  if(!warns.length){ box.innerHTML = '<div style="font-size:13px;color:var(--green);background:var(--green-soft);border:1px solid #a7f3d0;padding:10px 14px;border-radius:14px">✅ 一切正常，继续保持</div>'; return; }
+  box.innerHTML = warns.map(w=>'<div style="font-size:13px;padding:10px 14px;border-radius:12px;margin-bottom:8px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)">'+w+'</div>').join("");
+}
+function quickAdd(){
+  showPage("ledger");
+  setTimeout(()=>{ const a=el("le_amount"); if(a) a.focus(); }, 120);
+}
+function toggleTheme(){
+  const dark = document.body.classList.toggle("dark");
+  try{ localStorage.setItem("licai_theme", dark?"dark":"light"); }catch(e){}
+  const b = el("themeBtn"); if(b) b.textContent = dark ? "☀️" : "🌙";
+}
+
+try{
+  const th = localStorage.getItem("licai_theme");
+  if(th==="dark" || (!th && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)){
+    document.body.classList.add("dark");
+    const b = el("themeBtn"); if(b) b.textContent = "☀️";
+  }
+}catch(e){}
+showPage("home");
 </script>
 
 <div class="modal-bg" id="importModal">
@@ -2460,5 +2669,12 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', function(){ navigator.serviceWorker.register('./sw.js').catch(function(){}); });
 }
 </script>
+<nav class="bottom-nav" id="bottomNav">
+  <button data-page="home" class="active"><span class="bi">🏠</span>首页</button>
+  <button data-page="ledger"><span class="bi">✏️</span>记账</button>
+  <button data-page="asset"><span class="bi">💰</span>资产</button>
+  <button data-page="goal"><span class="bi">🎯</span>目标</button>
+  <button data-page="invest"><span class="bi">📈</span>理财</button>
+</nav>
 </body>
 </html>
