@@ -284,11 +284,18 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
       <button class="quick-btn" onclick="showPage('asset')"><span class="qi">🏦</span><span class="qt">看资产</span></button>
       <button class="quick-btn" onclick="showPage('goal')"><span class="qi">🎯</span><span class="qt">立目标</span></button>
     </div>
-    <div class="home-section-title">📅 本月概况</div>
+    <div class="home-section-title">📅 收支概况 <span style="font-size:12px;color:var(--muted);font-weight:400" id="hmMonthLabel">本月</span></div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(-1)">◀</button>
+      <button class="btn btn-ghost btn-sm" onclick="pickStatMonth()" id="hmMonthPick" title="点击输入月份">本月</button>
+      <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(1)">▶</button>
+      <button class="btn btn-ghost btn-sm" onclick="setStatMonth('all')">全部月份</button>
+      <button class="btn btn-ghost btn-sm" onclick="setStatMonth()">回本月</button>
+    </div>
     <div class="overview" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
-      <div class="oc"><div class="label">本月收入</div><div class="value up" id="hmMin">¥0.00</div></div>
-      <div class="oc"><div class="label">本月支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
-      <div class="oc"><div class="label">本月结余</div><div class="value" id="hmMbal">¥0.00</div></div>
+      <div class="oc"><div class="label">收入</div><div class="value up" id="hmMin">¥0.00</div></div>
+      <div class="oc"><div class="label">支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
+      <div class="oc"><div class="label">结余</div><div class="value" id="hmMbal">¥0.00</div></div>
       <div class="oc"><div class="label">目标进度</div><div class="value" id="hmGoal">0%</div></div>
     </div>
     <div class="home-section-title">🔔 提醒</div>
@@ -1541,18 +1548,19 @@ function statYmLabel(){
   const ym = statMonth || currentYm();
   return ym.replace("-","年")+"月";
 }
+function refreshStatViews(){ renderLedgerAll(); if(el("page-home") && el("page-home").style.display!=="none") renderHome(); }
 function shiftStatMonth(d){
   const base = new Date((statMonth || currentYm())+"-01T00:00:00");
   base.setMonth(base.getMonth()+d);
   statMonth = base.getFullYear()+"-"+String(base.getMonth()+1).padStart(2,"0");
-  renderLedgerAll();
+  refreshStatViews();
 }
 function pickStatMonth(){
   const cur = statMonth || currentYm();
   const v = prompt("输入月份（如 2026-08）：", cur);
-  if(v && /^\d{4}-\d{2}$/.test(v.trim())){ statMonth = v.trim(); renderLedgerAll(); }
+  if(v && /^\d{4}-\d{2}$/.test(v.trim())){ statMonth = v.trim(); refreshStatViews(); }
 }
-function setStatMonth(v){ statMonth = (v===undefined || v===null) ? null : v; renderLedgerAll(); }
+function setStatMonth(v){ statMonth = (v===undefined || v===null) ? null : v; refreshStatViews(); }
 function renderLedgerAll(){
   // 本月统计
   const ym = todayStr().slice(0,7);
@@ -2756,8 +2764,7 @@ function renderHome(){
   const debt = assetCfg.debt||0;
   const net = cash + invest + fixed - debt;
   const today = sum(products.map(p=>productDayEarn(p)));
-  const ym = todayStr().slice(0,7);
-  const es = entriesOfMonth(ledger.entries, ym);
+  const es = statEntries();
   const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
   const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
   el("hmNet").textContent = fmtMoney(net);
@@ -2767,6 +2774,9 @@ function renderHome(){
   el("hmMin").textContent = fmtMoney(inc);
   el("hmMexp").textContent = fmtMoney(exp);
   el("hmMbal").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
+  const stLbl = statYmLabel();
+  const mpl = el("hmMonthPick"); if(mpl) mpl.textContent = stLbl;
+  const mla = el("hmMonthLabel"); if(mla) mla.textContent = statMonth==="all" ? "全部月份" : (statMonth ? stLbl : "本月");
   const totalTarget = sum(goals.map(g=>g.target));
   const totalSaved = sum(goals.map(g=>g.saved));
   el("hmGoal").textContent = totalTarget>0 ? fmtNum(totalSaved/totalTarget*100,1)+"%" : "—";
