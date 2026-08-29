@@ -2661,6 +2661,7 @@ loadFixed();
 loadGoals();
 loadReminders();
 loadCalendarMarks();
+try{ if(window.innerWidth<=768 && el("importHintBody") && el("importHintBody").style.display!=="none"){ el("importHintBody").style.display="none"; el("importHintToggle").textContent="展开 ▼"; } }catch(e){}
 /* ================= 移动端首页 & 主题 ================= */
 function renderHome(){
   const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
@@ -2702,7 +2703,7 @@ function renderHome(){
 }
 function quickAdd(){
   showPage("ledger");
-  setTimeout(()=>{ const a=el("le_amount"); if(a) a.focus(); }, 120);
+  setTimeout(()=>{ const a=el("le_amount"); if(a){ try{ a.scrollIntoView({block:"center",behavior:"smooth"}); }catch(e){ a.scrollIntoView(); } a.focus(); } }, 150);
 }
 function toggleTheme(){
   const dark = document.body.classList.toggle("dark");
