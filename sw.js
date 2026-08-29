@@ -1,5 +1,5 @@
 /* 口袋理财 · Service Worker：离线缓存静态资源 */
-const CACHE = "licai-v3";
+const CACHE = "licai-v4";
 const ASSETS = [
   "./",
   "./index.html",
