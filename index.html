@@ -397,7 +397,7 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
         </div>
         <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
           <button class="btn btn-primary btn-sm" onclick="openImport()">⬆️ 去导入（选择 csv 文件）</button>
-          <span style="font-size:12px;color:var(--muted)">自动识别平台、金额清洗、退款跳过、智能归类、按单号去重</span>
+          <span style="font-size:12px;color:var(--muted)">支持 zip 压缩包（自动解压）、Excel(xlsx)、CSV、txt · 自动识别平台、金额清洗、退款跳过、智能归类、按单号去重</span>
         </div>
       </div>
     </div>
@@ -709,6 +709,8 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
   </div>
 </div>
 
+<script src="jszip.min.js"></script>
+<script src="xlsx.mini.min.js"></script>
 <script src="fund-api.iife.min.js"></script>
 <script>
 'use strict';
@@ -2089,21 +2091,23 @@ function openImport(){
 }
 function closeImport(){ el("importModal").classList.remove("show"); importState=null; }
 
+function decodeBillBuffer(buf){
+  const u8 = new Uint8Array(buf);
+  try{
+    let text = new TextDecoder("utf-8", {fatal:true}).decode(u8);
+    if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
+    return text;
+  }catch(e){
+    try{ return new TextDecoder("gb18030").decode(u8); }
+    catch(e2){ throw new Error("无法解码文件编码（请另存为 UTF-8）"); }
+  }
+}
 function readBillText(file){
   return new Promise((resolve,reject)=>{
+    if(file && file._buf){ try{ resolve(decodeBillBuffer(file._buf)); }catch(e){ reject(e); } return; }
     const r = new FileReader();
     r.onerror = ()=>reject(new Error("读取文件失败"));
-    r.onload = ()=>{
-      const buf = new Uint8Array(r.result);
-      try{
-        let text = new TextDecoder("utf-8", {fatal:true}).decode(buf);
-        if(text.charCodeAt(0)===0xFEFF) text = text.slice(1);
-        resolve(text);
-      }catch(e){
-        try{ resolve(new TextDecoder("gb18030").decode(buf)); }
-        catch(e2){ reject(new Error("无法解码文件编码（请另存为 UTF-8）")); }
-      }
-    };
+    r.onload = ()=>{ try{ resolve(decodeBillBuffer(r.result)); }catch(e){ reject(e); } };
     r.readAsArrayBuffer(file);
   });
 }
@@ -2208,18 +2212,66 @@ async function onFileSelected(){
   if(!files.length) return;
   await processImportFiles(files);
 }
+async function readBillFileToParsed(file){
+  const name = (file.name||"").toLowerCase();
+  const isZip = name.endsWith(".zip") || (file._buf && isZipMagic(file._buf));
+  if(isZip){
+    if(typeof JSZip==="undefined") throw new Error("zip 解压组件未加载");
+    const arr = file._buf || await file.arrayBuffer();
+    const zip = await JSZip.loadAsync(arr);
+    const out=[];
+    for(const path of Object.keys(zip.files)){
+      const e = zip.files[path];
+      if(e.dir) continue;
+      const n = path.toLowerCase();
+      if(!/\.(csv|xlsx|xls|txt)$/.test(n)) continue;
+      const buf = await e.async("arraybuffer");
+      const parsed = await parseOneBillFile({ name: path.split("/").pop(), _buf: buf });
+      if(parsed) out.push(parsed);
+    }
+    return out;
+  }
+  const parsed = await parseOneBillFile(file);
+  return parsed ? [parsed] : [];
+}
+function isZipMagic(buf){
+  try{ const u = new Uint8Array(buf); return u.length>2 && u[0]===0x50 && u[1]===0x4b; }catch(e){ return false; }
+}
+async function parseOneBillFile(file){
+  const name = (file.name||"").toLowerCase();
+  let text;
+  if(/\.(xlsx|xls)$/.test(name) && typeof XLSX!=="undefined"){
+    const arr = file._buf || await file.arrayBuffer();
+    const wb = XLSX.read(arr, {type:"array"});
+    const sn = wb.SheetNames[0];
+    text = XLSX.utils.sheet_to_csv(wb.Sheets[sn]);
+  }else{
+    text = await readBillText(file);
+  }
+  let rows = parseCSV(text);
+  let platform = detectPlatform(rows);
+  if(platform){
+    const hi = findHeader(rows);
+    if(hi>=0 && rows[hi].length<4) platform = null; // 表头字段太少 → 可能是制表符分隔
+  }
+  if(!platform){
+    rows = parseCSV(text.replace(/\t/g,","));
+    platform = detectPlatform(rows);
+  }
+  if(!platform) return null;
+  return { platform, entries: parseBill(rows, platform) };
+}
 async function processImportFiles(files){
   el("imp_preview").innerHTML = '<div class="note">⏳ 正在解析 '+files.length+' 个文件…</div>';
   try{
-    const all=[]; const platforms=new Set();
+    const all=[]; const platforms=new Set(); const failed=[];
     for(const f of files){
-      const text = await readBillText(f);
-      const rows = parseCSV(text);
-      const platform = detectPlatform(rows);
-      if(platform){ platforms.add(platform); all.push.apply(all, parseBill(rows, platform)); }
+      const results = await readBillFileToParsed(f);
+      if(!results || !results.length){ failed.push(f.name||"未知文件"); continue; }
+      results.forEach(r=>{ platforms.add(r.platform); all.push.apply(all, r.entries); });
     }
     if(!platforms.size){
-      el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 无法识别账单格式：未找到「交易时间 / 收/支」表头。请确认是微信支付或支付宝导出的 CSV 文件。</div>';
+      el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2"><b>⚠️ 无法识别账单内容</b>，请确认导出的文件是「用于个人对账」的 Excel/CSV（或含 csv 的压缩包）。<br><br>常见问题：<br>① 微信/支付宝发到邮箱的是 <b>zip 压缩包</b>——可以直接拖进本窗口，会自动解压；<br>② 如果是带电子章的 <b>PDF 证明文件</b>，请重新导出选「用于个人对账」；<br>③ 支付宝导出可选 <b>Excel 或 CSV</b>，两种都支持。</div>';
       return;
     }
     const platform = Array.from(platforms).join("+");
