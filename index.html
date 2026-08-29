@@ -428,7 +428,14 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
     </div>
 
     <div class="card">
-      <h2>本月统计 <span class="hint" id="leMonthHint"></span></h2>
+      <h2>月份统计 <span class="hint" id="leMonthHint"></span></h2>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(-1)">◀</button>
+        <button class="btn btn-ghost btn-sm" onclick="pickStatMonth()" id="leMonthPick" title="点击输入月份">本月</button>
+        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(1)">▶</button>
+        <button class="btn btn-ghost btn-sm" onclick="setStatMonth('all')">全部月份</button>
+        <button class="btn btn-ghost btn-sm" onclick="setStatMonth()">回本月</button>
+      </div>
       <div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
         <div class="oc"><div class="label">本月收入</div><div class="value up" id="leMonthIncome">¥0.00</div></div>
         <div class="oc"><div class="label">本月支出</div><div class="value down" id="leMonthExpense">¥0.00</div></div>
@@ -1521,6 +1528,31 @@ function accountBalance(name){
 function entriesOfMonth(entries, ym){
   return entries.filter(e=>e.date.slice(0,7)===ym);
 }
+let statMonth = null; // null=当前月, 'all'=全部, 'YYYY-MM'=指定月
+function currentYm(){ return todayStr().slice(0,7); }
+function statEntries(){
+  const base = filteredEntries();
+  if(statMonth==="all") return base;
+  const ym = statMonth || currentYm();
+  return base.filter(e=>e.date.slice(0,7)===ym);
+}
+function statYmLabel(){
+  if(statMonth==="all") return "全部月份";
+  const ym = statMonth || currentYm();
+  return ym.replace("-","年")+"月";
+}
+function shiftStatMonth(d){
+  const base = new Date((statMonth || currentYm())+"-01T00:00:00");
+  base.setMonth(base.getMonth()+d);
+  statMonth = base.getFullYear()+"-"+String(base.getMonth()+1).padStart(2,"0");
+  renderLedgerAll();
+}
+function pickStatMonth(){
+  const cur = statMonth || currentYm();
+  const v = prompt("输入月份（如 2026-08）：", cur);
+  if(v && /^\d{4}-\d{2}$/.test(v.trim())){ statMonth = v.trim(); renderLedgerAll(); }
+}
+function setStatMonth(v){ statMonth = (v===undefined || v===null) ? null : v; renderLedgerAll(); }
 function renderLedgerAll(){
   // 本月统计
   const ym = todayStr().slice(0,7);
@@ -1529,25 +1561,27 @@ function renderLedgerAll(){
   renderCatBudgetEditor();
   renderTrend();
   renderRemindersAll();
-  const me = entriesOfMonth(ledger.entries, ym);
-  const inc = sum(me.filter(e=>e.type==="income").map(e=>e.amount));
-  const exp = sum(me.filter(e=>e.type==="expense").map(e=>e.amount));
+  const se = statEntries();
+  const inc = sum(se.filter(e=>e.type==="income").map(e=>e.amount));
+  const exp = sum(se.filter(e=>e.type==="expense").map(e=>e.amount));
   el("leMonthIncome").textContent = fmtMoney(inc);
   el("leMonthExpense").textContent = fmtMoney(exp);
   el("leMonthBalance").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
-  el("leMonthHint").textContent = ym.replace("-","年") + "月";
-  el("leCount").textContent = ledger.entries.length;
+  const stLabel = statYmLabel();
+  el("leMonthHint").textContent = stLabel + " · 收入/支出/结余";
+  el("leMonthPick").textContent = stLabel;
+  el("leCount").textContent = se.length;
   // 分类占比（本月支出）
   const box = el("leCategoryBars");
-  const fme = entriesOfMonth(filteredEntries(), ym);
-  const fexp = sum(fme.filter(e=>e.type==="expense").map(e=>e.amount));
-  if(!fme.filter(e=>e.type==="expense").length){
-    box.innerHTML = '<div class="empty" style="padding:16px">当前范围内本月还没有支出记录</div>';
+  const fme = se.filter(e=>e.type==="expense");
+  const fexp = sum(fme.map(e=>e.amount));
+  if(!fme.length){
+    box.innerHTML = '<div class="empty" style="padding:16px">'+stLabel+'当前范围内没有支出记录</div>';
   }else{
     const m = {};
-    fme.filter(e=>e.type==="expense").forEach(e=>{ m[e.category]=(m[e.category]||0)+e.amount; });
+    fme.forEach(e=>{ m[e.category]=(m[e.category]||0)+e.amount; });
     const items = Object.entries(m).sort((a,b)=>b[1]-a[1]);
-    box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">本月支出分类占比（'+(ledgerFilter==="all"?"全部场景":(SCENES[ledgerFilter]?SCENES[ledgerFilter].label:"当前范围"))+'）</div>' + items.map(([k,v])=>{
+    box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+stLabel+'支出分类占比</div>' + items.map(([k,v])=>{
       const pct = fexp>0 ? v/fexp*100 : 0;
       return `<div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>${esc(k)}</span><span>${fmtMoney(v)} · ${fmtNum(pct,1)}%</span></div>
@@ -1559,7 +1593,7 @@ function renderLedgerAll(){
   const list = el("leList");
   const fname = {all:"全部场景",daily:"日常",travel:"旅游",business:"差旅",family:"家庭"}[ledgerFilter]||"全部场景";
   el("leFilterHint").textContent = "当前筛选：" + fname + (ledgerFilter!=="all" ? "（列表与分类占比仅显示该场景）" : "");
-  const sorted = [...filteredEntries()].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  const sorted = [...se].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
   el("leRangeCount").textContent = sorted.length;
   if(!sorted.length){
     list.innerHTML = '<div class="empty">还没有记账记录，用上方表单记第一笔吧</div>';
