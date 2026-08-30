@@ -122,16 +122,16 @@ canvas{width:100%;height:220px;display:block}
 /* ================= 移动端 v2 主题（高级 · 简洁） ================= */
 :root{
   --bg:#f4f6fb; --card:#ffffff; --line:#e8ebf2; --text:#111827; --muted:#6b7280;
-  --primary:#3b82f6; --primary2:#6366f1; --primary-soft:#eff6ff;
+  --primary:#14b8a6; --primary2:#0ea5e9; --primary-soft:#f0fdfa;
   --green:#10b981; --green-soft:#ecfdf5; --orange:#f59e0b; --orange-soft:#fffbeb;
   --red:#ef4444; --red-soft:#fef2f2;
-  --radius:18px; --radius-sm:12px;
-  --shadow:0 4px 20px rgba(15,23,42,.06); --shadow-lg:0 12px 32px rgba(59,130,246,.25);
+  --radius:20px; --radius-sm:13px;
+  --shadow:0 4px 20px rgba(15,23,42,.06); --shadow-lg:0 12px 32px rgba(20,184,166,.25);
 }
 @media (prefers-color-scheme: dark){
   :root:not(.force-light){
     --bg:#0f1115; --card:#1a1d24; --line:#2a2e38; --text:#e7e9ee; --muted:#9aa1ad;
-    --primary:#60a5fa; --primary2:#818cf8; --primary-soft:#1e293b;
+    --primary:#2dd4bf; --primary2:#38bdf8; --primary-soft:#0f2a26;
     --green:#34d399; --green-soft:#0f2a22; --orange:#fbbf24; --orange-soft:#2a2312;
     --red:#f87171; --red-soft:#2a1416;
     --shadow:0 4px 20px rgba(0,0,0,.35);
@@ -139,7 +139,7 @@ canvas{width:100%;height:220px;display:block}
 }
 body.dark{
   --bg:#0f1115; --card:#1a1d24; --line:#2a2e38; --text:#e7e9ee; --muted:#9aa1ad;
-  --primary:#60a5fa; --primary2:#818cf8; --primary-soft:#1e293b;
+  --primary:#2dd4bf; --primary2:#38bdf8; --primary-soft:#0f2a26;
   --green:#34d399; --green-soft:#0f2a22; --orange:#fbbf24; --orange-soft:#2a2312;
   --red:#f87171; --red-soft:#2a1416;
   --shadow:0 4px 20px rgba(0,0,0,.35);
@@ -147,11 +147,11 @@ body.dark{
 body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .btn{border-radius:12px}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 6px 16px rgba(59,130,246,.28)}
+.btn-primary{background:linear-gradient(135deg,#14b8a6,#0ea5e9);box-shadow:0 6px 16px rgba(20,184,166,.28)}
 .btn-primary:active{transform:scale(.97)}
 .oc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .oc .value{font-variant-numeric:tabular-nums}
-.oc.hero{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:var(--shadow-lg)}
+.oc.hero{background:linear-gradient(135deg,#14b8a6,#0ea5e9);box-shadow:var(--shadow-lg)}
 .prod{border-radius:14px}
 input,select,.field input,.field select{border-radius:11px;background:var(--card);color:var(--text)}
 .note{background:var(--bg);border-color:var(--line)}
@@ -162,7 +162,7 @@ input,select,.field input,.field select{border-radius:11px;background:var(--card
 .bottom-nav button.active{color:var(--primary);font-weight:600}
 @media(min-width:769px){.bottom-nav{display:none}}
 /* 首页 Hero */
-.home-hero{background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:26px;color:#fff;padding:24px 22px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.home-hero{background:linear-gradient(135deg,#14b8a6,#0ea5e9);border-radius:26px;color:#fff;padding:24px 22px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
 .home-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12)}
 .home-hero .lbl{font-size:13px;opacity:.85}
 .home-hero .big{font-size:36px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
@@ -245,7 +245,7 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
 .mark-chip .x{cursor:pointer;color:var(--muted);font-weight:700;padding:0 2px}
 .mark-emoji{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .mark-emoji button{font-size:20px;width:42px;height:42px;border-radius:11px;border:1px solid var(--line);background:var(--card);cursor:pointer}
-.mark-emoji button.active{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 0 0 2px rgba(59,130,246,.25)}
+.mark-emoji button.active{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 0 0 2px rgba(20,184,166,.25)}
 
 </style>
 </head>
@@ -307,6 +307,7 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
     <button class="tab" id="tab-ledger" onclick="showPage('ledger')">🧾 记账</button>
     <button class="tab" id="tab-asset" onclick="showPage('asset')">🏦 资产</button>
     <button class="tab" id="tab-goal" onclick="showPage('goal')">🎯 目标</button>
+    <button class="tab" id="tab-trip" onclick="showPage('trip')">👥 共享</button>
 
   </nav>
   <div id="page-invest">
@@ -609,6 +610,56 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
     <button class="btn btn-ghost btn-sm" onclick="exportBackup()">💾 备份数据</button>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('restoreFile').click()">📂 恢复数据</button>
     <input type="file" id="restoreFile" accept=".json,application/json" style="display:none" onchange="importBackupFile(this)">
+  </div>
+
+  <!-- ===== 旅行共享账本 ===== -->
+  <div id="page-trip" style="display:none">
+    <div id="tripListView">
+      <div class="card">
+        <h2>👥 旅行共享账本 <span class="hint">好友旅游 · 记录共享花费 · AA 自动分账</span></h2>
+        <div class="form-row">
+          <div class="field"><label>旅行名称</label><input id="tp_name" placeholder="如：云南之旅 / 周末露营"></div>
+          <div class="field"><label>成员（用逗号或空格分隔）</label><input id="tp_members" placeholder="如：小明,小红,阿强"></div>
+        </div>
+        <button class="btn btn-primary" onclick="createTrip()">＋ 创建旅行账本</button>
+        <div class="note" style="margin-top:10px"><b>怎么用：</b>创建旅行并填上同行好友 → 每笔消费记一次（谁付的、谁参与）→ 自动算出每个人应付多少、谁该转给谁。</div>
+      </div>
+      <div id="tripList"></div>
+    </div>
+
+    <div id="tripDetailView" style="display:none">
+      <div class="card">
+        <h2><span id="tpDetailTitle">旅行账本</span>
+          <span style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="tripBackToList()">← 返回列表</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteTrip()">删除账本</button>
+          </span>
+        </h2>
+        <div id="tripMembers" style="margin-bottom:12px"></div>
+        <div class="form-row">
+          <div class="field"><label>支出说明</label><input id="te_desc" placeholder="如：火锅 / 门票 / 民宿"></div>
+          <div class="field"><label>金额（元）</label><input id="te_amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+          <div class="field"><label>分类</label><select id="te_cat">
+            <option>餐饮</option><option>交通</option><option>住宿</option><option>门票</option><option>购物</option><option>娱乐</option><option>其他</option>
+          </select></div>
+          <div class="field"><label>付款人</label><select id="te_payer"></select></div>
+          <div class="field"><label>日期</label><input id="te_date" type="date"></div>
+        </div>
+        <div style="margin-bottom:12px">
+          <b style="font-size:13px">谁参与了这笔？（AA 分摊）</b>
+          <div id="te_among" style="margin-top:8px"></div>
+        </div>
+        <button class="btn btn-primary" onclick="addTripExpense()">＋ 记一笔共享支出</button>
+      </div>
+      <div class="card">
+        <h2>📒 支出明细</h2>
+        <div id="teList"></div>
+      </div>
+      <div class="card">
+        <h2>💰 分账结算 <span class="hint">谁该转给谁</span></h2>
+        <div id="tripSettle"></div>
+      </div>
+    </div>
   </div>
 
   <footer>
@@ -1824,7 +1875,7 @@ function renderGrade(total, net, cash, invest){
 
 /* ---------- 页面切换 ---------- */
 function showPage(name){
-  ["home","invest","ledger","asset","goal"].forEach(n=>{
+  ["home","invest","ledger","asset","goal","trip"].forEach(n=>{
     const pg = el("page-"+n);
     if(pg) pg.style.display = n===name ? "block" : "none";
     const tb = el("tab-"+n);
@@ -1838,6 +1889,7 @@ function showPage(name){
   if(name==="invest") renderAll();
   if(name==="goal") renderGoalAll();
   if(name==="home") renderHome();
+  if(name==="trip") renderTripAll();
   window.scrollTo(0,0);
 }
 
@@ -2754,7 +2806,153 @@ loadLedger();
 loadFixed();
 loadGoals();
 loadReminders();
+
+/* ================= 旅行共享账本（AA 分账） ================= */
+const TRIP_KEY = "licai_trip_v1";
+let trips = [];
+let currentTripId = null;
+function loadTrips(){ try{ trips = JSON.parse(localStorage.getItem(TRIP_KEY))||[]; }catch(e){ trips=[]; } }
+function saveTrips(){ localStorage.setItem(TRIP_KEY, JSON.stringify(trips)); }
+function currentTrip(){ return trips.find(t=>t.id===currentTripId)||null; }
+function renderTripAll(){
+  if(currentTripId && currentTrip()) renderTripDetail();
+  else renderTripList();
+}
+function renderTripList(){
+  const lv = el("tripListView"), dv = el("tripDetailView");
+  if(lv) lv.style.display="block"; if(dv) dv.style.display="none";
+  const box = el("tripList");
+  if(!trips.length){ box.innerHTML='<div class="empty" style="padding:24px">还没有旅行账本，先创建一个吧 ✈️</div>'; return; }
+  box.innerHTML = trips.map(t=>{
+    const total = sum(t.expenses.map(e=>e.amount));
+    return '<div class="prod" style="cursor:pointer" onclick="openTrip(\''+t.id+'\')">'+
+      '<div class="icon t-moneyfund" style="background:var(--primary-soft)">✈️</div>'+
+      '<div class="info"><div class="name">'+esc(t.name)+'</div>'+
+      '<div class="meta">'+t.members.length+' 位成员 · '+t.expenses.length+' 笔 · 共 '+fmtMoney(total)+'</div></div>'+
+      '<div class="actions"><button class="btn btn-primary btn-sm">进入</button></div></div>';
+  }).join("");
+}
+function createTrip(){
+  const name = el("tp_name").value.trim();
+  const mText = el("tp_members").value.trim();
+  if(!name){ alert("请输入旅行名称"); return; }
+  const names = mText.split(/[,，、\s]+/).map(x=>x.trim()).filter(Boolean);
+  if(names.length<2){ alert("请至少填写 2 位成员（用逗号分隔）"); return; }
+  const trip = { id: uid(), name, members: names.map(n=>({id: uid(), name:n})), expenses: [] };
+  trips.push(trip); saveTrips();
+  el("tp_name").value=""; el("tp_members").value="";
+  currentTripId = trip.id;
+  renderTripAll();
+}
+function openTrip(id){ currentTripId=id; renderTripAll(); }
+function tripBackToList(){ currentTripId=null; renderTripAll(); }
+function deleteTrip(){
+  const t = currentTrip(); if(!t) return;
+  if(!confirm("删除旅行账本「"+t.name+"」？全部记录将删除")) return;
+  trips = trips.filter(x=>x.id!==currentTripId);
+  currentTripId = null; saveTrips(); renderTripAll();
+}
+function renderTripDetail(){
+  const t = currentTrip(); if(!t) return;
+  el("tripListView").style.display = "none";
+  el("tripDetailView").style.display = "block";
+  el("tpDetailTitle").textContent = "✈️ "+t.name;
+  el("tripMembers").innerHTML = '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;color:var(--muted)">成员：</span>'+
+    t.members.map(m=>'<span style="background:var(--primary-soft);border:1px solid #99f6e4;border-radius:999px;padding:3px 10px;font-size:12.5px">'+esc(m.name)+'</span>').join("")+'</div>';
+  el("te_payer").innerHTML = t.members.map(m=>'<option value="'+m.id+'">'+esc(m.name)+'</option>').join("");
+  if(!el("te_date").value) el("te_date").value = todayStr();
+  el("te_among").innerHTML = t.members.map(m=>'<label style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 6px 0;font-size:13px;cursor:pointer"><input type="checkbox" class="te-among" value="'+m.id+'" checked>'+esc(m.name)+'</label>').join("");
+  renderTripExpenses();
+  renderTripSettle();
+}
+function addTripExpense(){
+  const t = currentTrip(); if(!t) return;
+  const desc = el("te_desc").value.trim();
+  const amount = parseFloat(el("te_amount").value);
+  if(!desc){ alert("请输入支出说明"); return; }
+  if(!isFinite(amount)||amount<=0){ alert("请输入有效金额"); return; }
+  const among = Array.from(document.querySelectorAll(".te-among:checked")).map(cb=>cb.value);
+  if(!among.length){ alert("请至少勾选 1 位参与者"); return; }
+  t.expenses.push({ id: uid(), date: el("te_date").value||todayStr(), desc, category: el("te_cat").value, amount, payer: el("te_payer").value, among });
+  saveTrips();
+  el("te_desc").value=""; el("te_amount").value="";
+  renderTripDetail();
+}
+function delTripExpense(id){
+  const t = currentTrip(); if(!t) return;
+  const e = t.expenses.find(x=>x.id===id); if(!e) return;
+  if(!confirm("删除这笔「"+e.desc+"」¥"+fmtNum(e.amount)+"？")) return;
+  t.expenses = t.expenses.filter(x=>x.id!==id);
+  saveTrips(); renderTripDetail();
+}
+function renderTripExpenses(){
+  const t = currentTrip(); if(!t) return;
+  const box = el("teList");
+  if(!t.expenses.length){ box.innerHTML='<div class="empty" style="padding:16px">还没有共享支出，记第一笔吧</div>'; return; }
+  const sorted = [...t.expenses].sort((a,b)=>b.date.localeCompare(a.date));
+  box.innerHTML = sorted.map(e=>{
+    const payer = t.members.find(m=>m.id===e.payer);
+    const am = e.among.map(id=>{ const m=t.members.find(x=>x.id===id); return m?m.name:""; }).filter(Boolean).join("、");
+    const per = fmtNum(e.amount/e.among.length,2);
+    return '<div class="prod" style="padding:10px 8px">'+
+      '<div class="icon t-custom" style="background:var(--primary-soft)">💸</div>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+esc(e.desc)+' <span style="color:var(--muted);font-size:12px;font-weight:400">'+esc(e.category)+' · '+esc(e.date)+'</span></div>'+
+      '<div class="meta">'+esc(payer?payer.name:"?")+' 付 · 参与：'+esc(am)+'（每人 '+per+'）</div></div>'+
+      '<div class="nums"><div class="earn">'+fmtMoney(e.amount)+'</div></div>'+
+      '<div class="actions"><button class="btn btn-danger btn-sm" onclick="delTripExpense(\''+e.id+'\')">删</button></div></div>';
+  }).join("");
+}
+function tripBalances(t){
+  const bal = {};
+  t.members.forEach(m=>bal[m.id]=0);
+  t.expenses.forEach(e=>{
+    bal[e.payer] = (bal[e.payer]||0) + e.amount;
+    const share = e.amount / e.among.length;
+    e.among.forEach(id=>{ bal[id] = (bal[id]||0) - share; });
+  });
+  return bal;
+}
+function settlePlan(t){
+  const bal = tripBalances(t);
+  const owe=[], get=[];
+  t.members.forEach(m=>{
+    const b = bal[m.id]||0;
+    if(b>0.005) get.push({name:m.name, amt:b});
+    else if(b<-0.005) owe.push({name:m.name, amt:-b});
+  });
+  const plan=[];
+  owe.forEach(o=>{
+    let remain = o.amt;
+    get.forEach(g=>{
+      if(remain<=0.005) return;
+      const pay = Math.min(remain, g.amt);
+      if(pay>0.005){ plan.push({from:o.name, to:g.name, amt:pay}); g.amt -= pay; remain -= pay; }
+    });
+  });
+  return plan;
+}
+function renderTripSettle(){
+  const t = currentTrip(); if(!t) return;
+  const box = el("tripSettle");
+  if(!t.expenses.length){ box.innerHTML='<div class="empty" style="padding:16px">记几笔共享支出后，这里会自动算出谁该转给谁</div>'; return; }
+  const bal = tripBalances(t);
+  const plan = settlePlan(t);
+  let h = '<div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr));margin-bottom:12px">'+
+    t.members.map(m=>{
+      const b = bal[m.id]||0;
+      return '<div class="oc"><div class="label">'+esc(m.name)+'</div><div class="value '+(b>=0?"up":"down")+'" style="font-size:18px">'+(b>=0?"+":"-")+fmtMoney(Math.abs(b))+'</div><div class="delta">'+(b>=0?"应收":"应付")+'</div></div>';
+    }).join("")+'</div>';
+  if(!plan.length){
+    h += '<div style="font-size:13px;color:var(--green);background:var(--green-soft);border:1px solid #a7f3d0;padding:10px 14px;border-radius:14px">✅ 账已结清，没有人欠钱</div>';
+  }else{
+    h += '<div style="font-size:13px;font-weight:600">转账建议：</div>'+
+      plan.map(p=>'<div style="display:flex;justify-content:space-between;align-items:center;background:var(--bg);border-radius:12px;padding:10px 14px;margin-top:8px;font-size:14px"><span>'+esc(p.from)+' <span style="color:var(--muted)">→</span> '+esc(p.to)+'</span><b style="color:var(--primary)">'+fmtMoney(p.amt)+'</b></div>').join("");
+  }
+  h += '<div class="note" style="margin-top:12px"><b>计算规则：</b>每笔支出按参与者人数均摊（AA），付款人先垫付；系统自动算出每个人的净应收/应付，并给出最少转账方案。</div>';
+  box.innerHTML = h;
+}
 loadCalendarMarks();
+loadTrips();
 try{ if(window.innerWidth<=768 && el("importHintBody") && el("importHintBody").style.display!=="none"){ el("importHintBody").style.display="none"; el("importHintToggle").textContent="展开 ▼"; } }catch(e){}
 /* ================= 移动端首页 & 主题 ================= */
 function renderHome(){
@@ -2857,6 +3055,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   <button data-page="ledger"><span class="bi">✏️</span>记账</button>
   <button data-page="asset"><span class="bi">💰</span>资产</button>
   <button data-page="goal"><span class="bi">🎯</span>目标</button>
+  <button data-page="trip"><span class="bi">👥</span>共享</button>
   <button data-page="invest"><span class="bi">📈</span>理财</button>
 </nav>
 <div class="modal-bg" id="dayModal">
