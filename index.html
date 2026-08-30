@@ -3023,7 +3023,14 @@ function renderTripSettle(){
 const CC_KEY = "licai_cc_v1";
 const API_KEY = "licai_api_v1";
 let ccState = { uid:null, name:null, showAssets:false, groups:[], curGroup:null };
-function ccApi(){ try{ return localStorage.getItem(API_KEY)||"http://127.0.0.1:3000"; }catch(e){ return "http://127.0.0.1:3000"; } }
+function ccApi(){
+  try{
+    const saved = localStorage.getItem(API_KEY);
+    if(saved) return saved;
+    if(location && location.protocol && location.protocol.startsWith("http")) return location.origin;
+    return "http://127.0.0.1:3000";
+  }catch(e){ return "http://127.0.0.1:3000"; }
+}
 function ccSaveApi(){ const v = el("cc_api").value.trim(); try{ localStorage.setItem(API_KEY, v||"http://127.0.0.1:3000"); }catch(e){} }
 async function ccFetch(path, body){
   const r = await fetch(ccApi()+path, { method: body?"POST":"GET", headers:{"Content-Type":"application/json"}, body: body?JSON.stringify(body):undefined });
