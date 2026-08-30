@@ -308,6 +308,7 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
     <button class="tab" id="tab-asset" onclick="showPage('asset')">🏦 资产</button>
     <button class="tab" id="tab-goal" onclick="showPage('goal')">🎯 目标</button>
     <button class="tab" id="tab-trip" onclick="showPage('trip')">👥 共享</button>
+    <button class="tab" id="tab-community" onclick="showPage('community')">🌐 社区</button>
 
   </nav>
   <div id="page-invest">
@@ -658,6 +659,71 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
       <div class="card">
         <h2>💰 分账结算 <span class="hint">谁该转给谁</span></h2>
         <div id="tripSettle"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 云社区（登录 / 群组 / 共享 / 隐私） ===== -->
+  <div id="page-community" style="display:none">
+    <div class="card">
+      <h2>🌐 云社区 <span class="hint">专属 ID 登录 · 拉小群 · 共享</span></h2>
+      <div id="ccLogin">
+        <div class="form-row">
+          <div class="field"><label>你的昵称</label><input id="cc_name" placeholder="如：小明"></div>
+        </div>
+        <button class="btn btn-primary" onclick="ccRegister()">🆔 生成我的专属 ID</button>
+        <div style="margin:12px 0;text-align:center;color:var(--muted);font-size:13px">— 已有 ID 直接登录 —</div>
+        <div class="form-row">
+          <div class="field"><label>我的 ID</label><input id="cc_id" placeholder="输入 6 位专属 ID" style="text-transform:uppercase"></div>
+        </div>
+        <button class="btn btn-ghost" onclick="ccLogin()">登录</button>
+      </div>
+      <div id="ccProfile" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <div style="font-size:15px">👤 <b id="ccUName"></b> · 我的 ID：<b id="ccUId" style="letter-spacing:2px;color:var(--primary)"></b></div>
+          <button class="btn btn-ghost btn-sm" onclick="ccLogout()">退出</button>
+        </div>
+        <div style="margin-top:12px;background:var(--bg);border-radius:12px;padding:12px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer">
+            <input type="checkbox" id="cc_showAssets" onchange="ccTogglePrivacy()">
+            💼 对外展示我的资产状况
+          </label>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">默认<b>关闭</b>（隐私保护）。开启后，群成员才能看到你的资产名片（净资产/现金/投资）。</div>
+        </div>
+        <div class="form-row" style="margin-top:10px">
+          <div class="field"><label>云服务地址</label><input id="cc_api" placeholder="http://127.0.0.1:3000" onchange="ccSaveApi()"></div>
+          <div class="unit" style="grid-column:1/-1">部署后改为你的服务器地址（如 https://xxx.com）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>👥 我的群组 <span class="hint">加群只需输入群号</span></h2>
+      <div class="form-row">
+        <div class="field"><label>创建群（群名）</label><input id="cc_gname" placeholder="如：云南之旅"></div>
+        <div class="field"><label>加入群（5 位群号）</label><input id="cc_gid" placeholder="输入群号" style="text-transform:uppercase"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="ccCreateGroup()">＋ 创建群</button>
+        <button class="btn btn-ghost btn-sm" onclick="ccJoinGroup()">➕ 加入群</button>
+      </div>
+      <div id="ccGroups" style="margin-top:12px"></div>
+    </div>
+
+    <div id="ccGroupView" style="display:none">
+      <div class="card">
+        <h2><span id="ccGTitle">群</span>
+          <span style="display:flex;gap:8px"><button class="btn btn-ghost btn-sm" onclick="ccBackGroups()">← 返回</button></span>
+        </h2>
+        <div id="ccMembers"></div>
+      </div>
+      <div class="card">
+        <h2>📤 发共享 <span class="hint">把旅行账本分享到群</span></h2>
+        <div class="form-row">
+          <div class="field"><label>选择本地旅行账本</label><select id="cc_tripSelect"></select></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="ccShareTrip()">📤 分享旅行账本</button>
+        <div id="ccShares" style="margin-top:12px"></div>
       </div>
     </div>
   </div>
@@ -1875,7 +1941,7 @@ function renderGrade(total, net, cash, invest){
 
 /* ---------- 页面切换 ---------- */
 function showPage(name){
-  ["home","invest","ledger","asset","goal","trip"].forEach(n=>{
+  ["home","invest","ledger","asset","goal","trip","community"].forEach(n=>{
     const pg = el("page-"+n);
     if(pg) pg.style.display = n===name ? "block" : "none";
     const tb = el("tab-"+n);
@@ -1890,6 +1956,7 @@ function showPage(name){
   if(name==="goal") renderGoalAll();
   if(name==="home") renderHome();
   if(name==="trip") renderTripAll();
+  if(name==="community") renderCommunity();
   window.scrollTo(0,0);
 }
 
@@ -2951,8 +3018,141 @@ function renderTripSettle(){
   h += '<div class="note" style="margin-top:12px"><b>计算规则：</b>每笔支出按参与者人数均摊（AA），付款人先垫付；系统自动算出每个人的净应收/应付，并给出最少转账方案。</div>';
   box.innerHTML = h;
 }
+
+/* ================= 云社区（登录 / 群组 / 共享 / 隐私） ================= */
+const CC_KEY = "licai_cc_v1";
+const API_KEY = "licai_api_v1";
+let ccState = { uid:null, name:null, showAssets:false, groups:[], curGroup:null };
+function ccApi(){ try{ return localStorage.getItem(API_KEY)||"http://127.0.0.1:3000"; }catch(e){ return "http://127.0.0.1:3000"; } }
+function ccSaveApi(){ const v = el("cc_api").value.trim(); try{ localStorage.setItem(API_KEY, v||"http://127.0.0.1:3000"); }catch(e){} }
+async function ccFetch(path, body){
+  const r = await fetch(ccApi()+path, { method: body?"POST":"GET", headers:{"Content-Type":"application/json"}, body: body?JSON.stringify(body):undefined });
+  return r.json();
+}
+function ccLoadState(){ try{ const s = JSON.parse(localStorage.getItem(CC_KEY)); if(s && s.uid) ccState = s; }catch(e){} }
+function ccSaveState(){ try{ localStorage.setItem(CC_KEY, JSON.stringify(ccState)); }catch(e){} }
+function renderCommunity(){
+  el("cc_api").value = ccApi();
+  if(ccState.uid){
+    el("ccLogin").style.display = "none";
+    el("ccProfile").style.display = "block";
+    el("ccUName").textContent = ccState.name;
+    el("ccUId").textContent = ccState.uid;
+    el("cc_showAssets").checked = !!ccState.showAssets;
+  }else{
+    el("ccLogin").style.display = "block";
+    el("ccProfile").style.display = "none";
+  }
+  if(ccState.curGroup) ccRenderGroupView();
+  else { el("ccGroupView").style.display = "none"; ccRenderGroups(); }
+  // 旅行账本下拉
+  const sel = el("cc_tripSelect");
+  sel.innerHTML = trips.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'（'+t.members.length+'人）</option>').join("");
+}
+async function ccRegister(){
+  const name = el("cc_name").value.trim();
+  if(!name){ alert("请输入昵称"); return; }
+  const d = await ccFetch("/api/register", {name});
+  if(d.ok){
+    ccState = { uid:d.id, name:d.name, showAssets:false, groups:[], curGroup:null };
+    ccSaveState(); renderCommunity();
+    el("cc_name").value="";
+    alert("✅ 你的专属 ID 是："+d.id+"\n请保存好，朋友加群时用它识别你");
+  }else alert("注册失败："+(d.msg||"服务器未连接，请检查云服务地址"));
+}
+async function ccLogin(){
+  const id = el("cc_id").value.trim().toUpperCase();
+  if(!id){ alert("请输入 ID"); return; }
+  const d = await ccFetch("/api/login", {id});
+  if(d.ok){
+    ccState = { uid:d.id, name:d.name, showAssets:!!d.privacy.showAssets, groups:[], curGroup:null };
+    ccSaveState(); renderCommunity(); el("cc_id").value="";
+  }else alert("登录失败："+(d.msg||""));
+}
+function ccLogout(){ ccState = { uid:null, name:null, showAssets:false, groups:[], curGroup:null }; ccSaveState(); renderCommunity(); }
+async function ccTogglePrivacy(){
+  const on = el("cc_showAssets").checked;
+  const d = await ccFetch("/api/user/update", {id:ccState.uid, privacy:{showAssets:on}});
+  if(d.ok){ ccState.showAssets = on; ccSaveState(); if(on) await ccUploadAssets(); }
+  else { alert("设置失败："+(d.msg||"")); el("cc_showAssets").checked = !on; }
+}
+async function ccUploadAssets(){
+  const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
+  const invest = investTotalValue(); const fixed = fixedTotal(); const debt = assetCfg.debt||0;
+  const net = cash + invest + fixed - debt;
+  await ccFetch("/api/user/assets", {id:ccState.uid, assets:{net, cash, invest, fixed, debt}});
+}
+async function ccCreateGroup(){
+  if(!ccState.uid){ alert("请先登录（生成 ID）"); return; }
+  const name = el("cc_gname").value.trim();
+  if(!name){ alert("请输入群名"); return; }
+  const d = await ccFetch("/api/group/create", {name, ownerId:ccState.uid});
+  if(d.ok){
+    if(!ccState.groups.find(g=>g.id===d.group.id)) ccState.groups.push(d.group);
+    ccSaveState(); el("cc_gname").value=""; ccRenderGroups();
+    alert("✅ 群创建成功，群号："+d.group.id+"\n把群号发给朋友即可加入");
+  }else alert("创建失败："+(d.msg||""));
+}
+async function ccJoinGroup(){
+  if(!ccState.uid){ alert("请先登录"); return; }
+  const gid = el("cc_gid").value.trim().toUpperCase();
+  if(!gid){ alert("请输入群号"); return; }
+  const d = await ccFetch("/api/group/join", {groupId:gid, userId:ccState.uid});
+  if(d.ok){
+    if(!ccState.groups.find(g=>g.id===gid)) ccState.groups.push(d.group);
+    ccSaveState(); el("cc_gid").value=""; ccRenderGroups();
+    alert("✅ 已加入群「"+d.group.name+"」");
+  }else alert("加入失败："+(d.msg||""));
+}
+function ccRenderGroups(){
+  const box = el("ccGroups");
+  if(!ccState.groups.length){ box.innerHTML='<div class="empty" style="padding:14px">还没有群，创建或输入群号加入</div>'; return; }
+  box.innerHTML = ccState.groups.map(g=>'<div class="prod" style="cursor:pointer" onclick="ccOpenGroup(\''+g.id+'\')">'+
+    '<div class="icon t-moneyfund" style="background:var(--primary-soft)">👥</div>'+
+    '<div class="info"><div class="name">'+esc(g.name)+'</div><div class="meta">群号 '+g.id+'</div></div>'+
+    '<div class="actions"><button class="btn btn-primary btn-sm">进入</button></div></div>').join("");
+}
+function ccOpenGroup(gid){ ccState.curGroup = gid; ccSaveState(); ccRenderGroupView(); }
+function ccBackGroups(){ ccState.curGroup = null; ccSaveState(); renderCommunity(); }
+function ccRenderGroupView(){
+  el("ccGroupView").style.display = "block";
+  const g = ccState.groups.find(x=>x.id===ccState.curGroup);
+  el("ccGTitle").textContent = "👥 "+(g?g.name:"群")+"（"+ccState.curGroup+"）";
+  ccLoadGroup(ccState.curGroup);
+  ccLoadShares(ccState.curGroup);
+}
+async function ccLoadGroup(gid){
+  const d = await ccFetch("/api/group/"+gid+"/members");
+  const box = el("ccMembers");
+  if(!d.ok){ box.innerHTML='<div class="note">加载成员失败</div>'; return; }
+  box.innerHTML = d.members.map(m=>{
+    const assetCard = (m.showAssets && m.assets) ? '<div style="font-size:12px;color:var(--primary);margin-top:2px">💼 净资产 '+fmtMoney(m.assets.net||0)+'</div>' : '';
+    return '<div class="prod" style="padding:10px 8px">'+
+      '<div class="icon t-moneyfund" style="background:var(--primary-soft)">👤</div>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+esc(m.name)+' '+(m.showAssets?'<span style="color:var(--green);font-size:11px">已展示资产</span>':'<span style="color:var(--muted);font-size:11px">未展示</span>')+'</div>'+
+      '<div class="meta">ID '+m.id+'</div>'+assetCard+'</div></div>';
+  }).join("") || '<div class="empty" style="padding:12px">暂无成员</div>';
+}
+async function ccLoadShares(gid){
+  const d = await ccFetch("/api/group/"+gid+"/shares");
+  const box = el("ccShares");
+  if(!d.ok || !d.shares.length){ box.innerHTML='<div class="empty" style="padding:12px">群里还没有共享内容</div>'; return; }
+  box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">群共享：</div>' + d.shares.map(s=>
+    '<div style="background:var(--bg);border-radius:12px;padding:10px 14px;margin-bottom:8px;font-size:13px"><b>'+esc(s.userName)+'</b> 分享了：'+esc(s.title)+
+    '<div style="color:var(--muted);font-size:12px;margin-top:2px">'+new Date(s.at).toLocaleString()+'</div></div>').join("");
+}
+async function ccShareTrip(){
+  if(!ccState.uid || !ccState.curGroup){ alert("请先登录并进入群"); return; }
+  const tid = el("cc_tripSelect").value;
+  const trip = trips.find(t=>t.id===tid);
+  if(!trip){ alert("请选择旅行账本"); return; }
+  const d = await ccFetch("/api/group/"+ccState.curGroup+"/share", {userId:ccState.uid, type:"trip", title:"旅行账本："+trip.name, data:{tripId:trip.id, expenses:trip.expenses.length}});
+  if(d.ok){ alert("✅ 已分享到群"); ccLoadShares(ccState.curGroup); }
+  else alert("分享失败："+(d.msg||""));
+}
 loadCalendarMarks();
 loadTrips();
+ccLoadState();
 try{ if(window.innerWidth<=768 && el("importHintBody") && el("importHintBody").style.display!=="none"){ el("importHintBody").style.display="none"; el("importHintToggle").textContent="展开 ▼"; } }catch(e){}
 /* ================= 移动端首页 & 主题 ================= */
 function renderHome(){
@@ -3056,6 +3256,7 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   <button data-page="asset"><span class="bi">💰</span>资产</button>
   <button data-page="goal"><span class="bi">🎯</span>目标</button>
   <button data-page="trip"><span class="bi">👥</span>共享</button>
+  <button data-page="community"><span class="bi">🌐</span>社区</button>
   <button data-page="invest"><span class="bi">📈</span>理财</button>
 </nav>
 <div class="modal-bg" id="dayModal">
