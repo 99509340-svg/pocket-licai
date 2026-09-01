@@ -250,7 +250,10 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
 
 /* 自定义背景 */
 body.custom-bg{background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat}
-body.custom-bg-grad{background:linear-gradient(160deg,var(--bg1,#dbeafe),var(--bg2,#f0fdfa));background-attachment:fixed}
+body.custom-bg-grad{background:linear-gradient(160deg,var(--bg1,#bfdbfe),var(--bg2,#a5f3fc));background-attachment:fixed}
+body.custom-bg .card,body.custom-bg .oc,
+body.custom-bg-grad .card,body.custom-bg-grad .oc{background:color-mix(in srgb, var(--card) 96%, transparent);border-color:color-mix(in srgb, var(--line) 80%, transparent)}
+body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%, transparent)}
 /* 全局搜索 */
 .home-search{position:relative;margin-bottom:6px}
 .home-search input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);font-size:14px;box-shadow:var(--shadow);outline:none}
@@ -3213,7 +3216,10 @@ const THEME_COLORS = [
 ];
 let themeCustom = { primary:"#14b8a6", primary2:"#0ea5e9", bg:"default", bgImage:null };
 function loadThemeCustom(){ try{ const t=JSON.parse(localStorage.getItem(THEME_KEY)); if(t&&t.primary) themeCustom=Object.assign(themeCustom,t); }catch(e){} }
-function saveThemeCustom(){ try{ localStorage.setItem(THEME_KEY, JSON.stringify(themeCustom)); }catch(e){} }
+function saveThemeCustom(){
+  try{ localStorage.setItem(THEME_KEY, JSON.stringify(themeCustom)); }
+  catch(e){ if(e && e.name==="QuotaExceededError") alert("⚠️ 背景图太大，本机存储上限约 5MB，未能保存。请换小图或压缩后重试。"); else alert("保存外观设置失败"); }
+}
 function applyTheme(){
   const r = document.documentElement ? document.documentElement.style : null;
   if(r){ r.setProperty("--primary", themeCustom.primary); r.setProperty("--primary2", themeCustom.primary2); }
@@ -3223,8 +3229,8 @@ function applyTheme(){
     if(themeCustom.bgImage){ if(body.classList) body.classList.add("custom-bg"); body.style.backgroundImage = "url("+themeCustom.bgImage+")"; }
     else {
       body.style.backgroundImage = "";
-      if(themeCustom.bg==="grad1"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#dbeafe"); r.setProperty("--bg2","#f0fdfa"); } }
-      else if(themeCustom.bg==="grad2"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#ffedd5"); r.setProperty("--bg2","#fef9c3"); } }
+      if(themeCustom.bg==="grad1"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#bfdbfe"); r.setProperty("--bg2","#a5f3fc"); } }
+      else if(themeCustom.bg==="grad2"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#fed7aa"); r.setProperty("--bg2","#fde68a"); } }
     }
   }
 }
