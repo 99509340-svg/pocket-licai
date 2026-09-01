@@ -316,6 +316,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <button class="btn btn-ghost btn-sm" onclick="setStatMonth('all')">全部月份</button>
       <button class="btn btn-ghost btn-sm" onclick="setStatMonth()">回本月</button>
     </div>
+    <div id="hmBudgetRing" style="display:flex;align-items:center;gap:16px;margin-bottom:14px"></div>
     <div class="overview" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
       <div class="oc"><div class="label">收入</div><div class="value up" id="hmMin">¥0.00</div></div>
       <div class="oc"><div class="label">支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
@@ -445,16 +446,18 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       </div>
       <div class="form-row">
         <div class="field"><label>类型</label>
-          <select id="le_type" onchange="refreshCatSelect()"><option value="expense">支出</option><option value="income">收入</option></select>
+          <select id="le_type" onchange="refreshCatSelect()"><option value="expense">支出</option><option value="income">收入</option><option value="transfer">转账</option></select>
         </div>
         <div class="field"><label>分类</label><select id="le_cat"></select></div>
         <div class="field"><label>金额（元）</label><input id="le_amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
         <div class="field"><label>日期</label><input id="le_date" type="date"></div>
         <div class="field"><label>账户</label><select id="le_account"></select></div>
+        <div class="field" id="le_toWrap" style="display:none"><label>转入账户</label><select id="le_toAccount"></select></div>
         <div class="field"><label>备注</label><input id="le_note" placeholder="可选"></div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
         <button class="btn btn-primary" id="leSubmitBtn" onclick="submitEntry()">＋ 记一笔</button>
+        <button class="btn btn-ghost" id="voiceBtn" style="display:none" onclick="voiceEntry()">🎤 语音记账</button>
         <input id="le_customCat" placeholder="自定义分类（可选，输入后直接作为新分类）" style="flex:1;min-width:200px;padding:9px 11px;border:1px solid var(--line);border-radius:9px">
         <span class="hint" id="leEditHint" style="display:none;color:var(--orange)">正在编辑，点「保存修改」完成</span>
       </div>
@@ -485,6 +488,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
         <div id="bd_progress"></div>
       </div>
       <div id="leCategoryBars" style="margin-top:12px"></div>
+      <div id="insightBox" style="margin-top:14px"></div>
       <div style="margin-top:16px">
         <div style="font-size:13px;color:var(--muted);margin-bottom:6px">近 6 个月收支趋势（绿=收入 红=支出 蓝=结余）</div>
         <canvas id="trendChart" style="height:180px"></canvas>
@@ -518,6 +522,23 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <button class="btn btn-primary btn-sm" onclick="addReminder()">＋ 添加提醒</button>
       <div id="rmList" style="margin-top:12px"></div>
     </div>
+    <div class="card">
+      <h2>🔁 周期记账 <span class="hint">房租/订阅自动生成，免重复记账</span></h2>
+      <div class="form-row">
+        <div class="field"><label>名称</label><input id="rc_name" placeholder="如：房租 / 视频会员"></div>
+        <div class="field"><label>金额（元）</label><input id="rc_amount" type="number" min="0" step="0.01"></div>
+        <div class="field"><label>分类</label><select id="rc_cat"><option>居住</option><option>餐饮</option><option>交通</option><option>通讯</option><option>娱乐</option><option>教育</option><option>医疗</option><option>其他</option></select></div>
+        <div class="field"><label>账户</label><select id="rc_account"></select></div>
+        <div class="field"><label>周期</label><select id="rc_period"><option value="month">每月</option><option value="quarter">每季</option><option value="year">每年</option></select></div>
+        <div class="field"><label>开始日期</label><input id="rc_start" type="date"></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="addRecurring()">＋ 添加周期记账</button>
+        <button class="btn btn-ghost btn-sm" onclick="genRecurring()">⚡ 生成本月</button>
+      </div>
+      <div id="rcList" style="margin-top:12px"></div>
+    </div>
+
     <div class="card">
       <h2>账单记录 <span class="hint">共 <span id="leRangeCount">0</span> 条</span>
         <span style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1627,6 +1648,16 @@ function setScene(s){
 }
 function refreshCatSelect(){
   const t = el("le_type").value;
+  const isTransfer = t==="transfer";
+  const catWrap = el("le_cat") ? el("le_cat").parentElement : null;
+  if(catWrap) catWrap.style.display = isTransfer ? "none" : "";
+  const toWrap = el("le_toWrap");
+  if(toWrap) toWrap.style.display = isTransfer ? "block" : "none";
+  if(isTransfer){
+    const sel = el("le_toAccount");
+    if(sel) sel.innerHTML = ledger.accounts.map(a=>`<option value="${esc(a.name)}">${esc(a.name)}</option>`).join("");
+    return;
+  }
   const cats = t==="expense" ? SCENES[currentScene].expense : INCOME_CATS;
   const sel = el("le_cat");
   sel.innerHTML = cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
@@ -1641,10 +1672,24 @@ function submitEntry(){
   const amount = parseFloat(el("le_amount").value);
   const date = el("le_date").value || todayStr();
   const type = el("le_type").value;
-  const category = el("le_customCat").value.trim() || el("le_cat").value;
+  const category = el("le_customCat").value.trim() || (el("le_cat")?el("le_cat").value:"其他");
   const account = el("le_account").value;
   const note = el("le_note").value.trim();
   if(!isFinite(amount) || amount<=0){ alert("请填写有效的金额"); return; }
+  if(type==="transfer"){
+    const to = el("le_toAccount") ? el("le_toAccount").value : "";
+    if(!to){ alert("请选择转入账户"); return; }
+    if(to===account){ alert("转出和转入账户不能相同"); return; }
+    const entry = { id: leEditId || uid(), type:"transfer", category:"转账", amount, date, account, toAccount:to, note, scene: currentScene };
+    if(leEditId){ const i = ledger.entries.findIndex(x=>x.id===leEditId); if(i>=0) ledger.entries[i] = entry; leEditId=null; }
+    else ledger.entries.push(entry);
+    saveLedger();
+    el("le_amount").value=""; el("le_note").value=""; el("le_customCat").value="";
+    el("leSubmitBtn").textContent = "＋ 记一笔";
+    el("leEditHint").style.display = "none";
+    renderLedgerAll();
+    return;
+  }
   if(!category){ alert("请选择或输入分类"); return; }
   const entry = { id: leEditId || uid(), type, category, amount, date, account, note, scene: currentScene };
   if(leEditId){ const i = ledger.entries.findIndex(e=>e.id===leEditId); if(i>=0) ledger.entries[i] = entry; leEditId=null; }
@@ -1659,6 +1704,7 @@ function editEntry(id){
   const e = ledger.entries.find(x=>x.id===id); if(!e) return;
   leEditId = id;
   el("le_type").value = e.type;
+  if(e.type==="transfer" && el("le_toAccount")) el("le_toAccount").value = e.toAccount||"";
   el("le_amount").value = e.amount;
   el("le_date").value = e.date;
   el("le_account").value = e.account;
@@ -1692,7 +1738,14 @@ function addAccount(){
 function accountBalance(name){
   const acc = ledger.accounts.find(a=>a.name===name);
   let bal = acc ? acc.initial : 0;
-  ledger.entries.forEach(e=>{ if(e.account===name) bal += e.type==="income" ? e.amount : -e.amount; });
+  ledger.entries.forEach(e=>{
+    if(e.type==="transfer"){
+      if(e.account===name) bal -= e.amount;
+      if(e.toAccount===name) bal += e.amount;
+    }else if(e.account===name){
+      bal += e.type==="income" ? e.amount : -e.amount;
+    }
+  });
   return bal;
 }
 function entriesOfMonth(entries, ym){
@@ -1724,12 +1777,62 @@ function pickStatMonth(){
   if(v && /^\d{4}-\d{2}$/.test(v.trim())){ statMonth = v.trim(); refreshStatViews(); }
 }
 function setStatMonth(v){ statMonth = (v===undefined || v===null) ? null : v; refreshStatViews(); }
+function renderInsight(){
+  const box = el("insightBox");
+  if(!box) return;
+  const se = statEntries();
+  const exps = se.filter(e=>e.type==="expense");
+  const incs = se.filter(e=>e.type==="income");
+  const totalExp = sum(exps.map(e=>e.amount));
+  const totalInc = sum(incs.map(e=>e.amount));
+  const isAll = statMonth==="all";
+  const ym = statMonth && !isAll ? statMonth : currentYm();
+  // 环比上月（仅单月视图）
+  let vsTxt = "";
+  if(!isAll){
+    const prev = (()=>{ const d=new Date(ym+"-01"); d.setMonth(d.getMonth()-1); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); })();
+    const prevExp = sum(ledger.entries.filter(e=>e.type==="expense"&&e.date.slice(0,7)===prev).map(e=>e.amount));
+    if(prevExp>0){
+      const chg = (totalExp-prevExp)/prevExp*100;
+      vsTxt = '<div class="cal-stat">环比上月支出 <b class="'+(chg>0?"down":"up")+'">'+(chg>0?"+":"")+fmtNum(chg,1)+'%</b></div>';
+    }
+  }
+  // 日均
+  let avgTxt = "";
+  if(!isAll && statMonth===currentYm()){
+    const day = new Date().getDate();
+    avgTxt = '<div class="cal-stat">本月日均支出 <b>'+fmtMoney(totalExp/Math.max(1,day))+'</b></div>';
+  } else if(!isAll){
+    const days = new Date(parseInt(ym.slice(0,4)), parseInt(ym.slice(5,7)), 0).getDate();
+    avgTxt = '<div class="cal-stat">'+ym.slice(5)+'月日均 <b>'+fmtMoney(totalExp/Math.max(1,days))+'</b></div>';
+  }
+  // 最大单笔
+  let maxTxt = "";
+  if(exps.length){
+    const m = exps.reduce((a,b)=>a.amount>=b.amount?a:b);
+    maxTxt = '<div class="cal-stat">最大单笔 <b>'+esc(m.category)+' '+fmtMoney(m.amount)+'</b></div>';
+  }
+  // TOP3 分类
+  const catMap = {};
+  exps.forEach(e=>{ catMap[e.category]=(catMap[e.category]||0)+e.amount; });
+  const top = Object.entries(catMap).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  const topTxt = top.length ? '<div class="cal-stat">TOP支出：'+top.map(([k,v])=>esc(k)+' '+fmtMoney(v)).join(' · ')+'</div>' : '';
+  // 结余率
+  let saveTxt = "";
+  if(totalInc>0){
+    const rate = (totalInc-totalExp)/totalInc*100;
+    saveTxt = '<div class="cal-stat">储蓄率 <b class="'+(rate>=0?"up":"down")+'">'+fmtNum(rate,1)+'%</b></div>';
+  }
+  box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:6px">💡 消费洞察</div>'+
+    '<div class="cal-stats">'+avgTxt+vsTxt+maxTxt+saveTxt+topTxt+'</div>';
+}
 function renderLedgerAll(){
   // 本月统计
   const ym = todayStr().slice(0,7);
   renderBudget(ym);
   renderReminders();
   renderCatBudgetEditor();
+  renderInsight();
   renderTrend();
   renderRemindersAll();
   const se = statEntries();
@@ -1779,6 +1882,15 @@ function renderLedgerAll(){
       }
       const cls = e.type==="income" ? "up" : "down";
       const sign = e.type==="income" ? "+" : "-";
+      if(e.type==="transfer"){
+        html += `<div class="prod" style="padding:9px 6px;margin-bottom:0;border:none;border-bottom:1px solid #f1f3f8">
+          <div class="icon t-moneyfund" style="width:34px;height:34px;font-size:16px">🔁</div>
+          <div class="info"><div class="name" style="font-size:14px">转账 <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(e.account)} → ${esc(e.toAccount||"")}</span></div>
+          <div class="meta">${esc(e.note||"")}</div></div>
+          <div class="nums"><div class="earn" style="color:var(--muted)">${fmtMoney(e.amount)}</div></div>
+          <div class="actions"><button class="btn btn-ghost btn-sm" onclick="editEntry('${e.id}')">改</button><button class="btn btn-danger btn-sm" onclick="delEntry('${e.id}')">删</button></div>
+        </div>`;
+      }else{
       html += `<div class="prod" style="padding:9px 6px;margin-bottom:0;border:none;border-bottom:1px solid #f1f3f8">
         <div class="icon ${e.type==="income"?"t-moneyfund":"t-custom"}" style="width:34px;height:34px;font-size:16px">${e.type==="income"?"💹":"💸"}</div>
         <div class="info"><div class="name" style="font-size:14px">${esc(e.category)} <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(e.scene==="daily"?"日常":SCENES[e.scene]?SCENES[e.scene].label.replace(/^[^ ]+ /,""):"日常")} · ${esc(e.account)}</span></div>
@@ -1786,6 +1898,7 @@ function renderLedgerAll(){
         <div class="nums"><div class="earn ${cls}">${sign}${fmtMoney(e.amount)}</div></div>
         <div class="actions"><button class="btn btn-ghost btn-sm" onclick="editEntry('${e.id}')">改</button><button class="btn btn-danger btn-sm" onclick="delEntry('${e.id}')">删</button></div>
       </div>`;
+      }
     });
     list.innerHTML = html;
   }
@@ -3315,9 +3428,103 @@ function globalGo(action, kw, id){
   else if(action==="trip"){ showPage("trip"); if(id) openTrip(id); }
   else if(action==="goal"){ showPage("goal"); }
 }
+
+/* ================= 周期记账 + 语音记账 ================= */
+const REC_KEY = "licai_recurring_v1";
+let recurrings = [];
+function loadRecurrings(){ try{ recurrings = JSON.parse(localStorage.getItem(REC_KEY))||[]; }catch(e){ recurrings=[]; } }
+function saveRecurrings(){ localStorage.setItem(REC_KEY, JSON.stringify(recurrings)); }
+function renderRecurrings(){
+  const box = el("rcList");
+  if(!recurrings.length){ box.innerHTML='<div class="empty" style="padding:12px">还没有周期记账。比如房租、订阅、话费，设一次以后自动生成</div>'; return; }
+  box.innerHTML = recurrings.map(r=>{
+    const pt = {month:"每月",quarter:"每季",year:"每年"}[r.period]||r.period;
+    return '<div class="prod" style="padding:9px 8px">'+
+      '<div class="icon t-moneyfund" style="background:var(--primary-soft)">🔁</div>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+esc(r.name)+'</div>'+
+      '<div class="meta">'+pt+' · '+esc(r.category)+' · '+esc(r.account)+' · 从 '+esc(r.start)+' 起</div></div>'+
+      '<div class="nums"><div class="earn">'+fmtMoney(r.amount)+'</div></div>'+
+      '<div class="actions"><button class="btn btn-danger btn-sm" onclick="delRecurring(\''+r.id+'\')">删</button></div></div>';
+  }).join("");
+}
+function addRecurring(){
+  const name = el("rc_name").value.trim();
+  const amount = parseFloat(el("rc_amount").value);
+  const start = el("rc_start").value;
+  if(!name){ alert("请输入名称"); return; }
+  if(!isFinite(amount)||amount<=0){ alert("请输入有效金额"); return; }
+  if(!start){ alert("请选择开始日期"); return; }
+  recurrings.push({ id: uid(), name, amount, category: el("rc_cat").value, account: el("rc_account").value, period: el("rc_period").value, start });
+  saveRecurrings();
+  el("rc_name").value=""; el("rc_amount").value="";
+  renderRecurrings();
+  alert("✅ 已添加周期记账，点「⚡ 生成本月」自动记账");
+}
+function delRecurring(id){
+  const r = recurrings.find(x=>x.id===id); if(!r) return;
+  if(!confirm("删除周期记账「"+r.name+"」？")) return;
+  recurrings = recurrings.filter(x=>x.id!==id);
+  saveRecurrings(); renderRecurrings();
+}
+function recurringDates(start, period, uptoYm){
+  const dates = [];
+  const d = new Date(start+"T00:00:00");
+  const upto = new Date(uptoYm+"-01");
+  upto.setMonth(upto.getMonth()+1);
+  while(d < upto){
+    dates.push(fmtDate(d));
+    if(period==="month") d.setMonth(d.getMonth()+1);
+    else if(period==="quarter") d.setMonth(d.getMonth()+3);
+    else d.setFullYear(d.getFullYear()+1);
+  }
+  return dates;
+}
+function genRecurring(){
+  if(!recurrings.length){ alert("还没有周期记账，先添加一个"); return; }
+  let added = 0;
+  const ym = currentYm();
+  recurrings.forEach(r=>{
+    recurringDates(r.start, r.period, ym).forEach(ds=>{
+      const exists = ledger.entries.some(e=>e.date===ds && e.category===r.category && Math.abs(e.amount-r.amount)<0.01 && e.account===r.account && (e.note||"").includes(r.name));
+      if(!exists){ ledger.entries.push({ id: uid(), type:"expense", category:r.category, amount:r.amount, date:ds, account:r.account, note:r.name, scene:"daily" }); added++; }
+    });
+  });
+  saveLedger(); renderLedgerAll(); renderRecurrings();
+  alert(added ? "✅ 已自动生成 "+added+" 笔周期记账" : "本月周期账已存在，无需重复生成");
+}
+function initVoice(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const b = el("voiceBtn");
+  if(b) b.style.display = SR ? "inline-flex" : "none";
+}
+function voiceEntry(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert("当前浏览器不支持语音记账（建议用 Chrome）"); return; }
+  const rec = new SR();
+  rec.lang = "zh-CN";
+  rec.interimResults = false;
+  rec.onresult = e=>{ const txt = e.results[0][0].transcript; parseVoice(txt); };
+  rec.onerror = e=>{ alert("语音识别失败："+(e.error||"请重试")); };
+  rec.start();
+}
+function parseVoice(txt){
+  const m = txt.match(/([\d]+(?:\.\d+)?)\s*(?:元|块|块钱|毛)/);
+  const amount = m ? parseFloat(m[1]) : null;
+  const catKeys = {餐饮:["饭","餐","吃","外卖","咖啡","奶茶","早","午","晚","火锅"],交通:["车","地铁","公交","打车","票","加油","停车"],购物:["买","超市","商场","淘","购"],娱乐:["电影","游戏","唱","KTV"],医疗:["药","医院","诊所"],居住:["房租","水","电","物业","燃气"],通讯:["话费","流量","宽带"]};
+  let category = "其他";
+  for(const [c,ks] of Object.entries(catKeys)){ if(ks.some(k=>txt.includes(k))){ category=c; break; } }
+  let note = txt.replace(/[\d]+(?:\.\d+)?\s*(?:元|块|块钱|毛)/,"").trim();
+  if(amount!==null && el("le_amount")) el("le_amount").value = amount;
+  if(note && el("le_note")) el("le_note").value = note;
+  if(el("le_customCat")) el("le_customCat").value = "";
+  if(el("le_cat")) el("le_cat").value = category;
+  alert("🗣️ 识别："+txt+(amount!==null ? "\n已填入金额 ¥"+amount+" · 分类 "+category : "\n未识别到金额，请手动填写"));
+}
 loadCalendarMarks();
 loadTrips();
 ccLoadState();
+loadRecurrings();
+initVoice();
 loadThemeCustom();
 applyTheme();
 renderThemeUI();
@@ -3331,6 +3538,7 @@ function renderHome(){
   const net = cash + invest + fixed - debt;
   const today = sum(products.map(p=>productDayEarn(p)));
   const es = statEntries();
+  const ym = currentYm();
   const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
   const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
   el("hmNet").textContent = fmtMoney(net);
@@ -3346,6 +3554,23 @@ function renderHome(){
   const totalTarget = sum(goals.map(g=>g.target));
   const totalSaved = sum(goals.map(g=>g.saved));
   el("hmGoal").textContent = totalTarget>0 ? fmtNum(totalSaved/totalTarget*100,1)+"%" : "—";
+  // 预算圆环（iCost 风格）
+  const ring = el("hmBudgetRing");
+  if(ring){
+    const bud = ledger.monthlyBudget||0;
+    const used = bud>0 ? sum(entriesOfMonth(ledger.entries,currentYm()).filter(e=>e.type==="expense").map(e=>e.amount)) : 0;
+    const pct = bud>0 ? Math.min(100, used/bud*100) : 0;
+    const color = pct>100 ? "#ef4444" : pct>=80 ? "#f59e0b" : "var(--primary)";
+    ring.innerHTML = '<div style="position:relative;width:86px;height:86px;flex-shrink:0">'+
+      '<svg width="86" height="86" viewBox="0 0 86 86">'+
+        '<circle cx="43" cy="43" r="36" fill="none" stroke="var(--line)" stroke-width="9"/>'+
+        '<circle cx="43" cy="43" r="36" fill="none" stroke="'+color+'" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+(pct*2.262)+' 226.2" transform="rotate(-90 43 43)" style="transition:stroke-dasharray .5s"/>'+
+      '</svg>'+
+      '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-size:16px;font-weight:800;font-variant-numeric:tabular-nums">'+fmtNum(pct,0)+'%</span><span style="font-size:9.5px;color:var(--muted)">预算</span></div></div>'+
+      '<div style="flex:1"><div style="font-size:14px;font-weight:700">月度预算</div>'+
+      '<div style="font-size:13px;color:var(--muted);margin-top:3px">已用 <b style="color:var(--text)">'+fmtMoney(used)+'</b> / '+fmtMoney(bud)+'</div>'+
+      '<div style="font-size:12.5px;margin-top:3px;color:'+(pct>100?"var(--red)":pct>=80?"var(--orange)":"var(--green)")+'">'+(bud>0?(pct>100?"已超支 "+fmtMoney(used-bud):"剩余 "+fmtMoney(bud-used)):"设置预算后显示圆环")+'</div></div>';
+  }
   const box = el("hmReminders");
   const warns = [];
   const todayExp = sum(ledger.entries.filter(e=>e.type==="expense" && e.date===todayStr()).map(e=>e.amount));
