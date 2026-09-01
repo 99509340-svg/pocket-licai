@@ -355,7 +355,12 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
     <div>
       <!-- 产品列表 -->
       <div class="card">
-        <h2>我的理财产品 <span class="hint">共 <span id="prodCount">0</span> 项</span></h2>
+        <h2>我的理财产品 <span class="hint">共 <span id="prodCount">0</span> 项</span>
+          <span style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="openAdd()">＋ 添加</button>
+            <button class="btn btn-ghost btn-sm" onclick="showRateLib()">📊 利率库</button>
+          </span>
+        </h2>
         <div id="prodList"></div>
         <div class="note">
           <b>计算规则说明：</b>活期/货币基金按日计息（货基含每日复利）；定期在到期日结算本息，界面按持有天数摊算展示每日收益；基金按净值计算；自定义产品可选计息方式。所有结果均为<b>预估</b>，实际以机构结算为准。
@@ -463,6 +468,36 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
         <span class="hint" id="leEditHint" style="display:none;color:var(--orange)">正在编辑，点「保存修改」完成</span>
       </div>
     </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px">
+        <button class="btn btn-ghost btn-sm" onclick="toggleFilterPanel()" id="filterToggle">📊 筛选</button>
+      </div>
+      <div class="card" id="filterPanel" style="display:none;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+          <b style="font-size:14px">📊 高级筛选</b>
+          <span id="lfHint" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn btn-ghost btn-sm" onclick="clearLedgerFilter()">清除筛选</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('today')">今天</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('week')">本周</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('month')">本月</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('lastmonth')">上月</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('year')">今年</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('all')">全部</button>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>开始日期</label><input id="lf_from" type="date" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>结束日期</label><input id="lf_to" type="date" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>最小金额</label><input id="lf_min" type="number" min="0" step="0.01" placeholder="0" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>最大金额</label><input id="lf_max" type="number" min="0" step="0.01" placeholder="不限" onchange="applyLedgerFilter()"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>类型</label><select id="lf_type" onchange="applyLedgerFilter()"><option value="">全部</option><option value="expense">支出</option><option value="income">收入</option><option value="transfer">转账</option></select></div>
+          <div class="field"><label>分类</label><select id="lf_cat" onchange="applyLedgerFilter()"><option value="">全部分类</option></select></div>
+          <div class="field"><label>账户</label><select id="lf_acc" onchange="applyLedgerFilter()"><option value="">全部账户</option></select></div>
+        </div>
+
 
     <div class="card">
       <h2>月份统计 <span class="hint" id="leMonthHint"></span></h2>
@@ -551,35 +586,6 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
 
         </span>
       </h2>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px">
-        <button class="btn btn-ghost btn-sm" onclick="toggleFilterPanel()" id="filterToggle">📊 筛选</button>
-      </div>
-      <div class="card" id="filterPanel" style="display:none;padding:14px;margin-bottom:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
-          <b style="font-size:14px">📊 高级筛选</b>
-          <span id="lfHint" style="font-size:12px;color:var(--muted)"></span>
-          <button class="btn btn-ghost btn-sm" onclick="clearLedgerFilter()">清除筛选</button>
-        </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('today')">今天</button>
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('week')">本周</button>
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('month')">本月</button>
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('lastmonth')">上月</button>
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('year')">今年</button>
-          <button class="btn btn-ghost btn-sm" onclick="quickDate('all')">全部</button>
-        </div>
-        <div class="form-row">
-          <div class="field"><label>开始日期</label><input id="lf_from" type="date" onchange="applyLedgerFilter()"></div>
-          <div class="field"><label>结束日期</label><input id="lf_to" type="date" onchange="applyLedgerFilter()"></div>
-          <div class="field"><label>最小金额</label><input id="lf_min" type="number" min="0" step="0.01" placeholder="0" onchange="applyLedgerFilter()"></div>
-          <div class="field"><label>最大金额</label><input id="lf_max" type="number" min="0" step="0.01" placeholder="不限" onchange="applyLedgerFilter()"></div>
-        </div>
-        <div class="form-row">
-          <div class="field"><label>类型</label><select id="lf_type" onchange="applyLedgerFilter()"><option value="">全部</option><option value="expense">支出</option><option value="income">收入</option><option value="transfer">转账</option></select></div>
-          <div class="field"><label>分类</label><select id="lf_cat" onchange="applyLedgerFilter()"><option value="">全部分类</option></select></div>
-          <div class="field"><label>账户</label><select id="lf_acc" onchange="applyLedgerFilter()"><option value="">全部账户</option></select></div>
-        </div>
       </div>
       <div class="tabs" id="leFilterTabs" style="margin-bottom:10px">
         <button class="tab active" onclick="setLedgerFilter('all')">全部场景</button>
@@ -1214,7 +1220,7 @@ function renderProducts(){
   const box = el("prodList");
   el("prodCount").textContent = products.length;
   if(!products.length){
-    box.innerHTML = '<div class="empty">还没有理财产品，点击右上角「＋ 添加理财产品」开始吧<br>例如：存 1 万元到余额宝，看看每天能赚多少</div>';
+    box.innerHTML = '<div class="empty">还没有理财产品，点上方「＋ 添加」开始吧<br>例如：存 1 万元到余额宝，看看每天能赚多少</div>';
     return;
   }
   box.innerHTML = products.map(p=>{
