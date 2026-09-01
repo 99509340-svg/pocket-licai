@@ -147,11 +147,11 @@ body.dark{
 body{background:var(--bg);color:var(--text);transition:background .25s,color .25s}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .btn{border-radius:12px}
-.btn-primary{background:linear-gradient(135deg,#14b8a6,#0ea5e9);box-shadow:0 6px 16px rgba(20,184,166,.28)}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent)}
 .btn-primary:active{transform:scale(.97)}
 .oc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .oc .value{font-variant-numeric:tabular-nums}
-.oc.hero{background:linear-gradient(135deg,#14b8a6,#0ea5e9);box-shadow:var(--shadow-lg)}
+.oc.hero{background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:var(--shadow-lg)}
 .prod{border-radius:14px}
 input,select,.field input,.field select{border-radius:11px;background:var(--card);color:var(--text)}
 .note{background:var(--bg);border-color:var(--line)}
@@ -162,7 +162,7 @@ input,select,.field input,.field select{border-radius:11px;background:var(--card
 .bottom-nav button.active{color:var(--primary);font-weight:600}
 @media(min-width:769px){.bottom-nav{display:none}}
 /* 首页 Hero */
-.home-hero{background:linear-gradient(135deg,#14b8a6,#0ea5e9);border-radius:26px;color:#fff;padding:24px 22px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.home-hero{background:linear-gradient(135deg,var(--primary),var(--primary2));border-radius:26px;color:#fff;padding:24px 22px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
 .home-hero::after{content:"";position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12)}
 .home-hero .lbl{font-size:13px;opacity:.85}
 .home-hero .big{font-size:36px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
@@ -247,6 +247,23 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
 .mark-emoji button{font-size:20px;width:42px;height:42px;border-radius:11px;border:1px solid var(--line);background:var(--card);cursor:pointer}
 .mark-emoji button.active{border-color:var(--primary);background:var(--primary-soft);box-shadow:0 0 0 2px rgba(20,184,166,.25)}
 
+
+/* 自定义背景 */
+body.custom-bg{background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat}
+body.custom-bg-grad{background:linear-gradient(160deg,var(--bg1,#dbeafe),var(--bg2,#f0fdfa));background-attachment:fixed}
+/* 全局搜索 */
+.home-search{position:relative;margin-bottom:6px}
+.home-search input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--text);font-size:14px;box-shadow:var(--shadow);outline:none}
+.home-search input:focus{border-color:var(--primary)}
+#globalSearchResult{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.15);z-index:30;max-height:60vh;overflow:auto;padding:6px}
+/* 外观定制 */
+.theme-swatches{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.theme-swatch{width:44px;height:44px;border-radius:50%;border:3px solid transparent;cursor:pointer;box-shadow:var(--shadow)}
+.theme-swatch.active{border-color:var(--text)}
+.bg-options{display:flex;gap:8px;flex-wrap:wrap}
+.bg-option{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:13px;cursor:pointer}
+.bg-option.active{border-color:var(--primary);background:var(--primary-soft)}
+
 </style>
 </head>
 <body>
@@ -269,6 +286,10 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
 
   <!-- 总览 -->
   <div id="page-home">
+    <div class="home-search">
+      <input id="globalSearch" placeholder="🔍 全局搜索：记账 / 产品 / 旅行 / 目标 / 提醒" oninput="globalSearch(this.value)">
+      <div id="globalSearchResult" style="display:none"></div>
+    </div>
     <div class="home-hero">
       <div class="lbl">净资产</div>
       <div class="big" id="hmNet">¥0.00</div>
@@ -695,6 +716,28 @@ body.dark .cb-input{background:#14161c;color:#e7e9ee;border-color:#2a2e38}
           <div class="unit" style="grid-column:1/-1">部署后改为你的服务器地址（如 https://xxx.com）</div>
         </div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>🎨 外观定制 <span class="hint">主配色 + 背景，界面即时跟随</span></h2>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">主配色</div>
+      <div class="theme-swatches" id="themeSwatches"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <span style="font-size:13px;color:var(--muted)">自定义颜色</span>
+        <input type="color" id="themeCustomColor" value="#14b8a6" onchange="applyCustomColor(this.value)" style="width:44px;height:40px;border:none;background:none;cursor:pointer">
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">背景</div>
+      <div class="bg-options" id="bgOptions">
+        <button class="bg-option active" data-bg="default" onclick="setBg('default')">默认纯色</button>
+        <button class="bg-option" data-bg="grad1" onclick="setBg('grad1')">清新渐变</button>
+        <button class="bg-option" data-bg="grad2" onclick="setBg('grad2')">暖阳渐变</button>
+      </div>
+      <div style="margin-top:10px">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bgImageInput').click()">🖼️ 上传自定义背景图</button>
+        <input type="file" id="bgImageInput" accept="image/*" style="display:none" onchange="uploadBgImage(this)">
+        <button class="btn btn-ghost btn-sm" onclick="clearBg()" id="bgClearBtn" style="display:none">清除背景图</button>
+      </div>
+      <div class="unit" style="font-size:12px;color:var(--muted);margin-top:6px">背景图仅保存在本机浏览器，不上传。</div>
     </div>
 
     <div class="card">
@@ -3157,9 +3200,121 @@ async function ccShareTrip(){
   if(d.ok){ alert("✅ 已分享到群"); ccLoadShares(ccState.curGroup); }
   else alert("分享失败："+(d.msg||""));
 }
+
+/* ================= 外观定制 + 全局搜索 ================= */
+const THEME_KEY = "licai_theme_custom";
+const THEME_COLORS = [
+  {name:"iCost青绿", primary:"#14b8a6", primary2:"#0ea5e9"},
+  {name:"天空蓝", primary:"#3b82f6", primary2:"#6366f1"},
+  {name:"活力橙", primary:"#f97316", primary2:"#ef4444"},
+  {name:"紫罗兰", primary:"#8b5cf6", primary2:"#ec4899"},
+  {name:"翡翠绿", primary:"#10b981", primary2:"#84cc16"},
+  {name:"玫瑰红", primary:"#f43f5e", primary2:"#fb923c"}
+];
+let themeCustom = { primary:"#14b8a6", primary2:"#0ea5e9", bg:"default", bgImage:null };
+function loadThemeCustom(){ try{ const t=JSON.parse(localStorage.getItem(THEME_KEY)); if(t&&t.primary) themeCustom=Object.assign(themeCustom,t); }catch(e){} }
+function saveThemeCustom(){ try{ localStorage.setItem(THEME_KEY, JSON.stringify(themeCustom)); }catch(e){} }
+function applyTheme(){
+  const r = document.documentElement ? document.documentElement.style : null;
+  if(r){ r.setProperty("--primary", themeCustom.primary); r.setProperty("--primary2", themeCustom.primary2); }
+  const body = document.body;
+  if(body && body.style){
+    if(body.classList){ body.classList.remove("custom-bg","custom-bg-grad"); }
+    if(themeCustom.bgImage){ if(body.classList) body.classList.add("custom-bg"); body.style.backgroundImage = "url("+themeCustom.bgImage+")"; }
+    else {
+      body.style.backgroundImage = "";
+      if(themeCustom.bg==="grad1"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#dbeafe"); r.setProperty("--bg2","#f0fdfa"); } }
+      else if(themeCustom.bg==="grad2"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#ffedd5"); r.setProperty("--bg2","#fef9c3"); } }
+    }
+  }
+}
+function renderThemeUI(){
+  const sw = el("themeSwatches");
+  sw.innerHTML = THEME_COLORS.map(c=>{
+    const active = themeCustom.primary.toLowerCase()===c.primary.toLowerCase() ? "active" : "";
+    return '<div class="theme-swatch '+active+'" style="background:linear-gradient(135deg,'+c.primary+','+c.primary2+')" title="'+c.name+'" onclick="applyThemePreset(\''+c.primary+'\',\''+c.primary2+'\',this)"></div>';
+  }).join("");
+  const custom = el("themeCustomColor"); if(custom) custom.value = themeCustom.primary;
+  document.querySelectorAll("#bgOptions .bg-option").forEach(b=>{
+    b.classList.toggle("active", b.dataset.bg===themeCustom.bg);
+  });
+  const clr = el("bgClearBtn"); if(clr) clr.style.display = themeCustom.bgImage ? "inline-block" : "none";
+}
+function applyThemePreset(p1,p2,btn){
+  themeCustom.primary=p1; themeCustom.primary2=p2;
+  saveThemeCustom(); applyTheme(); renderThemeUI();
+}
+function applyCustomColor(v){
+  themeCustom.primary = v;
+  themeCustom.primary2 = v;
+  saveThemeCustom(); applyTheme(); renderThemeUI();
+}
+function setBg(t){
+  themeCustom.bg = t;
+  saveThemeCustom(); applyTheme(); renderThemeUI();
+}
+function uploadBgImage(input){
+  const f = input.files && input.files[0];
+  if(!f) return;
+  const r = new FileReader();
+  r.onload = ()=>{
+    themeCustom.bgImage = r.result;
+    themeCustom.bg = "default";
+    saveThemeCustom(); applyTheme(); renderThemeUI();
+    alert("✅ 背景图已应用（仅保存在本机）");
+  };
+  r.readAsDataURL(f);
+  input.value="";
+}
+function clearBg(){
+  themeCustom.bgImage = null;
+  saveThemeCustom(); applyTheme(); renderThemeUI();
+}
+
+/* 全局搜索 */
+function globalSearch(kw){
+  const box = el("globalSearchResult");
+  kw = (kw||"").trim().toLowerCase();
+  if(!kw){ box.innerHTML=""; box.style.display="none"; return; }
+  const res = [];
+  ledger.entries.filter(e=>(e.category||"").toLowerCase().includes(kw)||(e.note||"").toLowerCase().includes(kw)||e.account.toLowerCase().includes(kw)||String(e.amount).includes(kw)||e.date.includes(kw)).slice(0,8).forEach(e=>{
+    res.push({icon:"🧾", label:e.date+" "+e.category+(e.note?" · "+e.note:""), sub:(e.type==="income"?"收 ":"支 ")+fmtMoney(e.amount), action:"ledger", kw:kw});
+  });
+  products.filter(p=>p.name.toLowerCase().includes(kw)).slice(0,5).forEach(p=>{
+    res.push({icon:"📈", label:"理财："+p.name, sub:TYPE_META[p.type]?TYPE_META[p.type].label:"", action:"invest"});
+  });
+  trips.filter(t=>t.name.toLowerCase().includes(kw)||t.members.some(m=>m.name.toLowerCase().includes(kw))).slice(0,5).forEach(t=>{
+    res.push({icon:"👥", label:"旅行："+t.name, sub:t.members.map(m=>m.name).join("、"), action:"trip", id:t.id});
+  });
+  goals.filter(g=>g.name.toLowerCase().includes(kw)).slice(0,5).forEach(g=>{
+    res.push({icon:"🎯", label:"目标："+g.name, sub:g.target>0?fmtNum(g.saved/g.target*100,1)+"%":"", action:"goal"});
+  });
+  reminders.filter(r=>r.name.toLowerCase().includes(kw)).slice(0,5).forEach(r=>{
+    res.push({icon:"🔔", label:"提醒："+r.name, sub:r.next, action:"ledger"});
+  });
+  if(!res.length){ box.innerHTML='<div class="empty" style="padding:12px">未找到与「'+esc(kw)+'」相关的内容</div>'; box.style.display="block"; return; }
+  box.innerHTML = res.map(r=>'<div class="prod" style="cursor:pointer;padding:9px 8px;margin-bottom:6px" onclick="globalGo(\''+r.action+'\',\''+esc(r.kw||kw)+'\',\''+(r.id||"")+'\')">'+
+    '<div class="icon t-moneyfund" style="background:var(--primary-soft);width:32px;height:32px;font-size:16px">'+r.icon+'</div>'+
+    '<div class="info"><div class="name" style="font-size:13.5px">'+esc(r.label)+'</div><div class="meta">'+esc(r.sub||"")+'</div></div>'+
+    '</div>').join("");
+  box.style.display="block";
+}
+function globalGo(action, kw, id){
+  const box = el("globalSearchResult");
+  const inp = el("globalSearch");
+  if(inp) inp.value="";
+  if(box){ box.innerHTML=""; box.style.display="none"; }
+  if(action==="ledger"){ showPage("ledger"); setLedgerSearch(kw); }
+  else if(action==="invest"){ showPage("invest"); }
+  else if(action==="trip"){ showPage("trip"); if(id) openTrip(id); }
+  else if(action==="goal"){ showPage("goal"); }
+}
 loadCalendarMarks();
 loadTrips();
 ccLoadState();
+loadThemeCustom();
+applyTheme();
+renderThemeUI();
 try{ if(window.innerWidth<=768 && el("importHintBody") && el("importHintBody").style.display!=="none"){ el("importHintBody").style.display="none"; el("importHintToggle").textContent="展开 ▼"; } }catch(e){}
 /* ================= 移动端首页 & 主题 ================= */
 function renderHome(){
