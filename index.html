@@ -662,9 +662,12 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
   <div id="page-trip" style="display:none">
     <div id="tripListView">
       <div class="card">
-        <h2>👥 旅行共享账本 <span class="hint">好友旅游 · 记录共享花费 · AA 自动分账</span></h2>
+        <h2>👥 共享账本 <span class="hint">AA 分账 · 支持多种场景</span></h2>
         <div class="form-row">
-          <div class="field"><label>旅行名称</label><input id="tp_name" placeholder="如：云南之旅 / 周末露营"></div>
+          <div class="field"><label>账本名称</label><input id="tp_name" placeholder="如：云南之旅 / 周末聚餐"></div>
+          <div class="field"><label>类型</label>
+            <select id="tp_type"><option value="trip">✈️ 旅行</option><option value="dinner">🍽️ 聚餐/AA</option><option value="home">🏠 房租水电</option><option value="daily">👥 日常拼单</option><option value="other">📦 其他</option></select>
+          </div>
           <div class="field"><label>成员（用逗号或空格分隔）</label><input id="tp_members" placeholder="如：小明,小红,阿强"></div>
         </div>
         <button class="btn btn-primary" onclick="createTrip()">＋ 创建旅行账本</button>
@@ -690,6 +693,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
           </select></div>
           <div class="field"><label>付款人</label><select id="te_payer"></select></div>
           <div class="field"><label>日期</label><input id="te_date" type="date"></div>
+          <div class="field"><label>时间</label><input id="te_time" type="time" value="12:00"></div>
         </div>
         <div style="margin-bottom:12px">
           <b style="font-size:13px">谁参与了这笔？（AA 分摊）</b>
@@ -700,6 +704,22 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <div class="card">
         <h2>📒 支出明细</h2>
         <div id="teList"></div>
+      </div>
+      <div class="card">
+        <h2>📥 从我的记账导入 <span class="hint">勾选或全选，一键导入共享账本</span></h2>
+        <div class="form-row">
+          <div class="field"><label>导入到共享账本</label><input id="ti_tripSel" disabled></div>
+          <div class="field"><label>付款人（这些账单谁垫付的）</label><select id="ti_payer"></select></div>
+          <div class="field"><label>参与人</label><input id="ti_among" disabled placeholder="默认全部成员"></div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="tiRefresh()">🔄 刷新记账列表</button>
+          <button class="btn btn-ghost btn-sm" onclick="tiSelectAll(true)">✅ 全选</button>
+          <button class="btn btn-ghost btn-sm" onclick="tiSelectAll(false)">清空</button>
+          <button class="btn btn-primary btn-sm" onclick="tiImport()">📥 导入所选</button>
+          <span id="tiCount" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div id="tiList" style="max-height:320px;overflow:auto"></div>
       </div>
       <div class="card">
         <h2>💰 分账结算 <span class="hint">谁该转给谁</span></h2>
@@ -3034,6 +3054,7 @@ loadGoals();
 loadReminders();
 
 /* ================= 旅行共享账本（AA 分账） ================= */
+const TRIP_TYPES = { trip:["✈️","旅行"], dinner:["🍽️","聚餐/AA"], home:["🏠","房租水电"], daily:["👥","日常拼单"], other:["📦","其他"] };
 const TRIP_KEY = "licai_trip_v1";
 let trips = [];
 let currentTripId = null;
@@ -3051,9 +3072,10 @@ function renderTripList(){
   if(!trips.length){ box.innerHTML='<div class="empty" style="padding:24px">还没有旅行账本，先创建一个吧 ✈️</div>'; return; }
   box.innerHTML = trips.map(t=>{
     const total = sum(t.expenses.map(e=>e.amount));
+    const tt = TRIP_TYPES[t.type] ? TRIP_TYPES[t.type] : ["📦","其他"];
     return '<div class="prod" style="cursor:pointer" onclick="openTrip(\''+t.id+'\')">'+
-      '<div class="icon t-moneyfund" style="background:var(--primary-soft)">✈️</div>'+
-      '<div class="info"><div class="name">'+esc(t.name)+'</div>'+
+      '<div class="icon t-moneyfund" style="background:var(--primary-soft)">'+tt[0]+'</div>'+
+      '<div class="info"><div class="name">'+esc(t.name)+' <span style="font-size:11px;color:var(--muted);font-weight:400">'+tt[1]+'</span></div>'+
       '<div class="meta">'+t.members.length+' 位成员 · '+t.expenses.length+' 笔 · 共 '+fmtMoney(total)+'</div></div>'+
       '<div class="actions"><button class="btn btn-primary btn-sm">进入</button></div></div>';
   }).join("");
@@ -3064,7 +3086,7 @@ function createTrip(){
   if(!name){ alert("请输入旅行名称"); return; }
   const names = mText.split(/[,，、\s]+/).map(x=>x.trim()).filter(Boolean);
   if(names.length<2){ alert("请至少填写 2 位成员（用逗号分隔）"); return; }
-  const trip = { id: uid(), name, members: names.map(n=>({id: uid(), name:n})), expenses: [] };
+  const trip = { id: uid(), name, type: el("tp_type") ? el("tp_type").value : "trip", members: names.map(n=>({id: uid(), name:n})), expenses: [] };
   trips.push(trip); saveTrips();
   el("tp_name").value=""; el("tp_members").value="";
   currentTripId = trip.id;
@@ -3082,7 +3104,8 @@ function renderTripDetail(){
   const t = currentTrip(); if(!t) return;
   el("tripListView").style.display = "none";
   el("tripDetailView").style.display = "block";
-  el("tpDetailTitle").textContent = "✈️ "+t.name;
+  const tt = TRIP_TYPES[t.type] ? TRIP_TYPES[t.type] : ["📦","其他"];
+  el("tpDetailTitle").textContent = tt[0]+" "+t.name;
   el("tripMembers").innerHTML = '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span style="font-size:13px;color:var(--muted)">成员：</span>'+
     t.members.map(m=>'<span style="background:var(--primary-soft);border:1px solid #99f6e4;border-radius:999px;padding:3px 10px;font-size:12.5px">'+esc(m.name)+'</span>').join("")+'</div>';
   el("te_payer").innerHTML = t.members.map(m=>'<option value="'+m.id+'">'+esc(m.name)+'</option>').join("");
@@ -3090,6 +3113,58 @@ function renderTripDetail(){
   el("te_among").innerHTML = t.members.map(m=>'<label style="display:inline-flex;align-items:center;gap:4px;margin:0 10px 6px 0;font-size:13px;cursor:pointer"><input type="checkbox" class="te-among" value="'+m.id+'" checked>'+esc(m.name)+'</label>').join("");
   renderTripExpenses();
   renderTripSettle();
+  tiInit();
+}
+/* 从我的记账导入 */
+let tiSelected = new Set();
+function tiInit(){
+  const t = currentTrip(); if(!t) return;
+  el("ti_tripSel").value = t.name;
+  el("ti_payer").innerHTML = t.members.map(m=>'<option value="'+m.id+'">'+esc(m.name)+'</option>').join("");
+  el("ti_among").value = "全部成员（"+t.members.length+" 人）";
+  tiSelected = new Set();
+  tiRefresh();
+}
+function tiRefresh(){
+  const box = el("tiList");
+  if(!box) return;
+  const all = [...ledger.entries].sort((a,b)=>b.date.localeCompare(a.date) || (b.time||"").localeCompare(a.time||""));
+  const exps = all.filter(e=>e.type==="expense");
+  if(!exps.length){ box.innerHTML='<div class="empty" style="padding:12px">我的记账里还没有支出记录</div>'; el("tiCount").textContent=""; return; }
+  box.innerHTML = exps.map(e=>{
+    const checked = tiSelected.has(e.id) ? "checked" : "";
+    return '<div class="prod" style="padding:8px 6px;cursor:pointer" onclick="tiToggle(\''+e.id+'\')">'+
+      '<input type="checkbox" class="ti-cb" data-id="'+e.id+'" '+(checked?"checked":"")+' onchange="tiToggle(\''+e.id+'\')" onclick="event.stopPropagation()" style="width:18px;height:18px;flex-shrink:0">'+
+      '<div class="info"><div class="name" style="font-size:13.5px">'+esc(e.category)+(e.note?" · "+esc(e.note):"")+'</div>'+
+      '<div class="meta">'+esc(e.date)+' · '+esc(e.account)+'</div></div>'+
+      '<div class="nums"><div class="earn">'+fmtMoney(e.amount)+'</div></div></div>';
+  }).join("");
+  el("tiCount").textContent = "已选 "+tiSelected.size+" / "+exps.length+" 笔";
+}
+function tiToggle(id){
+  if(tiSelected.has(id)) tiSelected.delete(id); else tiSelected.add(id);
+  tiRefresh();
+}
+function tiSelectAll(on){
+  const box = el("tiList");
+  const exps = ledger.entries.filter(e=>e.type==="expense");
+  tiSelected = on ? new Set(exps.map(e=>e.id)) : new Set();
+  tiRefresh();
+}
+function tiImport(){
+  const t = currentTrip(); if(!t) return;
+  const payer = el("ti_payer") ? el("ti_payer").value : (t.members[0]?t.members[0].id:"");
+  const allIds = t.members.map(m=>m.id);
+  if(!tiSelected.size){ alert("请先勾选要导入的记账"); return; }
+  let n = 0;
+  ledger.entries.filter(e=>e.type==="expense" && tiSelected.has(e.id)).forEach(e=>{
+    t.expenses.push({ id: uid(), date:e.date, time:e.time||"12:00", desc:e.note||e.category, category:e.category, amount:e.amount, payer: payer||(t.members[0]?t.members[0].id:""), among: allIds });
+    n++;
+  });
+  saveTrips();
+  tiSelected = new Set();
+  renderTripDetail();
+  alert("✅ 已导入 "+n+" 笔记账到「"+t.name+"」（付款人：你选择的成员，参与人：全部成员）");
 }
 function addTripExpense(){
   const t = currentTrip(); if(!t) return;
@@ -3099,7 +3174,8 @@ function addTripExpense(){
   if(!isFinite(amount)||amount<=0){ alert("请输入有效金额"); return; }
   const among = Array.from(document.querySelectorAll(".te-among:checked")).map(cb=>cb.value);
   if(!among.length){ alert("请至少勾选 1 位参与者"); return; }
-  t.expenses.push({ id: uid(), date: el("te_date").value||todayStr(), desc, category: el("te_cat").value, amount, payer: el("te_payer").value, among });
+  const timeVal = el("te_time") ? el("te_time").value : "";
+  t.expenses.push({ id: uid(), date: el("te_date").value||todayStr(), time: timeVal||"12:00", desc, category: el("te_cat").value, amount, payer: el("te_payer").value, among });
   saveTrips();
   el("te_desc").value=""; el("te_amount").value="";
   renderTripDetail();
@@ -3115,14 +3191,15 @@ function renderTripExpenses(){
   const t = currentTrip(); if(!t) return;
   const box = el("teList");
   if(!t.expenses.length){ box.innerHTML='<div class="empty" style="padding:16px">还没有共享支出，记第一笔吧</div>'; return; }
-  const sorted = [...t.expenses].sort((a,b)=>b.date.localeCompare(a.date));
+  const sorted = [...t.expenses].sort((a,b)=> (b.date+b.time||"").localeCompare(a.date+a.time||""));
   box.innerHTML = sorted.map(e=>{
     const payer = t.members.find(m=>m.id===e.payer);
     const am = e.among.map(id=>{ const m=t.members.find(x=>x.id===id); return m?m.name:""; }).filter(Boolean).join("、");
     const per = fmtNum(e.amount/e.among.length,2);
+    const dt = esc(e.date) + (e.time ? ' <span style="opacity:.8">'+esc(e.time)+'</span>' : "");
     return '<div class="prod" style="padding:10px 8px">'+
       '<div class="icon t-custom" style="background:var(--primary-soft)">💸</div>'+
-      '<div class="info"><div class="name" style="font-size:14px">'+esc(e.desc)+' <span style="color:var(--muted);font-size:12px;font-weight:400">'+esc(e.category)+' · '+esc(e.date)+'</span></div>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+esc(e.desc)+' <span style="color:var(--muted);font-size:12px;font-weight:400">'+esc(e.category)+' · '+dt+'</span></div>'+
       '<div class="meta">'+esc(payer?payer.name:"?")+' 付 · 参与：'+esc(am)+'（每人 '+per+'）</div></div>'+
       '<div class="nums"><div class="earn">'+fmtMoney(e.amount)+'</div></div>'+
       '<div class="actions"><button class="btn btn-danger btn-sm" onclick="delTripExpense(\''+e.id+'\')">删</button></div></div>';
