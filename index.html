@@ -550,7 +550,36 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
 
         </span>
       </h2>
-      <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="width:100%;padding:9px 12px;border:1px solid var(--line);border-radius:9px;margin-bottom:10px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px">
+        <button class="btn btn-ghost btn-sm" onclick="toggleFilterPanel()" id="filterToggle">📊 筛选</button>
+      </div>
+      <div class="card" id="filterPanel" style="display:none;padding:14px;margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+          <b style="font-size:14px">📊 高级筛选</b>
+          <span id="lfHint" style="font-size:12px;color:var(--muted)"></span>
+          <button class="btn btn-ghost btn-sm" onclick="clearLedgerFilter()">清除筛选</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('today')">今天</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('week')">本周</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('month')">本月</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('lastmonth')">上月</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('year')">今年</button>
+          <button class="btn btn-ghost btn-sm" onclick="quickDate('all')">全部</button>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>开始日期</label><input id="lf_from" type="date" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>结束日期</label><input id="lf_to" type="date" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>最小金额</label><input id="lf_min" type="number" min="0" step="0.01" placeholder="0" onchange="applyLedgerFilter()"></div>
+          <div class="field"><label>最大金额</label><input id="lf_max" type="number" min="0" step="0.01" placeholder="不限" onchange="applyLedgerFilter()"></div>
+        </div>
+        <div class="form-row">
+          <div class="field"><label>类型</label><select id="lf_type" onchange="applyLedgerFilter()"><option value="">全部</option><option value="expense">支出</option><option value="income">收入</option><option value="transfer">转账</option></select></div>
+          <div class="field"><label>分类</label><select id="lf_cat" onchange="applyLedgerFilter()"><option value="">全部分类</option></select></div>
+          <div class="field"><label>账户</label><select id="lf_acc" onchange="applyLedgerFilter()"><option value="">全部账户</option></select></div>
+        </div>
+      </div>
       <div class="tabs" id="leFilterTabs" style="margin-bottom:10px">
         <button class="tab active" onclick="setLedgerFilter('all')">全部场景</button>
         <button class="tab" onclick="setLedgerFilter('daily')">🏠 日常</button>
@@ -718,6 +747,13 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
           <button class="btn btn-ghost btn-sm" onclick="tiSelectAll(false)">清空</button>
           <button class="btn btn-primary btn-sm" onclick="tiImport()">📥 导入所选</button>
           <span id="tiCount" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+          <input id="ti_kw" placeholder="关键词" style="flex:1;min-width:80px;padding:7px 9px;border:1px solid var(--line);border-radius:8px" oninput="tiRefresh()">
+          <input id="ti_from" type="date" title="开始日期" style="border:1px solid var(--line);border-radius:8px;padding:6px" onchange="tiRefresh()">
+          <input id="ti_to" type="date" title="结束日期" style="border:1px solid var(--line);border-radius:8px;padding:6px" onchange="tiRefresh()">
+          <input id="ti_min" type="number" placeholder="≥金额" style="width:76px;padding:7px 9px;border:1px solid var(--line);border-radius:8px" oninput="tiRefresh()">
+          <input id="ti_max" type="number" placeholder="≤金额" style="width:76px;padding:7px 9px;border:1px solid var(--line);border-radius:8px" oninput="tiRefresh()">
         </div>
         <div id="tiList" style="max-height:320px;overflow:auto"></div>
       </div>
@@ -1863,6 +1899,7 @@ function renderLedgerAll(){
   el("leMonthBalance").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
   const stLabel = statYmLabel();
   el("leMonthHint").textContent = stLabel + " · 收入/支出/结余";
+  const lfh = el("lfHint"); if(lfh) lfh.textContent = ledgerFiltHintText();
   el("leMonthPick").textContent = stLabel;
   el("leCount").textContent = se.length;
   // 分类占比（本月支出）
@@ -3029,19 +3066,84 @@ function renderTrend(){
 
 /* ---------- 记录搜索 ---------- */
 let ledgerSearch = "";
+let ledgerFilt = { from:"", to:"", min:null, max:null, type:"", cat:"", acc:"" };
 function setLedgerSearch(v){ ledgerSearch = (v||"").trim(); renderLedgerAll(); }
 function filteredEntries(){
+  let list = ledger.entries;
+  if(ledgerFilter!=="all") list = list.filter(e=>e.scene===ledgerFilter);
   if(ledgerSearch){
     const kw = ledgerSearch.toLowerCase();
-    return ledger.entries.filter(e=>
-      e.category.toLowerCase().includes(kw) ||
+    list = list.filter(e=>
+      (e.category||"").toLowerCase().includes(kw) ||
       (e.note||"").toLowerCase().includes(kw) ||
       e.account.toLowerCase().includes(kw) ||
       String(e.amount).includes(kw)
     );
   }
-  if(ledgerFilter==="all") return ledger.entries;
-  return ledger.entries.filter(e=>e.scene===ledgerFilter);
+  const f = ledgerFilt;
+  if(f.from) list = list.filter(e=>e.date>=f.from);
+  if(f.to) list = list.filter(e=>e.date<=f.to);
+  if(f.min!=null && isFinite(f.min)) list = list.filter(e=>e.amount>=f.min);
+  if(f.max!=null && isFinite(f.max)) list = list.filter(e=>e.amount<=f.max);
+  if(f.type) list = list.filter(e=>e.type===f.type);
+  if(f.cat) list = list.filter(e=>e.category===f.cat);
+  if(f.acc) list = list.filter(e=>e.account===f.acc);
+  return list;
+}
+function toggleFilterPanel(){
+  const pn = el("filterPanel"); if(!pn) return;
+  const show = pn.style.display!=="block";
+  pn.style.display = show ? "block" : "none";
+  if(show){ fillFilterOptions(); renderLedgerAll(); }
+}
+function fillFilterOptions(){
+  const cats = new Set(), accs = new Set();
+  ledger.entries.forEach(e=>{ cats.add(e.category); accs.add(e.account); });
+  const catSel = el("lf_cat");
+  if(catSel){ const cur = catSel.value; catSel.innerHTML = '<option value="">全部分类</option>'+Array.from(cats).sort().map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join(""); if(cur) catSel.value=cur; }
+  const accSel = el("lf_acc");
+  if(accSel){ const cur = accSel.value; accSel.innerHTML = '<option value="">全部账户</option>'+Array.from(accs).map(a=>'<option value="'+esc(a)+'">'+esc(a)+'</option>').join(""); if(cur) accSel.value=cur; }
+}
+function quickDate(k){
+  const t = new Date();
+  let from="", to="";
+  if(k==="today"){ from=to=todayStr(); }
+  else if(k==="week"){ const d=new Date(); const day=d.getDay()||7; d.setDate(d.getDate()-day+1); from=fmtDate(d); to=todayStr(); }
+  else if(k==="month"){ from=todayStr().slice(0,7)+"-01"; to=todayStr(); }
+  else if(k==="lastmonth"){ const d=new Date(); d.setDate(0); to=fmtDate(d); d.setDate(1); d.setMonth(d.getMonth()-1); from=fmtDate(d); }
+  else if(k==="year"){ from=t.getFullYear()+"-01-01"; to=todayStr(); }
+  ledgerFilt.from=from; ledgerFilt.to=to;
+  const a=el("lf_from"), b=el("lf_to"); if(a) a.value=from; if(b) b.value=to;
+  renderLedgerAll();
+}
+function applyLedgerFilter(){
+  ledgerFilt.from = el("lf_from") ? el("lf_from").value : "";
+  ledgerFilt.to = el("lf_to") ? el("lf_to").value : "";
+  ledgerFilt.min = parseFloat(el("lf_min").value);
+  if(!isFinite(ledgerFilt.min)) ledgerFilt.min = null;
+  ledgerFilt.max = parseFloat(el("lf_max").value);
+  if(!isFinite(ledgerFilt.max)) ledgerFilt.max = null;
+  ledgerFilt.type = el("lf_type").value;
+  ledgerFilt.cat = el("lf_cat").value;
+  ledgerFilt.acc = el("lf_acc").value;
+  renderLedgerAll();
+}
+function clearLedgerFilter(){
+  ledgerFilt = { from:"", to:"", min:null, max:null, type:"", cat:"", acc:"" };
+  ["lf_from","lf_to","lf_min","lf_max"].forEach(id=>{ const e=el(id); if(e) e.value=""; });
+  const ts=el("lf_type"), cs=el("lf_cat"), as=el("lf_acc");
+  if(ts) ts.value=""; if(cs) cs.value=""; if(as) as.value="";
+  renderLedgerAll();
+}
+function ledgerFiltHintText(){
+  const parts=[];
+  const f=ledgerFilt;
+  if(f.from||f.to) parts.push((f.from||"…")+" ~ "+(f.to||"…"));
+  if(f.min!=null||f.max!=null) parts.push("金额 "+(f.min!=null?f.min:"")+"-"+(f.max!=null?f.max:"∞"));
+  if(f.type) parts.push({expense:"支出",income:"收入",transfer:"转账"}[f.type]);
+  if(f.cat) parts.push("分类:"+f.cat);
+  if(f.acc) parts.push("账户:"+f.acc);
+  return parts.join(" · ");
 }
 
 loadLedger();
@@ -3125,12 +3227,27 @@ function tiInit(){
   tiSelected = new Set();
   tiRefresh();
 }
+function tiFilteredExpenses(){
+  const kw = (el("ti_kw")?el("ti_kw").value:"").trim().toLowerCase();
+  const from = el("ti_from")?el("ti_from").value:"";
+  const to = el("ti_to")?el("ti_to").value:"";
+  const min = parseFloat(el("ti_min")?el("ti_min").value:""); 
+  const max = parseFloat(el("ti_max")?el("ti_max").value:"");
+  return ledger.entries.filter(e=>{
+    if(e.type!=="expense") return false;
+    if(kw && !((e.category||"").toLowerCase().includes(kw)||(e.note||"").toLowerCase().includes(kw)||e.account.toLowerCase().includes(kw))) return false;
+    if(from && e.date<from) return false;
+    if(to && e.date>to) return false;
+    if(isFinite(min) && e.amount<min) return false;
+    if(isFinite(max) && e.amount>max) return false;
+    return true;
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+}
 function tiRefresh(){
   const box = el("tiList");
   if(!box) return;
-  const all = [...ledger.entries].sort((a,b)=>b.date.localeCompare(a.date) || (b.time||"").localeCompare(a.time||""));
-  const exps = all.filter(e=>e.type==="expense");
-  if(!exps.length){ box.innerHTML='<div class="empty" style="padding:12px">我的记账里还没有支出记录</div>'; el("tiCount").textContent=""; return; }
+  const exps = tiFilteredExpenses();
+  if(!exps.length){ box.innerHTML='<div class="empty" style="padding:12px">没有符合条件的支出记录</div>'; el("tiCount").textContent=""; return; }
   box.innerHTML = exps.map(e=>{
     const checked = tiSelected.has(e.id) ? "checked" : "";
     return '<div class="prod" style="padding:8px 6px;cursor:pointer" onclick="tiToggle(\''+e.id+'\')">'+
@@ -3146,8 +3263,7 @@ function tiToggle(id){
   tiRefresh();
 }
 function tiSelectAll(on){
-  const box = el("tiList");
-  const exps = ledger.entries.filter(e=>e.type==="expense");
+  const exps = tiFilteredExpenses();
   tiSelected = on ? new Set(exps.map(e=>e.id)) : new Set();
   tiRefresh();
 }
