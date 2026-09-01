@@ -157,7 +157,7 @@ input,select,.field input,.field select{border-radius:11px;background:var(--card
 .note{background:var(--bg);border-color:var(--line)}
 /* 底部导航 */
 .bottom-nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--card);border-top:1px solid var(--line);z-index:40;padding:6px 2px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(15,23,42,.08)}
-.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;color:var(--muted);background:none;border:none;padding:5px 0;cursor:pointer;font-family:inherit}
+.bottom-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11.5px;color:var(--muted);background:none;border:none;padding:8px 0 6px;cursor:pointer;font-family:inherit;min-width:0}
 .bottom-nav button .bi{font-size:22px;line-height:1.1}
 .bottom-nav button.active{color:var(--primary);font-weight:600}
 @media(min-width:769px){.bottom-nav{display:none}}
@@ -170,7 +170,7 @@ input,select,.field input,.field select{border-radius:11px;background:var(--card
 .home-hero .cell .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
 .home-hero .cell .k{font-size:11.5px;opacity:.8;margin-top:1px}
 /* 快捷操作 */
-.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(64px,1fr));gap:10px;margin-top:16px}
 .quick-btn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;box-shadow:var(--shadow);transition:.15s;font-family:inherit}
 .quick-btn:active{transform:scale(.94)}
 .quick-btn .qi{font-size:24px}
@@ -305,6 +305,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
     <div class="quick-grid">
       <button class="quick-btn" onclick="quickAdd()"><span class="qi">✏️</span><span class="qt">记一笔</span></button>
       <button class="quick-btn" onclick="showPage('ledger');setTimeout(openImport,100)"><span class="qi">📥</span><span class="qt">导账单</span></button>
+      <button class="quick-btn" onclick="showPage('invest')"><span class="qi">📈</span><span class="qt">理财</span></button>
       <button class="quick-btn" onclick="showPage('asset')"><span class="qi">🏦</span><span class="qt">看资产</span></button>
       <button class="quick-btn" onclick="showPage('goal')"><span class="qi">🎯</span><span class="qt">立目标</span></button>
     </div>
@@ -3837,13 +3838,11 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 <nav class="bottom-nav" id="bottomNav">
-  <button data-page="home" class="active"><span class="bi">🏠</span>首页</button>
-  <button data-page="ledger"><span class="bi">✏️</span>记账</button>
-  <button data-page="asset"><span class="bi">💰</span>资产</button>
-  <button data-page="goal"><span class="bi">🎯</span>目标</button>
-  <button data-page="trip"><span class="bi">👥</span>共享</button>
-  <button data-page="community"><span class="bi">🌐</span>社区</button>
-  <button data-page="invest"><span class="bi">📈</span>理财</button>
+  <button data-page="home" class="active" onclick="showPage('home')"><span class="bi">🏠</span>首页</button>
+  <button data-page="ledger" onclick="showPage('ledger')"><span class="bi">✏️</span>记账</button>
+  <button data-page="trip" onclick="showPage('trip')"><span class="bi">👥</span>共享</button>
+  <button data-page="asset" onclick="showPage('asset')"><span class="bi">💰</span>资产</button>
+  <button data-page="community" onclick="showPage('community')"><span class="bi">🌐</span>社区</button>
 </nav>
 <div class="modal-bg" id="dayModal">
   <div class="modal" style="max-width:560px">
