@@ -2896,6 +2896,28 @@ async function onFileSelected(){
   if(!files.length) return;
   await processImportFiles(files);
 }
+function setImpMode(mode){
+  const isFile = mode==="file";
+  const fw = el("impFileWrap"), pw = el("impPasteWrap"), bf = el("impModeFile"), bp = el("impModePaste");
+  if(fw) fw.style.display = isFile ? "" : "none";
+  if(pw) pw.style.display = isFile ? "none" : "";
+  if(bf) bf.classList.toggle("active", isFile);
+  if(bp) bp.classList.toggle("active", !isFile);
+}
+async function pasteImport(){
+  const ta = el("imp_paste");
+  if(!ta) return;
+  const text = ta.value || "";
+  if(!text.trim()){ alert("请先粘贴账单文本内容"); return; }
+  try{
+    const enc = new TextEncoder();
+    const fake = { name:"pasted-bill.csv", size:text.length, _buf: enc.encode(text).buffer };
+    el("imp_preview").innerHTML = '<div class="note">⏳ 正在解析粘贴的文本…</div>';
+    await processImportFiles([fake]);
+  }catch(err){
+    el("imp_preview").innerHTML = '<div class="note" style="border-color:#fecaca;background:#fef2f2">⚠️ 解析失败：'+esc(err.message)+'</div>';
+  }
+}
 async function readBillFileToParsed(file){
   const name = (file.name||"").toLowerCase();
   const isZip = name.endsWith(".zip") || (file._buf && isZipMagic(file._buf));
@@ -2993,7 +3015,9 @@ function doImport(){
   const account = el("imp_account").value;
   const scene = el("imp_scene").value;
   importState.entries.forEach(e=>{
-    ledger.entries.push({ id: uid(), type:e.type, category:e.category, amount:e.amount, date:e.date, account, note:e.note, scene });
+    const date = e.date || todayStr();
+    const time = e.time || (e.date && String(e.date).includes(" ") ? String(e.date).split(" ")[1] : "12:00:00");
+    ledger.entries.push({ id: uid(), type:e.type, category:e.category, amount:e.amount, date: String(date).slice(0,10), time, ts: entryTime({date:String(date).slice(0,10), time}), account, note:e.note, scene });
   });
   let ids=[]; try{ ids = JSON.parse(localStorage.getItem(IMPORTED_KEY))||[]; }catch(err){}
   ids = Array.from(new Set(ids.concat(importState.entries.map(entryDedupKey))));
@@ -4649,15 +4673,34 @@ showPage("home");
 <div class="modal-bg" id="importModal">
   <div class="modal" style="max-width:740px">
     <h3>⬆️ 导入微信 / 支付宝账单 <button class="close" onclick="closeImport()">✕</button></h3>
-    <div class="form-row">
-      <div class="field" style="grid-column:1/-1">
-        <label>选择账单 CSV 文件（微信支付 / 支付宝 App 内导出的 csv）</label>
-        <input type="file" id="imp_file" accept=".csv,text/csv" multiple onchange="onFileSelected()">
-        <div class="unit">可一次选择多个 csv（微信 + 支付宝可同时导入）</div>
-        <div id="imp_drop" style="border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;margin-top:8px;background:var(--bg);font-size:13px;color:var(--muted)">
-          📥 也可以把 csv 文件<b>直接拖到这里</b>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <button class="btn btn-ghost btn-sm active" id="impModeFile" onclick="setImpMode('file')">📁 选择文件</button>
+      <button class="btn btn-ghost btn-sm" id="impModePaste" onclick="setImpMode('paste')">📋 粘贴文本（手机更稳）</button>
+    </div>
+    <div id="impFileWrap">
+      <div class="form-row">
+        <div class="field" style="grid-column:1/-1">
+          <label>选择账单 CSV 文件（微信支付 / 支付宝 App 内导出的 csv）</label>
+          <input type="file" id="imp_file" accept=".csv,text/csv" multiple onchange="onFileSelected()">
+          <div class="unit">可一次选择多个 csv（微信 + 支付宝可同时导入）</div>
+          <div id="imp_drop" style="border:2px dashed var(--line);border-radius:10px;padding:18px;text-align:center;margin-top:8px;background:var(--bg);font-size:13px;color:var(--muted)">
+            📥 也可以把 csv 文件<b>直接拖到这里</b>
+          </div>
+          <div class="unit" id="imp_last" style="margin-top:6px"></div>
         </div>
-        <div class="unit" id="imp_last" style="margin-top:6px"></div>
+      </div>
+    </div>
+    <div id="impPasteWrap" style="display:none">
+      <div class="field" style="grid-column:1/-1">
+        <label>把账单内容粘贴到这里（用电脑 / 微信 / 邮件打开 csv 后全选复制，也可以粘贴支付宝 Excel 转成 CSV 的内容）</label>
+        <textarea id="imp_paste" rows="8" style="width:100%;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:9px;font-family:inherit;font-size:12.5px" placeholder="例如：
+交易时间,交易类型,交易对方,商品,收/支,金额(元),支付方式,当前状态,交易单号,商户单号,备注
+2026-08-01 12:30:00,商户消费,某某咖啡,拿铁,支出,¥18.00,零钱,支付成功,123456,..."></textarea>
+        <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-primary btn-sm" onclick="pasteImport()">⚡ 解析粘贴内容</button>
+          <button class="btn btn-ghost btn-sm" onclick="el('imp_paste').value=''">清空</button>
+          <span class="hint">手机不能选文件时，用这个方式最稳。</span>
+        </div>
       </div>
     </div>
     <div class="form-row" id="imp_opts" style="display:none">
