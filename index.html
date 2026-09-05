@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#2563eb">
 <meta name="mobile-web-app-capable" content="yes">
@@ -75,10 +75,12 @@ tr:last-child td{border-bottom:none}
 .form-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
 .field label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
 .field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--text);outline:none}
+.field textarea{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:14px;background:#fff;color:var(--text);outline:none;resize:vertical;min-height:72px;font-family:inherit;box-sizing:border-box}
 .field input:focus,.field select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .field .unit{font-size:11px;color:var(--muted);margin-top:3px}
 /* 模态 */
 .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal-bg{padding-top:calc(40px + env(safe-area-inset-top));padding-bottom:calc(40px + env(safe-area-inset-bottom))}
 .modal-bg.show{display:flex}
 .modal{background:#fff;border-radius:16px;max-width:640px;width:100%;padding:22px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .modal h3{font-size:17px;font-weight:700;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
@@ -177,13 +179,16 @@ input,select,.field input,.field select{border-radius:11px;background:var(--card
 .quick-btn .qt{font-weight:600}
 
 /* 顶栏 + 主题切换按钮 */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 2px 14px;padding-top:calc(6px + env(safe-area-inset-top))}
+.topbar{padding-left:max(14px, env(safe-area-inset-left));padding-right:max(14px, env(safe-area-inset-right))}
 .topbar .brand{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800}
 .topbar .brand .logo{width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--primary),var(--primary2));display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
 .theme-toggle{background:var(--card);border:1px solid var(--line);border-radius:12px;width:38px;height:38px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
 /* 移动端布局优化 */
 @media(max-width:768px){
   .wrap{padding:10px 14px 96px}
+  .wrap{padding-top:calc(10px + env(safe-area-inset-top));padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+  .wrap{padding-left:max(14px, env(safe-area-inset-left));padding-right:max(14px, env(safe-area-inset-right))}
   header.top{display:none}
   .overview{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
   .oc{padding:14px}
@@ -266,13 +271,193 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
 .bg-options{display:flex;gap:8px;flex-wrap:wrap}
 .bg-option{padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-size:13px;cursor:pointer}
 .bg-option.active{border-color:var(--primary);background:var(--primary-soft)}
+body.custom-bg .topbar,body.custom-bg .home-hero,body.custom-bg .quick-grid{background:color-mix(in srgb, var(--card) 90%, transparent);backdrop-filter:blur(2px);border-color:color-mix(in srgb, var(--line) 80%, transparent)}
+
+
+/* 设置弹窗 */
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 2px;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:none}
+.setting-row .lbl{font-weight:700;font-size:14px}
+.setting-row .desc{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.6}
+.opt-btns{display:flex;gap:8px;flex-wrap:wrap}
+.opt-btn{padding:7px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);cursor:pointer;font-size:13px;color:var(--text);font-family:inherit}
+.opt-btn.active{border-color:var(--primary);background:var(--primary-soft);color:var(--primary);font-weight:700}
+.font-btn{min-width:40px;padding:7px 10px;text-align:center}
+body.fs-small{font-size:13px}
+body.fs-big{font-size:16px}
+body.fs-big .btn{font-size:15px}
+body.fs-big input,body.fs-big select,body.fs-big textarea,body.fs-big .field input,body.fs-big .field select{font-size:15px}
+body.fs-big .tab{font-size:14px}
+body.fs-big .card h2{font-size:17px}
+body.fs-big .quick-btn{font-size:13px}
+body.fs-big .bottom-nav button{font-size:12.5px}
+body.fs-xl{font-size:17px}
+body.fs-xl .btn{font-size:16px}
+body.fs-xl input,body.fs-xl select,body.fs-xl textarea,body.fs-xl .field input,body.fs-xl .field select{font-size:16px}
+body.fs-xl .tab{font-size:15px}
+body.fs-xl .card h2{font-size:18px}
+body.fs-xl .quick-btn{font-size:13.5px}
+body.fs-xl .bottom-nav button{font-size:13px}
+/* 教程动画 */
+.tuto-card{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;border-radius:22px;padding:26px 22px;text-align:center;box-shadow:var(--shadow-lg);min-height:250px;display:flex;flex-direction:column;justify-content:center}
+.tuto-card .te{font-size:58px;line-height:1.2}
+.tuto-card h3{font-size:19px;margin:10px 0 8px}
+.tuto-card p{font-size:14px;opacity:.94;line-height:1.75;text-align:left;margin:0}
+.tuto-dots{display:flex;gap:7px;justify-content:center;margin:14px 0 6px}
+.tuto-dots .dot{width:8px;height:8px;border-radius:99px;background:var(--line);transition:all .35s}
+.tuto-dots .dot.on{width:24px;background:var(--primary)}
+.tuto-progress{height:4px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.tuto-progress i{display:block;height:100%;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:width .4s ease}
+@keyframes tutoIn{from{opacity:0;transform:translateX(30px) scale(.96)}to{opacity:1;transform:none}}
+.tuto-card.animate{animation:tutoIn .4s ease}
+
+
+/* ================= Zen UI · 高级动效层 ================= */
+:root{--ease:cubic-bezier(.22,1,.36,1);--r:20px}
+*{-webkit-tap-highlight-color:transparent}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body{transition:background .35s ease,color .35s ease;letter-spacing:.1px}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:color-mix(in srgb, var(--primary) 50%, rgba(0,0,0,.12));border-radius:99px;border:2px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-track{background:transparent}
+/* 环境光晕背景（桌面细腻动效，手机关闭防卡） */
+body::before{content:'';position:fixed;z-index:-1;inset:-20%;pointer-events:none;background:
+ radial-gradient(38% 32% at 12% 8%,color-mix(in srgb,var(--primary) 16%,transparent),transparent 62%),
+ radial-gradient(32% 28% at 88% 12%,color-mix(in srgb,var(--primary2) 16%,transparent),transparent 62%),
+ radial-gradient(42% 34% at 50% 100%,color-mix(in srgb,var(--green) 9%,transparent),transparent 65%);animation:ambient 24s ease-in-out infinite alternate}
+@keyframes ambient{0%{transform:translate3d(0,0,0) scale(1)}100%{transform:translate3d(-2%,3%,0) scale(1.08)}}
+@media(max-width:768px){body::before{animation:none}}
+/* 顶部玻璃栏 */
+.topbar{position:sticky;top:0;z-index:25;background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%);border-bottom:1px solid transparent;box-shadow:0 0 0 transparent;transition:box-shadow .3s ease,border-color .3s ease,background .3s ease}
+.topbar.shadowed{box-shadow:0 10px 30px rgba(0,0,0,.055);border-bottom-color:var(--line)}
+/* 页面切换 */
+.pg-anim{animation:pageIn .45s cubic-bezier(.22,1,.36,1) both}
+@keyframes pageIn{from{opacity:0;transform:translateY(16px) scale(.992)}to{opacity:1;transform:none}}
+/* 微交互 */
+.card,.prod,.oc,.quick-btn,.btn,.bg-option,.opt-btn,.tab{transition:transform .18s ease,box-shadow .26s ease,border-color .26s ease,background .26s ease,opacity .26s ease}
+.card:hover,.prod:hover,.oc:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.quick-btn:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.btn:active,.quick-btn:active,.tab:active{transform:scale(.97)}
+.prod .icon,.quick-btn .qi{transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.prod:hover .icon{transform:scale(1.14) rotate(-5deg)}
+.card:hover,.prod:hover,.oc:hover{border-color:color-mix(in srgb,var(--primary) 34%,transparent)}
+/* 主按钮流光 */
+.btn-primary{position:relative;overflow:hidden}
+.btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.30) 50%,transparent 62%);transform:translateX(-130%) skewX(-8deg);transition:transform .65s ease}
+.btn-primary:hover::after{transform:translateX(130%) skewX(-8deg)}
+/* 首页 hero 数字 */
+.home-hero .big{background:linear-gradient(120deg,#fff 20%,color-mix(in srgb,#fff 70%,#bae6fd) 95%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.home-hero::after{animation:blob 9s ease-in-out infinite}
+@keyframes blob{0%,100%{transform:translate(0,0) scale(1) rotate(0)}50%{transform:translate(-16px,12px) scale(1.14) rotate(10deg)}}
+/* 弹窗 */
+.modal-bg{animation:modalBgIn .26s ease both}
+.modal-bg.show .modal{animation:modalPop .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes modalBgIn{from{opacity:0}}
+@keyframes modalPop{from{opacity:0;transform:translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.modal{border-radius:24px;overflow:hidden}
+/* 底部导航高级动效 */
+.bottom-nav button{transition:color .22s ease}
+.bottom-nav button .bi{transition:transform .28s cubic-bezier(.34,1.56,.64,1)}
+.bottom-nav button.active .bi{transform:translateY(-3px) scale(1.18)}
+.bottom-nav button.active{color:var(--primary);font-weight:700}
+/* 数字轻微脉冲 */
+.big,.v.up{font-variant-numeric:tabular-nums}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.001s!important;transition-duration:.001s!important;animation-iteration-count:1!important}}
+
+
+/* ================= Liquid Glass 液态玻璃 + 微交互 ================= */
+.card,.oc,.prod,.quick-btn,.bottom-nav,.modal,.tuto-card,.setting-row{
+  background-image:linear-gradient(160deg, color-mix(in srgb,var(--card) 97%, rgba(255,255,255,.55)), color-mix(in srgb,var(--card) 88%, rgba(255,255,255,.12)) 44%, color-mix(in srgb,var(--card) 96%, transparent));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), var(--shadow);
+}
+body.dark .card,body.dark .oc,body.dark .prod,body.dark .quick-btn,body.dark .bottom-nav,body.dark .modal,body.dark .tuto-card,body.dark .setting-row{
+  background-color:color-mix(in srgb, var(--card) 76%, transparent);
+  border-color:rgba(255,255,255,.09);
+  backdrop-filter:blur(18px) saturate(160%);
+  -webkit-backdrop-filter:blur(18px) saturate(160%);
+}
+body.dark .modal{background-color:rgba(24,28,36,.86)}
+body.dark .topbar{background-image:linear-gradient(160deg, color-mix(in srgb,var(--bg) 86%, rgba(255,255,255,.14)), color-mix(in srgb,var(--bg) 64%, transparent));border-bottom-color:rgba(255,255,255,.07)}
+/* 按钮/卡片涟漪与倾斜 */
+.btn,.quick-btn,.opt-btn,.bg-option,.tab,.prod{position:relative;overflow:hidden}
+.ripple{position:absolute;border-radius:50%;pointer-events:none;background:rgba(255,255,255,.4);transform:scale(0);animation:ripple .6s cubic-bezier(.22,1,.36,1) forwards;mix-blend-mode:overlay}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.tilt-zone{will-change:transform}
+.tilt-zone, .tilt-zone:hover{transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease, border-color .22s ease}
+.tilt-zone:hover{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(-3px) scale(1.01);box-shadow:var(--shadow-lg);border-color:color-mix(in srgb,var(--primary) 34%,transparent)}
+/* 玻璃焦点 */
+.opt-btn.active,.bg-option.active{background:color-mix(in srgb,var(--primary-soft) 80%,transparent);backdrop-filter:blur(8px)}
+.modal-bg.show .modal{box-shadow:0 30px 80px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.09)}
+
+
+/* ================= 图表玻璃 + Hero 液态球 ================= */
+.chart-glass-wrap{padding:10px 8px 2px;border-radius:18px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(170deg,color-mix(in srgb,var(--card) 90%,transparent),color-mix(in srgb,var(--card) 74%,transparent));box-shadow:inset 0 1px 0 rgba(255,255,255,.08), var(--shadow);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%)}
+.chart-glass-mini{border-radius:16px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(170deg,color-mix(in srgb,var(--card) 88%,transparent),color-mix(in srgb,var(--card) 72%,transparent));box-shadow:inset 0 1px 0 rgba(255,255,255,.08), var(--shadow);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%)}
+.chart-glass-wrap canvas,.chart-glass-mini{filter:drop-shadow(0 8px 16px rgba(20,184,166,.14)) saturate(1.05)}
+.home-hero{isolation:isolate}
+.home-hero>*:not(.glass-orb){position:relative;z-index:2}
+.glass-orb{position:absolute;z-index:1;width:86px;height:86px;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:38px;background:linear-gradient(145deg,rgba(255,255,255,.34),rgba(255,255,255,.05) 60%);backdrop-filter:blur(10px) saturate(160%);-webkit-backdrop-filter:blur(10px) saturate(160%);border:1px solid rgba(255,255,255,.5);box-shadow:inset 0 1px 3px rgba(255,255,255,.65),inset 0 -12px 24px rgba(255,255,255,.08),0 20px 44px rgba(0,0,0,.18);animation:orbFloat 7s ease-in-out infinite;pointer-events:none}
+.orb1{right:16px;top:-14px}
+.orb2{right:92px;top:52px;width:60px;height:60px;font-size:27px;border-radius:20px;animation-delay:-2.6s}
+.orb3{left:10px;bottom:-18px;width:56px;height:56px;font-size:25px;border-radius:18px;animation-delay:-5s}
+@keyframes orbFloat{0%,100%{transform:translate3d(0,0,0) rotate(-5deg)}50%{transform:translate3d(-8px,12px,0) rotate(7deg)}}
+@media(max-width:768px){.orb1{right:10px;top:-10px;width:70px;height:70px;font-size:32px}.orb2{right:56px;top:46px;width:52px;height:52px;font-size:23px}.orb3{left:6px;bottom:-14px;width:46px;height:46px;font-size:20px}}
+
+
+#bgLayer{position:fixed;inset:-24px;z-index:-1;pointer-events:none;background-size:cover;background-position:center;background-repeat:no-repeat;transition:filter .5s ease,opacity .5s ease,background-image .3s ease}
+body.custom-bg-grad #bgLayer{background-size:220% 220%;animation:bgGradFlow 18s ease-in-out infinite}
+@keyframes bgGradFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+@media(max-width:768px){body.custom-bg-grad #bgLayer{animation:none}}
+
+
+/* ================= 首次进入 · 玻璃欢迎引导 ================= */
+.intro-bg{background:rgba(10,14,22,.42);backdrop-filter:blur(28px) saturate(160%);-webkit-backdrop-filter:blur(28px) saturate(160%);align-items:center;z-index:80;padding:20px 16px}
+.intro-glass{background:linear-gradient(160deg,rgba(255,255,255,.18),rgba(255,255,255,.05) 46%,rgba(255,255,255,.11));border:1px solid rgba(255,255,255,.30);backdrop-filter:blur(32px) saturate(170%);-webkit-backdrop-filter:blur(32px) saturate(170%);box-shadow:0 40px 100px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35)}
+body.dark .intro-glass{background:linear-gradient(160deg,rgba(40,48,70,.55),rgba(28,34,52,.45) 45%,rgba(35,45,66,.5));border-color:rgba(255,255,255,.16)}
+.intro-orb{position:absolute;width:110px;height:110px;border-radius:36px;display:flex;align-items:center;justify-content:center;font-size:52px;background:linear-gradient(145deg,rgba(255,255,255,.32),rgba(255,255,255,.05) 60%);border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 1px 3px rgba(255,255,255,.65), inset 0 -12px 24px rgba(255,255,255,.08), 0 22px 48px rgba(0,0,0,.2);backdrop-filter:blur(12px) saturate(160%);-webkit-backdrop-filter:blur(12px) saturate(160%);animation:introOrb 6s ease-in-out infinite;pointer-events:none}
+.intro-orb.o1{left:8%;top:16%}
+.intro-orb.o2{right:8%;bottom:12%;animation-delay:-3s}
+@keyframes introOrb{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-22px) rotate(8deg)}}
+.intro-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.intro-brand{font-weight:800;font-size:15px;background:linear-gradient(120deg,var(--primary),var(--primary2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.intro-skip{background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;font-family:inherit;opacity:.85}
+.intro-stage{min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6px 2px}
+.intro-stage .ie{font-size:72px;line-height:1.15;filter:drop-shadow(0 12px 24px rgba(20,184,166,.35))}
+.intro-stage h3{font-size:22px;font-weight:800;margin:14px 0 8px;letter-spacing:-.3px}
+.intro-stage p{font-size:14.5px;color:var(--muted);line-height:1.8;margin:0;max-width:380px}
+.intro-dots{display:flex;gap:8px;justify-content:center;margin:16px 0 4px}
+.intro-dots .dot{width:9px;height:9px;border-radius:99px;background:rgba(128,140,160,.35);transition:all .35s}
+.intro-dots .dot.on{width:26px;background:var(--primary)}
+.intro-stage.animate{animation:introIn .55s cubic-bezier(.22,1,.36,1)}
+@keyframes introIn{from{opacity:0;transform:translateX(34px) scale(.94);filter:blur(8px)}to{opacity:1;transform:none;filter:blur(0)}}
+.intro-bg.show .modal{animation:introPop .7s cubic-bezier(.22,1,.36,1) both}
+@keyframes introPop{from{opacity:0;transform:translateY(48px) scale(.8);filter:blur(18px)}to{opacity:1;transform:none;filter:blur(0)}}
+@media(max-width:768px){.intro-orb{width:82px;height:82px;font-size:38px}.intro-orb.o1{left:4%;top:10%}.intro-orb.o2{right:4%;bottom:8%}.intro-stage{min-height:220px}.intro-stage .ie{font-size:58px}}
 
 </style>
 </head>
 <body>
+<div id="bgLayer" aria-hidden="true"></div>
+<div class="modal-bg intro-bg" id="introModal">
+  <span class="intro-orb o1">💰</span>
+  <span class="intro-orb o2">📈</span>
+  <div class="modal intro-glass" style="max-width:520px">
+    <div class="intro-top">
+      <span class="intro-brand">💰 口袋理财 · 收益管家</span>
+      <button class="intro-skip" onclick="closeIntro(true)">跳过</button>
+    </div>
+    <div class="intro-stage animate" id="introStage"></div>
+    <div class="intro-dots" id="introDots"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px">
+      <button class="btn btn-ghost btn-sm" id="introPrev" style="visibility:hidden">◀</button>
+      <button class="btn btn-primary" id="introNext" onclick="introStep(1)">下一步 ▶</button>
+    </div>
+  </div>
+</div>
 <div class="topbar" id="topbar">
   <div class="brand"><span class="logo">💰</span><span>口袋理财</span></div>
   <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn" title="切换主题">🌙</button>
+  <button class="theme-toggle" onclick="openSettings()" id="settingsBtn" title="设置">⚙️</button>
 </div>
 
 <div class="wrap">
@@ -294,20 +479,33 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <div id="globalSearchResult" style="display:none"></div>
     </div>
     <div class="home-hero">
-      <div class="lbl">净资产</div>
+      <span class="glass-orb orb1">💰</span>
+      <span class="glass-orb orb2">📈</span>
+      <span class="glass-orb orb3">🏦</span>
+      <div class="lbl" data-i18n="home.net">净资产</div>
       <div class="big" id="hmNet">¥0.00</div>
       <div class="row">
-        <div class="cell"><div class="v" id="hmCash">¥0</div><div class="k">现金/账户</div></div>
-        <div class="cell"><div class="v" id="hmInvest">¥0</div><div class="k">理财投资</div></div>
-        <div class="cell"><div class="v up" id="hmToday">+¥0</div><div class="k">今日收益</div></div>
+        <div class="cell"><div class="v" id="hmCash">¥0</div><div class="k" data-i18n="home.cash">现金/账户</div></div>
+        <div class="cell"><div class="v" id="hmInvest">¥0</div><div class="k" data-i18n="home.invest">理财投资</div></div>
+        <div class="cell"><div class="v up" id="hmToday">+¥0</div><div class="k" data-i18n="home.today">今日收益</div></div>
       </div>
     </div>
+    <div class="home-dl" style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:linear-gradient(135deg,#7c5cff22,#00c2ff22);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px">
+      <div style="min-width:0">
+        <div style="font-weight:700;font-size:15px">📱 手机 App &nbsp;/&nbsp; 💻 电脑安装版</div>
+        <div style="font-size:12px;color:var(--muted)">安卓 APK 与电脑安装包，一键下载安装</div>
+      </div>
+      <button class="btn btn-primary" onclick="showDownloads()">立即下载 ⬇️</button>
+    </div>
+
     <div class="quick-grid">
-      <button class="quick-btn" onclick="quickAdd()"><span class="qi">✏️</span><span class="qt">记一笔</span></button>
-      <button class="quick-btn" onclick="showPage('ledger');setTimeout(openImport,100)"><span class="qi">📥</span><span class="qt">导账单</span></button>
-      <button class="quick-btn" onclick="showPage('invest')"><span class="qi">📈</span><span class="qt">理财</span></button>
-      <button class="quick-btn" onclick="showPage('asset')"><span class="qi">🏦</span><span class="qt">看资产</span></button>
-      <button class="quick-btn" onclick="showPage('goal')"><span class="qi">🎯</span><span class="qt">立目标</span></button>
+      <button class="quick-btn" onclick="quickAdd()"><span class="qi">✏️</span><span class="qt" data-i18n="quick.add">记一笔</span></button>
+      <button class="quick-btn" onclick="showPage('ledger');setTimeout(openImport,100)"><span class="qi">📥</span><span class="qt" data-i18n="quick.import">导账单</span></button>
+      <button class="quick-btn" onclick="showPage('invest')"><span class="qi">📈</span><span class="qt" data-i18n="quick.invest">理财</span></button>
+      <button class="quick-btn" onclick="showPage('asset')"><span class="qi">🏦</span><span class="qt" data-i18n="quick.asset">看资产</span></button>
+      <button class="quick-btn" onclick="showPage('goal')"><span class="qi">🎯</span><span class="qt" data-i18n="quick.goal">立目标</span></button>
+      <button class="quick-btn" onclick="openSettings()"><span class="qi">⚙️</span><span class="qt" data-i18n="quick.settings">设置</span></button>
+      <button class="quick-btn" onclick="showDownloads()"><span class="qi">⬇️</span><span class="qt" data-i18n="quick.dl">下载</span></button>
     </div>
     <div class="home-section-title">📅 收支概况 <span style="font-size:12px;color:var(--muted);font-weight:400" id="hmMonthLabel">本月</span></div>
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap">
@@ -319,22 +517,22 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
     </div>
     <div id="hmBudgetRing" style="display:flex;align-items:center;gap:16px;margin-bottom:14px"></div>
     <div class="overview" style="grid-template-columns:repeat(2,1fr);margin-bottom:0">
-      <div class="oc"><div class="label">收入</div><div class="value up" id="hmMin">¥0.00</div></div>
-      <div class="oc"><div class="label">支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
-      <div class="oc"><div class="label">结余</div><div class="value" id="hmMbal">¥0.00</div></div>
-      <div class="oc"><div class="label">目标进度</div><div class="value" id="hmGoal">0%</div></div>
+      <div class="oc"><div class="label" data-i18n="home.titleIn">收入</div><div class="value up" id="hmMin">¥0.00</div></div>
+      <div class="oc"><div class="label" data-i18n="home.titleEx">支出</div><div class="value down" id="hmMexp">¥0.00</div></div>
+      <div class="oc"><div class="label" data-i18n="home.titleBal">结余</div><div class="value" id="hmMbal">¥0.00</div></div>
+      <div class="oc"><div class="label" data-i18n="home.titleGoal">目标进度</div><div class="value" id="hmGoal">0%</div></div>
     </div>
     <div class="home-section-title">🔔 提醒</div>
     <div id="hmReminders"></div>
   </div>
 
   <nav class="tabs" style="margin-bottom:18px">
-    <button class="tab active" id="tab-invest" onclick="showPage('invest')">📈 理财</button>
-    <button class="tab" id="tab-ledger" onclick="showPage('ledger')">🧾 记账</button>
-    <button class="tab" id="tab-asset" onclick="showPage('asset')">🏦 资产</button>
-    <button class="tab" id="tab-goal" onclick="showPage('goal')">🎯 目标</button>
-    <button class="tab" id="tab-trip" onclick="showPage('trip')">👥 共享</button>
-    <button class="tab" id="tab-community" onclick="showPage('community')">🌐 社区</button>
+    <button class="tab active" id="tab-invest" onclick="showPage('invest')" data-i18n="tab-invest">📈 理财</button>
+    <button class="tab" id="tab-ledger" onclick="showPage('ledger')" data-i18n="tab-ledger">🧾 记账</button>
+    <button class="tab" id="tab-asset" onclick="showPage('asset')" data-i18n="tab-asset">🏦 资产</button>
+    <button class="tab" id="tab-goal" onclick="showPage('goal')" data-i18n="tab-goal">🎯 目标</button>
+    <button class="tab" id="tab-trip" onclick="showPage('trip')" data-i18n="tab-trip">👥 共享</button>
+    <button class="tab" id="tab-community" onclick="showPage('community')" data-i18n="tab-community">🌐 社区</button>
 
   </nav>
   <div id="page-invest">
@@ -384,7 +582,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <!-- 收益曲线 -->
       <div class="card">
         <h2>收益曲线 <span class="hint">过去 60 天 + 未来 60 天预估</span></h2>
-        <canvas id="chart"></canvas>
+        <div class="chart-glass-wrap"><canvas id="chart"></canvas></div>
         <div class="note" id="chartLegend"></div>
       </div>
 
@@ -457,6 +655,7 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
         <div class="field"><label>分类</label><select id="le_cat"></select></div>
         <div class="field"><label>金额（元）</label><input id="le_amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
         <div class="field"><label>日期</label><input id="le_date" type="date"></div>
+        <div class="field"><label>时间（秒）</label><input id="le_time" type="time" step="1"></div>
         <div class="field"><label>账户</label><select id="le_account"></select></div>
         <div class="field" id="le_toWrap" style="display:none"><label>转入账户</label><select id="le_toAccount"></select></div>
         <div class="field"><label>备注</label><input id="le_note" placeholder="可选"></div>
@@ -468,11 +667,51 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
         <span class="hint" id="leEditHint" style="display:none;color:var(--orange)">正在编辑，点「保存修改」完成</span>
       </div>
     </div>
+    <div class="card">
+      <h2>月份统计 <span class="hint" id="leMonthHint"></span></h2>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(-1)">◀</button>
+        <button class="btn btn-ghost btn-sm" onclick="pickStatMonth()" id="leMonthPick" title="点击输入月份">本月</button>
+        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(1)">▶</button>
+        <button class="btn btn-ghost btn-sm" onclick="setStatMonth('all')">全部月份</button>
+        <button class="btn btn-ghost btn-sm" onclick="setStatMonth()">回本月</button>
+      </div>
+      <div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
+        <div class="oc"><div class="label">本月收入</div><div class="value up" id="leMonthIncome">¥0.00</div></div>
+        <div class="oc"><div class="label">本月支出</div><div class="value down" id="leMonthExpense">¥0.00</div></div>
+        <div class="oc"><div class="label">本月结余</div><div class="value" id="leMonthBalance">¥0.00</div></div>
+        <div class="oc"><div class="label">累计记录</div><div class="value" id="leCount">0</div></div>
+      </div>
+      <div id="budgetRow" style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+          <b style="font-size:14px">🎯 月度预算</b>
+          <input id="bd_input" type="number" min="0" step="0.01" placeholder="如 5000" style="width:130px;padding:7px 10px;border:1px solid var(--line);border-radius:8px">
+          <button class="btn btn-ghost btn-sm" onclick="saveBudget()">保存预算</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearBudget()" id="bd_clearBtn" style="display:none">清除</button>
+        </div>
+        <div id="bd_progress"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:14px">
+        <span style="font-size:13px;color:var(--muted)">支出分类</span>
+        <button class="btn btn-ghost btn-sm active" id="catViewBar" onclick="setCatView('bar')">📊 条形</button>
+        <button class="btn btn-ghost btn-sm" id="catViewPie" onclick="setCatView('pie')">🥧 饼图</button>
+      </div>
+      <div id="leCategoryBars"></div>
+      <div style="text-align:center"><canvas id="pieCatChart" class="chart-glass-mini" style="display:none;max-width:300px;width:100%;height:210px;margin:6px auto"></canvas></div>
+      <div id="pieCatLegend" style="display:none;margin-top:8px"></div>
+      <div id="insightBox" style="margin-top:14px"></div>
+      <div style="margin-top:16px">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">近 6 个月收支趋势（绿=收入 红=支出 蓝=结余）</div>
+        <div class="chart-glass-wrap"><canvas id="trendChart" style="height:180px"></canvas></div>
+      </div>
+
+    </div>
+
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <input id="le_search" placeholder="🔍 搜索记录（分类 / 备注 / 账户 / 金额）" oninput="setLedgerSearch(this.value)" style="flex:1;padding:9px 12px;border:1px solid var(--line);border-radius:9px">
-        <button class="btn btn-ghost btn-sm" onclick="toggleFilterPanel()" id="filterToggle">📊 筛选</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleFilterPanel()" id="filterToggle">🛡️ 收起筛选</button>
       </div>
-      <div class="card" id="filterPanel" style="display:none;padding:14px;margin-bottom:10px">
+      <div class="card" id="filterPanel" style="display:block;padding:14px;margin-bottom:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
           <b style="font-size:14px">📊 高级筛选</b>
           <span id="lfHint" style="font-size:12px;color:var(--muted)"></span>
@@ -498,39 +737,6 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
           <div class="field"><label>账户</label><select id="lf_acc" onchange="applyLedgerFilter()"><option value="">全部账户</option></select></div>
         </div>
 
-
-    <div class="card">
-      <h2>月份统计 <span class="hint" id="leMonthHint"></span></h2>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(-1)">◀</button>
-        <button class="btn btn-ghost btn-sm" onclick="pickStatMonth()" id="leMonthPick" title="点击输入月份">本月</button>
-        <button class="btn btn-ghost btn-sm" onclick="shiftStatMonth(1)">▶</button>
-        <button class="btn btn-ghost btn-sm" onclick="setStatMonth('all')">全部月份</button>
-        <button class="btn btn-ghost btn-sm" onclick="setStatMonth()">回本月</button>
-      </div>
-      <div class="overview" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr))">
-        <div class="oc"><div class="label">本月收入</div><div class="value up" id="leMonthIncome">¥0.00</div></div>
-        <div class="oc"><div class="label">本月支出</div><div class="value down" id="leMonthExpense">¥0.00</div></div>
-        <div class="oc"><div class="label">本月结余</div><div class="value" id="leMonthBalance">¥0.00</div></div>
-        <div class="oc"><div class="label">累计记录</div><div class="value" id="leCount">0</div></div>
-      </div>
-      <div id="budgetRow" style="margin-top:14px;padding:12px;background:var(--bg);border-radius:10px;border:1px solid var(--line)">
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
-          <b style="font-size:14px">🎯 月度预算</b>
-          <input id="bd_input" type="number" min="0" step="0.01" placeholder="如 5000" style="width:130px;padding:7px 10px;border:1px solid var(--line);border-radius:8px">
-          <button class="btn btn-ghost btn-sm" onclick="saveBudget()">保存预算</button>
-          <button class="btn btn-ghost btn-sm" onclick="clearBudget()" id="bd_clearBtn" style="display:none">清除</button>
-        </div>
-        <div id="bd_progress"></div>
-      </div>
-      <div id="leCategoryBars" style="margin-top:12px"></div>
-      <div id="insightBox" style="margin-top:14px"></div>
-      <div style="margin-top:16px">
-        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">近 6 个月收支趋势（绿=收入 红=支出 蓝=结余）</div>
-        <canvas id="trendChart" style="height:180px"></canvas>
-      </div>
-
-    </div>
 
     <div class="card">
       <h2>🚦 花费限制提醒 <span class="hint">每日限额 + 分类预算，接近或超支自动提醒</span></h2>
@@ -631,6 +837,14 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       </div>
       <button class="btn btn-primary" onclick="addFixed()">＋ 添加固定资产</button>
       <div id="fxList" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>🍩 资产构成 <span class="hint">现金 · 理财 · 固定资产</span></h2>
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <canvas id="assetPie" class="chart-glass-mini" style="width:190px;height:190px;flex-shrink:0"></canvas>
+        <div id="assetPieLegend" style="flex:1;min-width:150px"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -778,13 +992,24 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
       <div id="ccLogin">
         <div class="form-row">
           <div class="field"><label>你的昵称</label><input id="cc_name" placeholder="如：小明"></div>
+          <div class="field"><label>设置 PIN 密码（6-8 位数字）</label><input id="cc_pin" type="password" inputmode="numeric" maxlength="8" placeholder="用于登录保护，请牢记" onkeydown="if(event.key==='Enter')ccRegister()"></div>
         </div>
         <button class="btn btn-primary" onclick="ccRegister()">🆔 生成我的专属 ID</button>
         <div style="margin:12px 0;text-align:center;color:var(--muted);font-size:13px">— 已有 ID 直接登录 —</div>
         <div class="form-row">
           <div class="field"><label>我的 ID</label><input id="cc_id" placeholder="输入 6 位专属 ID" style="text-transform:uppercase"></div>
+          <div class="field"><label>PIN 密码</label><input id="cc_pinLogin" type="password" inputmode="numeric" maxlength="8" placeholder="6-8 位数字" onkeydown="if(event.key==='Enter')ccLogin()"></div>
         </div>
         <button class="btn btn-ghost" onclick="ccLogin()">登录</button>
+        <div id="ccMsg" style="margin-top:10px;font-size:13px;font-weight:600;color:var(--muted)"></div>
+      </div>
+      <div id="ccSetPin" style="display:none;margin-top:14px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px">
+        <div style="font-size:14px;font-weight:700;margin-bottom:10px">🔐 首次登录：请为你的 ID 设置 PIN</div>
+        <div class="form-row">
+          <div class="field"><label>新 PIN（6-8 位数字）</label><input id="cc_newpin" type="password" inputmode="numeric" maxlength="8"></div>
+          <div class="field"><label>再次输入 PIN</label><input id="cc_newpin2" type="password" inputmode="numeric" maxlength="8"></div>
+        </div>
+        <button class="btn btn-primary" onclick="ccSavePin()">保存 PIN 并登录</button>
       </div>
       <div id="ccProfile" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
@@ -806,25 +1031,18 @@ body.custom-bg .home-search input{background:color-mix(in srgb, var(--card) 96%,
     </div>
 
     <div class="card">
-      <h2>🎨 外观定制 <span class="hint">主配色 + 背景，界面即时跟随</span></h2>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">主配色</div>
-      <div class="theme-swatches" id="themeSwatches"></div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-        <span style="font-size:13px;color:var(--muted)">自定义颜色</span>
-        <input type="color" id="themeCustomColor" value="#14b8a6" onchange="applyCustomColor(this.value)" style="width:44px;height:40px;border:none;background:none;cursor:pointer">
+      <h2>💬 意见反馈 <span class="hint">帮我把 App 做得更好</span></h2>
+      <div class="field" style="grid-column:1/-1"><label>反馈内容</label>
+        <textarea id="fb_content" rows="3" placeholder="遇到什么问题 / 想要什么功能 / 使用感受"></textarea>
       </div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">背景</div>
-      <div class="bg-options" id="bgOptions">
-        <button class="bg-option active" data-bg="default" onclick="setBg('default')">默认纯色</button>
-        <button class="bg-option" data-bg="grad1" onclick="setBg('grad1')">清新渐变</button>
-        <button class="bg-option" data-bg="grad2" onclick="setBg('grad2')">暖阳渐变</button>
+      <div class="form-row" style="margin-top:8px">
+        <div class="field"><label>联系方式（选填）</label><input id="fb_contact" placeholder="微信号 / 邮箱 / 手机号"></div>
       </div>
-      <div style="margin-top:10px">
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('bgImageInput').click()">🖼️ 上传自定义背景图</button>
-        <input type="file" id="bgImageInput" accept="image/*" style="display:none" onchange="uploadBgImage(this)">
-        <button class="btn btn-ghost btn-sm" onclick="clearBg()" id="bgClearBtn" style="display:none">清除背景图</button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px">
+        <button class="btn btn-primary" onclick="sendFeedback()">📨 提交反馈</button>
+        <span id="fbStatus" style="font-size:12px;color:var(--muted)"></span>
       </div>
-      <div class="unit" style="font-size:12px;color:var(--muted);margin-top:6px">背景图仅保存在本机浏览器，不上传。</div>
+      <div class="unit">反馈会发送到作者电脑的本地服务（无网络时会先暂存，联网后自动补发）</div>
     </div>
 
     <div class="card">
@@ -1743,18 +1961,21 @@ function submitEntry(){
     const to = el("le_toAccount") ? el("le_toAccount").value : "";
     if(!to){ alert("请选择转入账户"); return; }
     if(to===account){ alert("转出和转入账户不能相同"); return; }
-    const entry = { id: leEditId || uid(), type:"transfer", category:"转账", amount, date, account, toAccount:to, note, scene: currentScene };
+    const time = el("le_time") ? (el("le_time").value || nowTimeSec()) : nowTimeSec();
+    const entry = { id: leEditId || uid(), type:"transfer", category:"转账", amount, date, time, ts:entryTime({date,time}), account, toAccount:to, note, scene: currentScene };
     if(leEditId){ const i = ledger.entries.findIndex(x=>x.id===leEditId); if(i>=0) ledger.entries[i] = entry; leEditId=null; }
     else ledger.entries.push(entry);
     saveLedger();
     el("le_amount").value=""; el("le_note").value=""; el("le_customCat").value="";
+    if(el("le_time")) el("le_time").value = nowTimeSec();
     el("leSubmitBtn").textContent = "＋ 记一笔";
     el("leEditHint").style.display = "none";
     renderLedgerAll();
     return;
   }
   if(!category){ alert("请选择或输入分类"); return; }
-  const entry = { id: leEditId || uid(), type, category, amount, date, account, note, scene: currentScene };
+  const time = el("le_time") ? (el("le_time").value || nowTimeSec()) : nowTimeSec();
+  const entry = { id: leEditId || uid(), type, category, amount, date, time, ts:entryTime({date,time}), account, note, scene: currentScene };
   if(leEditId){ const i = ledger.entries.findIndex(e=>e.id===leEditId); if(i>=0) ledger.entries[i] = entry; leEditId=null; }
   else ledger.entries.push(entry);
   saveLedger();
@@ -1770,6 +1991,7 @@ function editEntry(id){
   if(e.type==="transfer" && el("le_toAccount")) el("le_toAccount").value = e.toAccount||"";
   el("le_amount").value = e.amount;
   el("le_date").value = e.date;
+  if(el("le_time")) el("le_time").value = e.time || nowTimeSec();
   el("le_account").value = e.account;
   el("le_note").value = e.note||"";
   el("le_customCat").value = SCENES[currentScene].expense.includes(e.category)||INCOME_CATS.includes(e.category) ? "" : e.category;
@@ -1814,9 +2036,24 @@ function accountBalance(name){
 function entriesOfMonth(entries, ym){
   return entries.filter(e=>e.date.slice(0,7)===ym);
 }
+function nowTimeSec(){
+  const d = new Date();
+  return [d.getHours(), d.getMinutes(), d.getSeconds()].map(v=>String(v).padStart(2,"0")).join(":");
+}
+function entryTime(e){
+  if(e.ts) return e.ts;
+  const d = new Date((e.date||"")+"T"+(e.time||"00:00:00"));
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
 let statMonth = null; // null=当前月, 'all'=全部, 'YYYY-MM'=指定月
 function currentYm(){ return todayStr().slice(0,7); }
 function statEntries(){
+  const base = ledger.entries;
+  if(statMonth==="all") return base;
+  const ym = statMonth || currentYm();
+  return base.filter(e=>e.date.slice(0,7)===ym);
+}
+function listEntries(){
   const base = filteredEntries();
   if(statMonth==="all") return base;
   const ym = statMonth || currentYm();
@@ -1840,6 +2077,52 @@ function pickStatMonth(){
   if(v && /^\d{4}-\d{2}$/.test(v.trim())){ statMonth = v.trim(); refreshStatViews(); }
 }
 function setStatMonth(v){ statMonth = (v===undefined || v===null) ? null : v; refreshStatViews(); }
+const CAT_COLORS = ["#f59e0b","#3b82f6","#10b981","#8b5cf6","#ef4444","#f97316","#14b8a6","#ec4899","#6366f1","#84cc16","#64748b"];
+let catView = "bar";
+let catPieData = null;
+function drawPie(cv, items, centerText){
+  if(!cv || !cv.getContext) return;
+  const ctx = cv.getContext("2d");
+  const W = cv.clientWidth || 280, H = cv.clientHeight || 200;
+  if(W<10) return;
+  cv.width = W * devicePixelRatio; cv.height = H * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.clearRect(0,0,W,H);
+  const total = sum(items.map(i=>i.value));
+  if(total<=0) return;
+  const cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 8;
+  let start = -Math.PI/2;
+  items.forEach(i=>{
+    const ang = i.value/total*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,start,start+ang); ctx.closePath();
+    ctx.fillStyle = i.color; ctx.fill();
+    start += ang;
+  });
+  const root = getComputedStyle(document.documentElement);
+  const cardColor = root.getPropertyValue("--card").trim() || "#ffffff";
+  ctx.beginPath(); ctx.arc(cx,cy,R*0.58,0,Math.PI*2); ctx.fillStyle = cardColor; ctx.fill();
+  if(centerText){
+    ctx.fillStyle = root.getPropertyValue("--text").trim() || "#111827";
+    ctx.font = "bold 14px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(centerText, cx, cy-4);
+    ctx.font = "10px sans-serif"; ctx.fillStyle = root.getPropertyValue("--muted").trim() || "#6b7280";
+    ctx.fillText("总资产", cx, cy+13);
+  }
+}
+function setCatView(v){
+  catView = v;
+  const b=el("catViewBar"), p=el("catViewPie");
+  if(b) b.classList.toggle("active", v==="bar");
+  if(p) p.classList.toggle("active", v==="pie");
+  const barBox = el("leCategoryBars"), pieCv = el("pieCatChart"), leg = el("pieCatLegend");
+  if(barBox) barBox.style.display = v==="bar" ? "block" : "none";
+  if(pieCv) pieCv.style.display = v==="pie" ? "block" : "none";
+  if(leg) leg.style.display = v==="pie" ? "block" : "none";
+  if(v==="pie" && catPieData && catPieData.items.length){
+    drawPie(pieCv, catPieData.items, "");
+    if(leg) leg.innerHTML = catPieData.items.map(i=>'<span style="display:inline-flex;align-items:center;gap:5px;margin:3px 10px 3px 0;font-size:12px"><span style="width:10px;height:10px;border-radius:3px;background:'+i.color+'"></span>'+esc(i.label)+' '+fmtNum(i.value/catPieData.total*100,1)+'%</span>').join("");
+  }
+}
 function renderInsight(){
   const box = el("insightBox");
   if(!box) return;
@@ -1915,23 +2198,26 @@ function renderLedgerAll(){
   const fexp = sum(fme.map(e=>e.amount));
   if(!fme.length){
     box.innerHTML = '<div class="empty" style="padding:16px">'+stLabel+'当前范围内没有支出记录</div>';
+    catPieData = {items:[], total:0};
   }else{
     const m = {};
     fme.forEach(e=>{ m[e.category]=(m[e.category]||0)+e.amount; });
     const items = Object.entries(m).sort((a,b)=>b[1]-a[1]);
-    box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+stLabel+'支出分类占比</div>' + items.map(([k,v])=>{
+    box.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:8px">'+stLabel+'支出分类</div>' + items.map(([k,v])=>{
       const pct = fexp>0 ? v/fexp*100 : 0;
       return `<div style="margin-bottom:8px">
         <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px"><span>${esc(k)}</span><span>${fmtMoney(v)} · ${fmtNum(pct,1)}%</span></div>
         <div style="height:8px;background:#eef1f6;border-radius:5px;overflow:hidden"><div style="width:${pct}%;height:100%;background:#f59e0b;border-radius:5px"></div></div>
       </div>`;
     }).join("");
+    catPieData = { items: items.map(([k,v],i)=>({label:k, value:v, color:CAT_COLORS[i%CAT_COLORS.length]})), total: fexp };
   }
+  if(catView==="pie") setCatView("pie");
   // 列表
   const list = el("leList");
   const fname = {all:"全部场景",daily:"日常",travel:"旅游",business:"差旅",family:"家庭"}[ledgerFilter]||"全部场景";
-  el("leFilterHint").textContent = "当前筛选：" + fname + (ledgerFilter!=="all" ? "（列表与分类占比仅显示该场景）" : "");
-  const sorted = [...se].sort((a,b)=> b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+  el("leFilterHint").textContent = "当前筛选：" + fname + (ledgerFilter!=="all" ? "（账单记录仅显示该场景）" : "");
+  const sorted = [...listEntries()].sort((a,b)=> b.date.localeCompare(a.date) || entryTime(b)-entryTime(a) || b.id.localeCompare(a.id));
   el("leRangeCount").textContent = sorted.length;
   if(!sorted.length){
     list.innerHTML = '<div class="empty">还没有记账记录，用上方表单记第一笔吧</div>';
@@ -1950,7 +2236,7 @@ function renderLedgerAll(){
         html += `<div class="prod" style="padding:9px 6px;margin-bottom:0;border:none;border-bottom:1px solid #f1f3f8">
           <div class="icon t-moneyfund" style="width:34px;height:34px;font-size:16px">🔁</div>
           <div class="info"><div class="name" style="font-size:14px">转账 <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(e.account)} → ${esc(e.toAccount||"")}</span></div>
-          <div class="meta">${esc(e.note||"")}</div></div>
+          <div class="meta">${e.time?'🕐 '+esc(e.time)+' · ':''}${esc(e.note||"")}</div></div>
           <div class="nums"><div class="earn" style="color:var(--muted)">${fmtMoney(e.amount)}</div></div>
           <div class="actions"><button class="btn btn-ghost btn-sm" onclick="editEntry('${e.id}')">改</button><button class="btn btn-danger btn-sm" onclick="delEntry('${e.id}')">删</button></div>
         </div>`;
@@ -1958,7 +2244,7 @@ function renderLedgerAll(){
       html += `<div class="prod" style="padding:9px 6px;margin-bottom:0;border:none;border-bottom:1px solid #f1f3f8">
         <div class="icon ${e.type==="income"?"t-moneyfund":"t-custom"}" style="width:34px;height:34px;font-size:16px">${e.type==="income"?"💹":"💸"}</div>
         <div class="info"><div class="name" style="font-size:14px">${esc(e.category)} <span style="font-weight:400;color:var(--muted);font-size:12px">${esc(e.scene==="daily"?"日常":SCENES[e.scene]?SCENES[e.scene].label.replace(/^[^ ]+ /,""):"日常")} · ${esc(e.account)}</span></div>
-        <div class="meta">${esc(e.note||"")}</div></div>
+        <div class="meta">${e.time?'🕐 '+esc(e.time)+' · ':''}${esc(e.note||"")}</div></div>
         <div class="nums"><div class="earn ${cls}">${sign}${fmtMoney(e.amount)}</div></div>
         <div class="actions"><button class="btn btn-ghost btn-sm" onclick="editEntry('${e.id}')">改</button><button class="btn btn-danger btn-sm" onclick="delEntry('${e.id}')">删</button></div>
       </div>`;
@@ -1971,8 +2257,8 @@ function renderLedgerAll(){
 /* ---------- CSV 导出 ---------- */
 function exportCsv(){
   if(!ledger.entries.length){ alert("没有可导出的记录"); return; }
-  const rows = [["日期","类型","分类","金额","账户","场景","备注"]];
-  ledger.entries.forEach(e=>rows.push([e.date, e.type==="income"?"收入":"支出", e.category, e.amount, e.account, SCENES[e.scene]?SCENES[e.scene].label:"日常", e.note||""]));
+  const rows = [["日期","时间","类型","分类","金额","账户","场景","备注"]];
+  ledger.entries.forEach(e=>rows.push([e.date, e.time||"", e.type==="income"?"收入":"支出", e.category, e.amount, e.account, SCENES[e.scene]?SCENES[e.scene].label:"日常", e.note||""]));
   const csv = rows.map(r=>r.map(c=>`"${String(c==null?"":c).replace(/"/g,'""')}"`).join(",")).join("\n");
   const blob = new Blob(["\ufeff"+csv], {type:"text/csv;charset=utf-8"});
   const a = document.createElement("a");
@@ -1996,13 +2282,13 @@ function printHeader(title, gen){
   return `<div class="ph"><h3>${esc(title)}</h3><div class="meta">口袋理财 · 收益管家　|　${esc(gen)}</div></div>`;
 }
 function printDetail(gen){
-  const sorted = [...ledger.entries].sort((a,b)=>a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
+  const sorted = [...ledger.entries].sort((a,b)=>a.date.localeCompare(b.date) || entryTime(a)-entryTime(b) || a.id.localeCompare(b.id));
   let h = printHeader("账单明细", gen);
-  h += `<table><thead><tr><th>序号</th><th>日期</th><th>类型</th><th>分类</th><th>账户</th><th>备注</th><th>金额（元）</th></tr></thead><tbody>`;
+  h += `<table><thead><tr><th>序号</th><th>日期</th><th>时间</th><th>类型</th><th>分类</th><th>账户</th><th>备注</th><th>金额（元）</th></tr></thead><tbody>`;
   let inc=0, exp=0;
   sorted.forEach((e,i)=>{
     if(e.type==="income") inc+=e.amount; else exp+=e.amount;
-    h += `<tr><td>${i+1}</td><td>${esc(e.date)}</td><td>${e.type==="income"?"收入":"支出"}</td><td>${esc(e.category)}</td><td>${esc(e.account)}</td><td>${esc(e.note||"")}</td><td>${e.type==="income"?"+":"-"}${fmtNum(e.amount)}</td></tr>`;
+    h += `<tr><td>${i+1}</td><td>${esc(e.date)}</td><td>${e.time?esc(e.time):"—"}</td><td>${e.type==="income"?"收入":"支出"}</td><td>${esc(e.category)}</td><td>${esc(e.account)}</td><td>${esc(e.note||"")}</td><td>${e.type==="income"?"+":"-"}${fmtNum(e.amount)}</td></tr>`;
   });
   h += `</tbody></table><div style="margin-top:10px;font-size:12px">支出合计：<b>¥${fmtNum(exp)}</b>　收入合计：<b>¥${fmtNum(inc)}</b>　结余：<b>¥${fmtNum(inc-exp)}</b></div>`;
   return h;
@@ -2092,6 +2378,18 @@ function renderAsset(){
         return `<tr><td><b>${esc(a.name)}</b></td><td>${fmtMoney(a.initial||0)}</td><td class="${bal>=0?"up":"down"}">${fmtMoney(bal)}</td><td><button class="btn btn-danger btn-sm" onclick="delAccount('${esc(a.name)}')">删除</button></td></tr>`;
       }).join("") + `</tbody></table>`;
   }
+  // 资产构成饼图
+  const pieItems = [];
+  if(cash>0) pieItems.push({label:"现金/账户", value:cash, color:"#3b82f6"});
+  if(invest>0) pieItems.push({label:"理财投资", value:invest, color:"#14b8a6"});
+  if(fixed>0) pieItems.push({label:"固定资产", value:fixed, color:"#f59e0b"});
+  drawPie(el("assetPie"), pieItems, total>0?fmtMoney(total):"¥0");
+  const aLeg = el("assetPieLegend");
+  if(aLeg){
+    const pt = total>0 ? 100/total : 0;
+    aLeg.innerHTML = pieItems.map(i=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:13px"><span style="width:12px;height:12px;border-radius:4px;background:'+i.color+'"></span><span style="flex:1">'+esc(i.label)+'</span><b>'+fmtMoney(i.value)+'</b><span style="color:var(--muted);font-size:12px;width:44px;text-align:right">'+fmtNum(i.value*pt,1)+'%</span></div>').join("") +
+      '<div style="font-size:12px;color:var(--muted);margin-top:6px">负债 '+fmtMoney(debt)+'（已在净资产中扣除）</div>';
+  }
   renderFixed();
   renderGrade(total, net, cash, invest, fixed);
 }
@@ -2166,7 +2464,9 @@ function renderGrade(total, net, cash, invest){
 function showPage(name){
   ["home","invest","ledger","asset","goal","trip","community"].forEach(n=>{
     const pg = el("page-"+n);
-    if(pg) pg.style.display = n===name ? "block" : "none";
+    if(pg){ const active=n===name; pg.style.display = active ? "block" : "none";
+      if(active){ pg.classList.remove("pg-anim"); void pg.offsetWidth; pg.classList.add("pg-anim"); }
+    }
     const tb = el("tab-"+n);
     if(tb) tb.classList.toggle("active", n===name);
   });
@@ -2931,6 +3231,8 @@ function importBackupFile(input){
       set(IMPORTED_KEY, data.importedIds);
       loadState(); 
 loadLedger(); loadFixed(); loadGoals();
+(function(){ const t=el('le_time'); if(t && !t.value) t.value = nowTimeSec(); })();
+
       renderAll(); renderLedgerAll(); renderAsset(); renderGoalAll();
       alert("✅ 恢复成功！数据已加载");
     }catch(e){ alert("⚠️ 恢复失败："+e.message); }
@@ -3014,61 +3316,158 @@ function renderRemindersAll(){
   }).join("");
 }
 
-/* ---------- 月度收支趋势图 ---------- */
+/* ---------- 月度收支动态趋势图 ---------- */
+let _trendAnim = null;
 function renderTrend(){
   const cv = el("trendChart");
   if(!cv || !cv.getContext) return;
-  const ctx = cv.getContext("2d");
-  const W = cv.clientWidth || 800, H = 180;
-  cv.width = W * devicePixelRatio; cv.height = H * devicePixelRatio;
-  ctx.scale(devicePixelRatio, devicePixelRatio);
-  ctx.clearRect(0,0,W,H);
+  if(_trendAnim){ cancelAnimationFrame(_trendAnim); _trendAnim = null; }
+  const data = _trendData();
+  _drawTrend(cv, data, 0);
+  const t0 = performance.now(), dur = 1100;
+  function frame(now){
+    const p = Math.min(1, Math.max(0, (now-t0)/dur));
+    const ease = 1 - Math.pow(1-p, 3);
+    _drawTrend(cv, data, ease);
+    if(p<1) _trendAnim = requestAnimationFrame(frame);
+    else _trendAnim = null;
+  }
+  _trendAnim = requestAnimationFrame(frame);
+}
+function _trendData(){
   const now = new Date();
   const months = [];
   for(let i=5;i>=0;i--){
     const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
-    months.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+    months.push({ ym:d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"), label:String(d.getMonth()+1)+"月" });
   }
   const incs=[], exps=[];
-  months.forEach(ym=>{
-    const es = entriesOfMonth(ledger.entries, ym);
-    incs.push(sum(es.filter(e=>e.type==="income").map(e=>e.amount)));
-    exps.push(sum(es.filter(e=>e.type==="expense").map(e=>e.amount)));
+  months.forEach(m=>{
+    const es=entriesOfMonth(ledger.entries, m.ym);
+    incs.push(Math.round(sum(es.filter(e=>e.type==="income").map(e=>e.amount))*100)/100);
+    exps.push(Math.round(sum(es.filter(e=>e.type==="expense").map(e=>e.amount))*100)/100);
   });
+  return { months, incs, exps };
+}
+function _roundRect(ctx,x,y,w,h,r){
+  r = Math.max(0, Math.min(r, w/2, h>0?h/2:0));
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+function _fmtChartVal(v){
+  if(!isFinite(v)) return "";
+  return v>=10000 ? (v/10000).toFixed(1)+"万" : Math.round(v);
+}
+function _drawTrend(cv, data, p){
+  const ctx = cv.getContext("2d");
+  const W = cv.clientWidth || 800, H = 180;
+  const DPR = window.devicePixelRatio || 1;
+  cv.width = W*DPR; cv.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.clearRect(0,0,W,H);
+  ctx.textAlign = "start";
+  const { months, incs, exps } = data;
   const maxV = Math.max(1, ...incs, ...exps);
-  const pad={l:46,r:10,t:10,b:22};
-  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
-  const bw = cw/months.length/3.5;
-  const y=v=>pad.t + ch - (v/maxV)*ch;
-  ctx.font="10px sans-serif"; ctx.fillStyle="#9ca3af";
-  for(let g=0;g<=3;g++){
-    const yy=pad.t+ch*g/3, val=maxV*(1-g/3);
-    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(W-pad.r,yy); ctx.strokeStyle="#eef1f6"; ctx.stroke();
-    ctx.fillText(val>=10000?(val/10000).toFixed(1)+"万":Math.round(val), 2, yy+3);
+  const pad = { l:50, r:12, t:14, b:26 };
+  const cw = W-pad.l-pad.r, ch = H-pad.t-pad.b;
+  const y = v => pad.t + ch - (v/maxV)*ch;
+  const colW = cw/months.length;
+  ctx.font = "10px -apple-system, 'PingFang SC', sans-serif";
+  ctx.lineWidth = 1;
+  for(let g=0; g<=3; g++){
+    const yy = pad.t + ch*g/3, val = maxV*(1-g/3);
+    ctx.strokeStyle = "rgba(148,163,184,.20)";
+    ctx.beginPath(); ctx.moveTo(pad.l,yy); ctx.lineTo(W-pad.r,yy); ctx.stroke();
+    ctx.fillStyle = "rgba(148,163,184,.75)";
+    ctx.fillText(_fmtChartVal(val), 4, yy+3);
   }
-  months.forEach((ym,i)=>{
-    const cx = pad.l + cw*(i+0.5)/months.length;
-    const bars = [[incs[i],"#059669"],[exps[i],"#ef4444"]];
-    bars.forEach(([v,color],j)=>{
-      if(v<=0) return;
-      const bh = (v/maxV)*ch;
-      ctx.fillStyle=color;
-      ctx.fillRect(cx - bw*1.5 + j*bw, y(v), bw*0.7, bh);
-    });
-    // 结余
-    const bal = incs[i]-exps[i];
-    if(bal!==0){
-      const by = y(Math.abs(bal));
-      ctx.fillStyle = bal>0 ? "#3b82f6" : "#f59e0b";
-      ctx.fillRect(cx + bw*0.5, by, bw*0.7, y(0)-by);
-    }
-    ctx.fillStyle="#9ca3af";
-    ctx.fillText(ym.slice(5)+"月", cx-12, H-6);
-  });
-  ctx.setLineDash([]);
   if(maxV>0){
-    ctx.strokeStyle="#e5e7eb"; ctx.beginPath(); ctx.moveTo(pad.l,y(0)); ctx.lineTo(W-pad.r,y(0)); ctx.stroke();
+    ctx.strokeStyle = "rgba(148,163,184,.55)";
+    ctx.beginPath(); ctx.moveTo(pad.l,y(0)); ctx.lineTo(W-pad.r,y(0)); ctx.stroke();
   }
+  months.forEach((m,i)=>{
+    const cx = pad.l + cw*(i+0.5)/months.length;
+    const inc = incs[i], exp = exps[i];
+    if(inc>0){
+      const bh = (inc/maxV)*ch*p;
+      const grd = ctx.createLinearGradient(0, y(inc)+1, 0, y(inc)+bh);
+      grd.addColorStop(0,"rgba(16,185,129,.95)");
+      grd.addColorStop(1,"rgba(16,185,129,.45)");
+      ctx.fillStyle = grd;
+      _roundRect(ctx, cx - colW*0.34, y(inc) + (ch-bh), colW*0.26, bh, 4);
+      ctx.fill();
+    }
+    if(exp>0){
+      const bh = (exp/maxV)*ch*p;
+      const grd = ctx.createLinearGradient(0, y(exp)+1, 0, y(exp)+bh);
+      grd.addColorStop(0,"rgba(239,68,68,.9)");
+      grd.addColorStop(1,"rgba(239,68,68,.35)");
+      ctx.fillStyle = grd;
+      _roundRect(ctx, cx - colW*0.08, y(exp) + (ch-bh), colW*0.26, bh, 4);
+      ctx.fill();
+    }
+    const bal = inc-exp;
+    if(bal!==0 && p>0){
+      const bh = Math.min(Math.abs(bal)/maxV, 1)*ch*p;
+      const top = bal>0 ? y(bal) : y(0);
+      _roundRect(ctx, cx + colW*0.18, top, colW*0.26, bh, 3);
+      ctx.fillStyle = bal>0 ? "rgba(59,130,246,.9)" : "rgba(245,158,11,.9)";
+      ctx.fill();
+    }
+    ctx.fillStyle = "#94a3b8";
+    ctx.textAlign = "center";
+    ctx.fillText(m.label, cx, H-7);
+    ctx.textAlign = "start";
+  });
+  const drawSeries = (vals, color, fromBottom)=>{
+    const pts = vals.map((v,i)=>{
+      const cx = pad.l + cw*(i+0.5)/months.length;
+      const targetY = y(v);
+      const cy = fromBottom ? targetY + (1-p)*ch : targetY;
+      return {x:cx, y:cy};
+    });
+    ctx.beginPath();
+    pts.forEach((pt,i)=>{ if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+    if(fromBottom){
+      ctx.lineTo(pts[pts.length-1].x, H-pad.b+2);
+      ctx.lineTo(pts[0].x, H-pad.b+2);
+    }
+    ctx.closePath();
+    const grad = ctx.createLinearGradient(0, pad.t, 0, H-pad.b);
+    grad.addColorStop(0, color.replace(/[\d.]+\)$/, ".28)"));
+    grad.addColorStop(1, color.replace(/[\d.]+\)$/, ".02)"));
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    pts.forEach((pt,i)=>{ if(i===0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y); });
+    ctx.stroke();
+    pts.forEach((pt,i)=>{
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, 3, 0, Math.PI*2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      if(p>=0.85){
+        ctx.save();
+        ctx.font = "10px sans-serif";
+        ctx.fillStyle = color;
+        ctx.textAlign = "center";
+        ctx.fillText(_fmtChartVal(vals[i]), pt.x, y(vals[i])-7);
+        ctx.restore();
+      }
+    });
+  };
+  drawSeries(incs, "rgba(16,185,129,.9)", true);
+  drawSeries(exps, "rgba(239,68,68,.9)", true);
+  ctx.textAlign = "start";
 }
 
 /* ---------- 记录搜索 ---------- */
@@ -3101,6 +3500,8 @@ function toggleFilterPanel(){
   const pn = el("filterPanel"); if(!pn) return;
   const show = pn.style.display!=="block";
   pn.style.display = show ? "block" : "none";
+  const btn = el("filterToggle");
+  if(btn) btn.textContent = show ? "🛡️ 收起筛选" : "📊 筛选";
   if(show){ fillFilterOptions(); renderLedgerAll(); }
 }
 function fillFilterOptions(){
@@ -3154,6 +3555,10 @@ function ledgerFiltHintText(){
 }
 
 loadLedger();
+(function(){ 
+  const lt = el('le_time'); if(lt && !lt.value) lt.value = nowTimeSec(); 
+})();
+
 
 
 
@@ -3382,18 +3787,118 @@ function renderTripSettle(){
 const CC_KEY = "licai_cc_v1";
 const API_KEY = "licai_api_v1";
 let ccState = { uid:null, name:null, showAssets:false, groups:[], curGroup:null };
+let ccPending = null;
+const API_BASE_DEFAULT = "https://pocket-shit-d1g9ivifcc25a3b73-1481685868.ap-shanghai.app.tcloudbase.com";
+const MOBILE_API_DEFAULT = API_BASE_DEFAULT;
+function isNativeApp(){ try{ return !!(window.Capacitor && window.Capacitor.getPlatform); }catch(e){ return false; } }
 function ccApi(){
   try{
     const saved = localStorage.getItem(API_KEY);
     if(saved) return saved;
-    if(location && location.protocol && location.protocol.startsWith("http")) return location.origin;
-    return "http://127.0.0.1:3000";
-  }catch(e){ return "http://127.0.0.1:3000"; }
+    if(isNativeApp()) return MOBILE_API_DEFAULT;
+    if(location && location.protocol && location.protocol.startsWith("http")){
+      const host = (location.hostname||'').toLowerCase().replace(/^www\./,'');
+      if(host==='127.0.0.1' || host==='localhost') return location.origin;
+      return API_BASE_DEFAULT;
+    }
+    return API_BASE_DEFAULT;
+  }catch(e){ return API_BASE_DEFAULT; }
 }
 function ccSaveApi(){ const v = el("cc_api").value.trim(); try{ localStorage.setItem(API_KEY, v||"http://127.0.0.1:3000"); }catch(e){} }
 async function ccFetch(path, body){
   const r = await fetch(ccApi()+path, { method: body?"POST":"GET", headers:{"Content-Type":"application/json"}, body: body?JSON.stringify(body):undefined });
   return r.json();
+}
+/* ================= 意见反馈 ================= */
+function fbPlatform(){
+  let ua = 'unknown';
+  try{ ua = (navigator && navigator.userAgent) ? navigator.userAgent : ''; }catch(e){}
+  if(/iphone|ipad|ios/i.test(ua)) return 'iOS';
+  if(/android/i.test(ua)) return 'Android';
+  if(/windows/i.test(ua)) return 'Windows';
+  if(/macintel|mac os/i.test(ua)) return 'Mac';
+  return 'Web';
+}
+async function sendFeedback(){
+  const content = (el("fb_content").value || "").trim();
+  const contact = (el("fb_contact").value || "").trim();
+  if(!content){ alert("请先填写反馈内容"); return; }
+  const st = el("fbStatus"); if(st) st.textContent = "提交中…";
+  try{
+    const r = await ccFetch("/api/feedback", { content, contact, platform: fbPlatform() });
+    if(r && r.ok){
+      if(st){ st.textContent = "✅ 已提交，谢谢！"; }
+      el("fb_content").value = ""; el("fb_contact").value = "";
+    } else {
+      if(st) st.textContent = "❌ " + ((r&&r.msg) || "提交失败");
+    }
+  }catch(e){
+    queueFeedback(content, contact);
+    if(st) st.textContent = "⏳ 网络不可用，已暂存，联网后自动提交";
+  }
+}
+function queueFeedback(content, contact){
+  try{
+    const a = JSON.parse(localStorage.getItem("licai_feedback_q") || "[]");
+    a.push({ content, contact, platform: fbPlatform(), at: Date.now() });
+    localStorage.setItem("licai_feedback_q", JSON.stringify(a.slice(-50)));
+  }catch(e){}
+}
+async function flushFeedbackQueue(){
+  try{
+    const a = JSON.parse(localStorage.getItem("licai_feedback_q") || "[]");
+    if(!a.length) return;
+    const r = await ccFetch("/api/feedback", { content: a.map(x=>"[排队补发] "+x.content).join("\n"), contact: a.map(x=>x.contact).filter(Boolean).join("、"), platform:"batch" });
+    if(r && r.ok) localStorage.removeItem("licai_feedback_q");
+  }catch(e){}
+}
+/* ================= 客户端下载 ================= */
+function fmtSize(b){
+  if(!isFinite(b)) return "";
+  if(b >= 1e9) return (b/1e9).toFixed(1)+" GB";
+  if(b >= 1e6) return (b/1e6).toFixed(0)+" MB";
+  if(b >= 1e3) return (b/1e3).toFixed(0)+" KB";
+  return b+" B";
+}
+function apkFileUrl(){ return "https://pocket-shit-d1g9ivifcc25a3b73-1481685868.tcloudbaseapp.com/downloads/口袋理财-2.0.0-安卓版.apk"; }
+function apkRow(meta){
+  return '<a class="prod" style="text-decoration:none;cursor:pointer;align-items:center" href="'+apkFileUrl()+'" download>'+
+    '<div class="info"><div class="name" style="font-size:14px">📱 安卓 App（APK 安装包）</div><div class="meta">'+esc(meta||"安卓手机直接下载安装 · 4.2 MB")+'</div></div>'+
+    '<div class="nums"><span class="btn btn-primary btn-sm" style="pointer-events:none">下载</span></div></a>';
+}
+
+function showDownloads(){ const m = el("dlModal"); if(m) m.classList.add("show"); loadDownloads(); }
+function closeDownloads(){ const m = el("dlModal"); if(m) m.classList.remove("show"); }
+async function loadDownloads(){
+  const box = el("dlList"); if(!box) return;
+  box.innerHTML = '<div class="unit">正在读取可下载安装包…</div>';
+  let list = [];
+  try{ const d = await ccFetch("/api/downloads"); if(d && d.ok) list = d.list || []; }catch(e){}
+  const mb = el("dlMobile"); if(mb) mb.innerHTML = apkRow("安卓手机直接下载 APK 安装包 · 4.2 MB");
+  if(!list.length){
+    box.innerHTML = apkRow("安卓 App（APK 安装包 · 4.2 MB）") + '<div class="unit">电脑安装包将在服务端配置下载地址后显示<br>安卓手机请直接下载上方安装包，或点右上「添加到主屏幕」使用。</div>';
+    return;
+  }
+  const defs = [
+    { key:"Setup", label:"🪟 Windows 安装版", tip:"安装后开始菜单 / 桌面有图标" },
+    { key:"Portable", label:"🪟 Windows 便携版", tip:"免安装，解压/直接打开即用" },
+    { key:"-arm64.dmg", label:"🍎 Mac 芯片版 (M系列)", tip:"Apple 芯片 Mac 用" },
+    { key:"-x64.dmg", label:"🍎 Mac Intel 版", tip:"Intel 芯片 Mac 用" }
+  ];
+  const rows = [];
+  defs.forEach(df=>{
+    const hit = list.find(x => x.file.includes(df.key));
+    if(!hit) return;
+    const base = ccApi().replace(/\/$/,"");
+    const href = /^https?:\/\//.test(hit.url) ? hit.url : base+hit.url;
+    rows.push('<a class="prod" style="text-decoration:none;cursor:pointer;align-items:center" href="'+href+'" download>'+
+      '<div class="info"><div class="name" style="font-size:14px">'+df.label+'</div><div class="meta">'+esc(df.tip || "")+' · '+esc(hit.file)+' · '+fmtSize(hit.size)+'</div></div>'+
+      '<div class="nums"><span class="btn btn-primary btn-sm" style="pointer-events:none">下载</span></div></a>');
+  });
+  if(!rows.length && mb) mb.innerHTML = apkRow("安卓 App（APK 安装包 · 4.2 MB）");
+  rows.push(apkRow("安卓 App（APK 安装包 · 4.2 MB）"));
+  if(!rows.length){ box.innerHTML = '<div class="unit">未匹配到可用的桌面安装包，稍后再试。这里是安卓下载：</div>' + rows.join(""); return; }
+  box.innerHTML = rows.join("");
 }
 function ccLoadState(){ try{ const s = JSON.parse(localStorage.getItem(CC_KEY)); if(s && s.uid) ccState = s; }catch(e){} }
 function ccSaveState(){ try{ localStorage.setItem(CC_KEY, JSON.stringify(ccState)); }catch(e){} }
@@ -3418,22 +3923,48 @@ function renderCommunity(){
 async function ccRegister(){
   const name = el("cc_name").value.trim();
   if(!name){ alert("请输入昵称"); return; }
-  const d = await ccFetch("/api/register", {name});
+  const pin = el("cc_pin").value;
+  if(!/^\d{6,8}$/.test(pin)){ alert("请设置 6-8 位数字 PIN 密码，用于登录保护"); return; }
+  const d = await ccFetch("/api/register", {name, pin});
   if(d.ok){
-    ccState = { uid:d.id, name:d.name, showAssets:false, groups:[], curGroup:null };
-    ccSaveState(); renderCommunity();
-    el("cc_name").value="";
-    alert("✅ 你的专属 ID 是："+d.id+"\n请保存好，朋友加群时用它识别你");
-  }else alert("注册失败："+(d.msg||"服务器未连接，请检查云服务地址"));
+    ccSetUser(d);
+    el("cc_name").value=""; el("cc_pin").value=""; el("ccMsg").textContent="";
+    alert("✅ 你的专属 ID 是："+d.id+"\nPIN 已启用，请保存好（朋友加群时用 ID+PIN 登录）");
+  }else { el("ccMsg").textContent = d.msg||"注册失败"; alert("注册失败："+(d.msg||"服务器未连接，请检查云服务地址")); }
+}
+function ccSetUser(d){
+  ccState = { uid:d.id, name:d.name, showAssets:!!(d.privacy&&d.privacy.showAssets), groups:[], curGroup:null };
+  ccSaveState(); renderCommunity();
 }
 async function ccLogin(){
   const id = el("cc_id").value.trim().toUpperCase();
   if(!id){ alert("请输入 ID"); return; }
-  const d = await ccFetch("/api/login", {id});
+  const pin = el("cc_pinLogin").value;
+  if(!pin){ alert("请输入 PIN 密码"); return; }
+  const d = await ccFetch("/api/login", {id, pin});
   if(d.ok){
-    ccState = { uid:d.id, name:d.name, showAssets:!!d.privacy.showAssets, groups:[], curGroup:null };
-    ccSaveState(); renderCommunity(); el("cc_id").value="";
-  }else alert("登录失败："+(d.msg||""));
+    ccSetUser(d); el("cc_id").value=""; el("cc_pinLogin").value=""; el("ccMsg").textContent="";
+  } else if(d && d.code==="PIN_REQUIRED"){
+    ccPending = { id:d.id||id, name:d.name||"" };
+    el("ccSetPin").style.display = "block";
+    el("ccMsg").textContent = "🔐 该账号还没设置 PIN，请在下方设置后再登录";
+  } else {
+    el("ccMsg").innerHTML = (d && d.msg) ? ("⚠️ "+esc(d.msg)) : "登录失败";
+    if(d && d.code==="LOCKED") alert(d.msg);
+  }
+}
+async function ccSavePin(){
+  if(!ccPending){ return; }
+  const p1 = el("cc_newpin").value, p2 = el("cc_newpin2").value;
+  if(!/^\d{6,8}$/.test(p1)){ alert("PIN 需为 6-8 位数字"); return; }
+  if(p1!==p2){ alert("两次输入的 PIN 不一致"); return; }
+  const d = await ccFetch("/api/user/update", {id:ccPending.id, setPin:p1});
+  if(d.ok){
+    const d2 = await ccFetch("/api/login", {id:ccPending.id, pin:p1});
+    if(d2 && d2.ok){ ccSetUser(d2); }
+    el("ccSetPin").style.display="none"; el("cc_newpin").value=""; el("cc_newpin2").value=""; ccPending=null; el("ccMsg").textContent="";
+    alert("✅ PIN 已设置，以后登录请使用 ID + PIN");
+  } else alert("设置失败："+((d&&d.msg)||""));
 }
 function ccLogout(){ ccState = { uid:null, name:null, showAssets:false, groups:[], curGroup:null }; ccSaveState(); renderCommunity(); }
 async function ccTogglePrivacy(){
@@ -3519,15 +4050,18 @@ async function ccShareTrip(){
 
 /* ================= 外观定制 + 全局搜索 ================= */
 const THEME_KEY = "licai_theme_custom";
-const THEME_COLORS = [
-  {name:"iCost青绿", primary:"#14b8a6", primary2:"#0ea5e9"},
-  {name:"天空蓝", primary:"#3b82f6", primary2:"#6366f1"},
-  {name:"活力橙", primary:"#f97316", primary2:"#ef4444"},
-  {name:"紫罗兰", primary:"#8b5cf6", primary2:"#ec4899"},
-  {name:"翡翠绿", primary:"#10b981", primary2:"#84cc16"},
-  {name:"玫瑰红", primary:"#f43f5e", primary2:"#fb923c"}
-];
-let themeCustom = { primary:"#14b8a6", primary2:"#0ea5e9", bg:"default", bgImage:null };
+const BG_PRESETS = {
+  default:{ grad:false },
+  mist:{ grad:true, bg1:"#dbeafe", bg2:"#cffafe", dark1:"#0f2233", dark2:"#152238" },
+  grad:{ grad:true, bg1:"#a7f3d0", bg2:"#bfdbfe", dark1:"#0e3a2e", dark2:"#12304d" },
+  sunset:{ grad:true, bg1:"#ffd9b8", bg2:"#fbc8d5", dark1:"#4a1e28", dark2:"#1f1b3a" },
+  aurora:{ grad:true, bg1:"#cfd8ff", bg2:"#9ee8cf", dark1:"#1e1b4d", dark2:"#0f3f4f" },
+  ocean:{ grad:true, bg1:"#a5f3fc", bg2:"#bfdbfe", dark1:"#0b2f44", dark2:"#102040" },
+  neon:{ grad:true, bg1:"#e2d7ff", bg2:"#ffd2ef", dark1:"#2a1745", dark2:"#441138" },
+  forest:{ grad:true, bg1:"#c9f6cf", bg2:"#aef4e8", dark1:"#123a20", dark2:"#0b2d36" },
+  graphite:{ grad:true, bg1:"#e8edf5", bg2:"#cdd8ea", dark1:"#272b38", dark2:"#141823" }
+};
+let themeCustom = { primary:"#14b8a6", primary2:"#0ea5e9", bg:"default", bgImage:null, bgBlur:"soft" };
 function loadThemeCustom(){ try{ const t=JSON.parse(localStorage.getItem(THEME_KEY)); if(t&&t.primary) themeCustom=Object.assign(themeCustom,t); }catch(e){} }
 function saveThemeCustom(){
   try{ localStorage.setItem(THEME_KEY, JSON.stringify(themeCustom)); }
@@ -3535,62 +4069,204 @@ function saveThemeCustom(){
 }
 function applyTheme(){
   const r = document.documentElement ? document.documentElement.style : null;
-  if(r){ r.setProperty("--primary", themeCustom.primary); r.setProperty("--primary2", themeCustom.primary2); }
-  const body = document.body;
-  if(body && body.style){
-    if(body.classList){ body.classList.remove("custom-bg","custom-bg-grad"); }
-    if(themeCustom.bgImage){ if(body.classList) body.classList.add("custom-bg"); body.style.backgroundImage = "url("+themeCustom.bgImage+")"; }
-    else {
-      body.style.backgroundImage = "";
-      if(themeCustom.bg==="grad1"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#bfdbfe"); r.setProperty("--bg2","#a5f3fc"); } }
-      else if(themeCustom.bg==="grad2"){ if(body.classList) body.classList.add("custom-bg-grad"); if(r){ r.setProperty("--bg1","#fed7aa"); r.setProperty("--bg2","#fde68a"); } }
+  if(r){ r.setProperty("--primary", themeCustom.primary||"#14b8a6"); r.setProperty("--primary2", themeCustom.primary2||"#0ea5e9"); }
+  applyBg();
+}
+function applyBg(){
+  const b = document.body;
+  if(!b || !b.style || !b.classList) return;
+  b.classList.remove("custom-bg","custom-bg-grad");
+  b.style.backgroundImage=""; b.style.backgroundColor="";
+  const L = el("bgLayer"); if(L){ L.style.backgroundImage=""; L.style.filter="none"; }
+  let dark=false;
+  try{ dark = (typeof b.classList.contains==="function") ? b.classList.contains("dark") : (b.className||"").indexOf("dark")>=0; }catch(e){ dark=false; }
+  if(themeCustom.bg==="photo" && themeCustom.bgImage){
+    b.classList.add("custom-bg");
+    const overlay = dark
+      ? "linear-gradient(180deg,rgba(8,12,20,.42),rgba(8,12,20,.10) 42%,rgba(8,12,20,.44)),linear-gradient(140deg,rgba(15,23,42,.22),transparent 62%)"
+      : "linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.03) 45%,rgba(255,255,255,.24)),linear-gradient(140deg,rgba(20,184,166,.10),transparent 62%)";
+    if(L){
+      L.style.backgroundImage = overlay + ", url(" + themeCustom.bgImage + ")";
+      L.style.backgroundSize="cover"; L.style.backgroundPosition="center"; L.style.backgroundRepeat="no-repeat";
+      const blur = themeCustom.bgBlur==="max" ? (dark?26:16) : (themeCustom.bgBlur==="clear" ? (dark?2:1) : (dark?14:7));
+      L.style.filter = "blur("+blur+"px) " + (dark ? "brightness(.88) saturate(1.1)" : "brightness(1.02) saturate(1.06)");
     }
+  } else if(themeCustom.bg && BG_PRESETS[themeCustom.bg] && BG_PRESETS[themeCustom.bg].grad){
+    b.classList.add("custom-bg-grad");
+    const p=BG_PRESETS[themeCustom.bg];
+    const d1 = dark && p.dark1 ? p.dark1 : p.bg1;
+    const d2 = dark && p.dark2 ? p.dark2 : p.bg2;
+    if(typeof b.style.setProperty==="function"){ b.style.setProperty("--bg1", d1); b.style.setProperty("--bg2", d2); }
+    if(L){ L.style.backgroundImage="linear-gradient(160deg, var(--bg1), var(--bg2))"; L.style.filter="none"; }
   }
 }
 function renderThemeUI(){
-  const sw = el("themeSwatches");
-  sw.innerHTML = THEME_COLORS.map(c=>{
-    const active = themeCustom.primary.toLowerCase()===c.primary.toLowerCase() ? "active" : "";
-    return '<div class="theme-swatch '+active+'" style="background:linear-gradient(135deg,'+c.primary+','+c.primary2+')" title="'+c.name+'" onclick="applyThemePreset(\''+c.primary+'\',\''+c.primary2+'\',this)"></div>';
-  }).join("");
-  const custom = el("themeCustomColor"); if(custom) custom.value = themeCustom.primary;
-  document.querySelectorAll("#bgOptions .bg-option").forEach(b=>{
-    b.classList.toggle("active", b.dataset.bg===themeCustom.bg);
-  });
-  const clr = el("bgClearBtn"); if(clr) clr.style.display = themeCustom.bgImage ? "inline-block" : "none";
+  ["default","mist","grad","sunset","photo","aurora","ocean","neon","forest","graphite"].forEach(k=>{ const btn=el("bgOpt_"+k); if(btn) btn.classList.toggle("active", themeCustom.bg===k); });
+  const hasImg = !!themeCustom.bgImage;
+  const clear=el("bgClear"), hint=el("bgHint");
+  if(clear) clear.style.display = (themeCustom.bg==="photo" && hasImg) ? "inline-flex" : "none";
+  if(hint) hint.textContent = (themeCustom.bg==="photo" && hasImg) ? "✅ 已应用自定义背景" : "";
+  const blurRow = el("bgBlurRow");
+  if(blurRow) blurRow.style.display = (themeCustom.bg==="photo" && hasImg) ? "flex" : "none";
+  ["clear","soft","max"].forEach(v=>{ const b=el("blurOpt_"+v); if(b) b.classList.toggle("active", (themeCustom.bgBlur||"soft")===v); });
 }
-function applyThemePreset(p1,p2,btn){
-  themeCustom.primary=p1; themeCustom.primary2=p2;
-  saveThemeCustom(); applyTheme(); renderThemeUI();
+function setBgBlur(k){
+  themeCustom.bgBlur = k;
+  saveThemeCustom(); applyBg(); renderThemeUI();
 }
-function applyCustomColor(v){
-  themeCustom.primary = v;
-  themeCustom.primary2 = v;
-  saveThemeCustom(); applyTheme(); renderThemeUI();
-}
-function setBg(t){
-  themeCustom.bg = t;
-  saveThemeCustom(); applyTheme(); renderThemeUI();
+function setBg(k){
+  if(k==="photo"){
+    if(themeCustom.bgImage){ themeCustom.bg="photo"; }
+    else { const fi=el("bgFile"); if(fi) fi.click(); return; }
+  } else {
+    themeCustom.bg=k;
+  }
+  saveThemeCustom(); applyBg(); renderThemeUI();
 }
 function uploadBgImage(input){
-  const f = input.files && input.files[0];
-  if(!f) return;
-  const r = new FileReader();
-  r.onload = ()=>{
-    themeCustom.bgImage = r.result;
-    themeCustom.bg = "default";
-    saveThemeCustom(); applyTheme(); renderThemeUI();
-    alert("✅ 背景图已应用（仅保存在本机）");
+  const file = input && input.files && input.files[0];
+  if(!file){ renderThemeUI(); return; }
+  if(file.size>8*1024*1024){ alert("⚠️ 图片过大（>8MB），请先压缩再上传。"); input.value=""; return; }
+  const img = new Image();
+  const fr = new FileReader();
+  fr.onload = function(e){
+    img.onload = function(){
+      let w=img.naturalWidth, h=img.naturalHeight;
+      const maxW=1600, maxH=1200, scale=Math.min(1, maxW/w, maxH/h);
+      w=Math.round(w*scale); h=Math.round(h*scale);
+      const canvas = document.createElement("canvas");
+      canvas.width=w; canvas.height=h;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img,0,0,w,h);
+      const dataURL = canvas.toDataURL("image/jpeg",0.82);
+      if((dataURL.length*0.75) > 5*1024*1024){ alert("⚠️ 压缩后仍超出本机存储上限约 5MB，请换更小的图片。"); input.value=""; return; }
+      themeCustom.bg="photo"; themeCustom.bgImage=dataURL;
+      saveThemeCustom(); applyBg(); renderThemeUI(); input.value="";
+    };
+    img.onerror = function(){ alert("图片读取失败，请换一张。"); input.value=""; };
+    img.src = e.target.result;
   };
-  r.readAsDataURL(f);
-  input.value="";
+  fr.readAsDataURL(file);
 }
-function clearBg(){
-  themeCustom.bgImage = null;
-  saveThemeCustom(); applyTheme(); renderThemeUI();
+function clearCustomBg(){
+  themeCustom.bg="default"; themeCustom.bgImage=null;
+  saveThemeCustom(); applyBg(); renderThemeUI();
+}
+/* ================= 设置（字体 / 背景 / 语言 / 教程） ================= */
+const SETTINGS_KEY = "licai_settings_v1";
+let appSettings = { fontSize:"normal", lang:"zh" };
+function loadSettings(){ try{ const o=JSON.parse(localStorage.getItem(SETTINGS_KEY)); if(o) Object.assign(appSettings,o); }catch(e){} }
+function saveSettings(){ try{ localStorage.setItem(SETTINGS_KEY, JSON.stringify(appSettings)); }catch(e){} }
+function applyAllSettings(){ applyFont(); applyLang(); renderFsUI(); renderLangUI(); }
+function openSettings(){ const m=el("settingsModal"); if(m) m.classList.add("show"); renderAllSettings(); }
+function closeSettings(){ const m=el("settingsModal"); if(m) m.classList.remove("show"); }
+function setFontSize(k){ appSettings.fontSize=k; saveSettings(); applyAllSettings(); }
+function renderFsUI(){ const k=appSettings.fontSize; ["small","normal","big","xl"].forEach(v=>{ const b=el("fsOpt_"+v); if(b) b.classList.toggle("active", k===v); }); }
+function applyFont(){ const b=document.body; if(!b) return; b.classList.remove("fs-small","fs-big","fs-xl"); if(appSettings.fontSize==="small") b.classList.add("fs-small"); if(appSettings.fontSize==="big") b.classList.add("fs-big"); if(appSettings.fontSize==="xl") b.classList.add("fs-xl"); }
+function setLang(l){ appSettings.lang=l; saveSettings(); applyAllSettings(); }
+function renderLangUI(){ const l=appSettings.lang; ["zh","en"].forEach(v=>{ const b=el("langOpt_"+v); if(b) b.classList.toggle("active", l===v); }); }
+const I18N = {
+ zh:{
+  "quick.add":"记一笔","quick.import":"导账单","quick.invest":"理财","quick.asset":"看资产","quick.goal":"立目标","quick.settings":"设置","quick.dl":"下载",
+  "tab-invest":"📈 理财","tab-ledger":"🧾 记账","tab-asset":"🏦 资产","tab-goal":"🎯 目标","tab-trip":"👥 共享","tab-community":"🌐 社区",
+  "nav.home":"首页","nav.ledger":"记账","nav.trip":"共享","nav.asset":"资产","nav.community":"社区",
+  "home.net":"净资产","home.cash":"现金/账户","home.invest":"理财投资","home.today":"今日收益",
+  "home.titleIn":"收入","home.titleEx":"支出","home.titleBal":"结余","home.titleGoal":"目标进度",
+  "settings.title":"⚙️ 设置","settings.font":"🔤 字体大小","settings.fontDesc":"调整整个界面的字体大小，对手机和电脑都生效",
+  "settings.lang":"🌐 语言 / Language","settings.langDesc":"切换界面语言",
+  "settings.bg":"🖼 更换背景","settings.bgDesc":"预设渐变风格，或上传你自己的图片作背景","settings.bgStyle":"背景风格",
+  "settings.bgDefault":"🈳 默认","settings.bgMist":"🌫 雾蓝","settings.bgGrad":"🌊 青绿渐变","settings.bgSunset":"🌅 日落","settings.bgPhoto":"📷 自定义图片",
+  "settings.bgUpload":"上传图片作背景（建议 ≤3MB，会自动压缩；深色模式自动压暗）","settings.bgBlur":"🧊 背景模糊强度","settings.blurClear":"清晰","settings.blurSoft":"柔和","settings.blurMax":"极柔","settings.chooseImg":"选择图片","settings.clearBg":"🗑 移除背景图",
+  "settings.tutorial":"📖 新手教程","settings.tutorialDesc":"快速了解记账 / 理财 / 资产 / 共享等全部功能","settings.tutorialBtn":"开始学习",
+  "tuto.title":"📖 新手教程","tuto.prev":"上一步","tuto.next":"下一步","tuto.auto":"自动播放"
+ },
+ en:{
+  "quick.add":"Quick Add","quick.import":"Import","quick.invest":"Invest","quick.asset":"Assets","quick.goal":"Goals","quick.settings":"Settings","quick.dl":"Download",
+  "tab-invest":"📈 Invest","tab-ledger":"🧾 Ledger","tab-asset":"🏦 Assets","tab-goal":"🎯 Goals","tab-trip":"👥 Shared","tab-community":"🌐 Community",
+  "nav.home":"Home","nav.ledger":"Ledger","nav.trip":"Shared","nav.asset":"Assets","nav.community":"Community",
+  "home.net":"Net Worth","home.cash":"Cash","home.invest":"Invested","home.today":"Today",
+  "home.titleIn":"Income","home.titleEx":"Expense","home.titleBal":"Balance","home.titleGoal":"Goal",
+  "settings.title":"⚙️ Settings","settings.font":"🔤 Font Size","settings.fontDesc":"Adjust the global font size for phone and desktop",
+  "settings.lang":"🌐 Language","settings.langDesc":"Switch interface language",
+  "settings.bg":"🖼 Background","settings.bgDesc":"Use a preset gradient or upload your own image",
+  "settings.bgStyle":"Background Style","settings.bgDefault":"🈳 Default","settings.bgMist":"🌫 Mist","settings.bgGrad":"🌊 Gradient","settings.bgSunset":"🌅 Sunset","settings.bgPhoto":"📷 Custom Image","settings.bgAurora":"🌌 Aurora","settings.bgOcean":"🌊 Ocean","settings.bgNeon":"💜 Neon","settings.bgForest":"🌲 Forest","settings.bgGraphite":"🖤 Graphite",
+  "settings.bgUpload":"Upload an image as background (≤3MB recommended, auto-compressed; dark mode auto-dims)","settings.bgBlur":"🧊 Background Blur","settings.blurClear":"Clear","settings.blurSoft":"Soft","settings.blurMax":"Max","settings.chooseImg":"Choose Image","settings.clearBg":"🗑 Remove",
+  "settings.tutorial":"📖 Tutorial","settings.tutorialDesc":"Quickly learn Ledger, Invest, Assets, Shared and more","settings.tutorialBtn":"Start",
+  "tuto.title":"📖 Tutorial","tuto.prev":"Prev","tuto.next":"Next","tuto.auto":"Auto Play"
+ }
+};
+function tt(key){ const d=I18N[appSettings.lang]; if(d && d[key]) return d[key]; if(I18N.zh[key]) return I18N.zh[key]; return key; }
+function applyLang(){
+  try{ document.documentElement.lang = appSettings.lang==="en"?"en":"zh-CN"; }catch(e){}
+  document.querySelectorAll("[data-i18n]").forEach(elna=>{
+    const k=elna.getAttribute("data-i18n"); const t=tt(k);
+    if(t) elna.textContent = t;
+  });
+}
+/* 新手教程（动画） */
+const TUTOR_STEPS = [
+ { icon:"✏️", title:{zh:"轻松记一笔账", en:"Record an expense in seconds"}, body:{zh:"在「记账」页点右上「记一笔」，可填写金额、分类、账户、备注；还支持从微信 / 支付宝导出的 CSV 账单一键批量导入。", en:"Open Ledger and tap '+ Record'. Fill amount, category, account and note; you can also import WeChat / Alipay CSV files in one click."}},
+ { icon:"📈", title:{zh:"理财与每日收益", en:"Investments & daily returns"}, body:{zh:"在「理财」页添加银行定期 / 活期 / 余额宝式货基 / 基金等产品；投入金额后，系统按最新利率自动计算并生成每日收益日历。", en:"On the Invest page, add time deposits, demand deposits, money funds or funds. Enter your principal and the app computes daily returns automatically."}},
+ { icon:"🏦", title:{zh:"资产统计与等级", en:"Assets & credit-like rating"}, body:{zh:"在「资产」页添加现金、汽车、房产等条目，自动生成资产构成图、随时间变化曲线和净资产；按你的总资产规模自动给出等级。", en:"On the Assets page, add cash, car, property and more. See asset breakdown charts, history and a rating based on total net worth."}},
+ { icon:"👥", title:{zh:"朋友共享与 AA", en:"Share with friends & split"}, body:{zh:"「共享账本」支持旅游、聚餐、合租等多场景多人记账，谁付了多少钱自动算清楚，一键 AA 结算，谁该转给谁一目了然。", en:"Shared ledgers support trips, meals, rent and more. Track who paid what, auto settle and see exactly who owes whom."}},
+ { icon:"🌐", title:{zh:"云社区专属 ID", en:"Cloud community with your own ID"}, body:{zh:"「社区」里生成 6 位专属 ID，把 ID 发给朋友即可拉小群共享账本；还可以选择是否对外展示资产（默认关闭，保护隐私）。", en:"In Community, get a 6-character ID. Share it with friends to create a group and share ledgers; asset visibility is off by default for privacy."}},
+ { icon:"🔍", title:{zh:"全局搜索与报表", en:"Global search & reports"}, body:{zh:"首页顶部搜索框可以快速搜出任意账目、理财产品、旅行记录；还有月度统计、每日收益日历、预算提醒、打印账单等多种功能。", en:"Use the search box on Home to find any entry, product or trip. You also get monthly reports, a daily earnings calendar, budget alerts and printable bills."}}
+];
+let tutoIdx=0, tutoTimer=null, tutoAuto=false;
+function openTutorial(){ const m=el("tutoModal"); if(m) m.classList.add("show"); tutoIdx=0; renderTuto(); }
+function closeTutorial(){ const m=el("tutoModal"); if(m) m.classList.remove("show"); stopTutoAuto(); }
+function renderTuto(){
+  const s=TUTOR_STEPS[tutoIdx] || TUTOR_STEPS[0];
+  const lang=appSettings.lang==="en"?"en":"zh";
+  const stage=el("tutoStage"); if(stage){
+    stage.classList.remove("animate"); void stage.offsetWidth; stage.classList.add("animate");
+    stage.innerHTML = '<div class="te">'+s.icon+'</div><h3>'+esc(s.title[lang])+'</h3><p>'+esc(s.body[lang])+'</p>';
+  }
+  const dots=el("tutoDots"); if(dots) dots.innerHTML = TUTOR_STEPS.map((_,i)=>'<span class="dot'+(i===tutoIdx?' on':'')+'" style="cursor:pointer" onclick="tutoIdx='+i+';renderTuto()"></span>').join("");
+  const prog=el("tutoProg"); if(prog) prog.style.width = ((tutoIdx+1)/TUTOR_STEPS.length*100)+"%";
+  const prev=el("tutoPrev"), next=el("tutoNext");
+  if(prev) prev.style.visibility = tutoIdx===0 ? "hidden" : "visible";
+  if(next){ const last=tutoIdx===TUTOR_STEPS.length-1; next.innerHTML = last ? (appSettings.lang==="en"?"✨ Done ✨":"✨ 完成 ✨") : (tt("tuto.next")+" ▶"); }
+}
+function tutoStep(d){ tutoIdx=(tutoIdx+d+TUTOR_STEPS.length)%TUTOR_STEPS.length; renderTuto(); }
+function tutoAutoToggle(){ const a=el("tutoAuto"); tutoAuto = a ? a.checked : false; if(tutoAuto){ stopTutoAuto(); tutoTimer=setInterval(function(){ if(tutoIdx<TUTOR_STEPS.length-1) tutoStep(1); else { tutoIdx=0; renderTuto(); } }, 3800); } else stopTutoAuto(); }
+function stopTutoAuto(){ if(tutoTimer){ clearInterval(tutoTimer); tutoTimer=null; } }
+/* 首次进入玻璃欢迎引导 */
+const INTRO_KEY = "licai_intro_done";
+const INTRO_STEPS = [
+ { icon:"💰", title:{zh:"欢迎来到口袋理财",en:"Welcome to Pocket Money"}, body:{zh:"你的理财、记账、资产、共享管家。第一次进来，带你看 20 秒就上手。",en:"Your all-in-one pocketbook for money, bills, assets and sharing. This tour takes 20 seconds."}},
+ { icon:"🎓", title:{zh:"新手教程",en:"Tutorial"}, body:{zh:"想快速上手？打开右上角「菜单」→「设置」→「新手教程」可以随时重看：记账、理财收益、资产管理、共享账本、云社区都有逐步讲解。",en:"Want to get started fast? Open the menu → Settings → Tutorial anytime. Guides cover billing, returns, assets, shared ledgers and the cloud community."}},
+ { icon:"🚀", title:{zh:"开始使用",en:"Let's Go"}, body:{zh:"记账、理财收益、资产管理、朋友共享、云社区，全部都在这个页面里。祝你每一块钱都清清楚楚。",en:"Ledger, returns, assets, shared ledgers and cloud community — everything lives right here. Make every yuan count."}}
+];
+let introIdx=0;
+function maybeShowIntro(){
+  try{ if(localStorage.getItem(INTRO_KEY)) return; }catch(e){ return; }
+  const m = el("introModal"); if(m){ m.classList.add("show"); introIdx=0; renderIntro(); }
+}
+function closeIntro(_skip){
+  const m = el("introModal"); if(m) m.classList.remove("show");
+  try{ localStorage.setItem(INTRO_KEY,"1"); }catch(e){}
+}
+function renderIntro(){
+  const lang = appSettings.lang==="en"?"en":"zh";
+  const st = INTRO_STEPS[introIdx] || INTRO_STEPS[0];
+  const stage = el("introStage");
+  if(stage){ stage.classList.remove("animate"); void stage.offsetWidth; stage.classList.add("animate");
+    stage.innerHTML = '<div class="ie">'+st.icon+'</div><h3>'+esc(st.title[lang])+'</h3><p>'+esc(st.body[lang])+'</p>';
+  }
+  const dots = el("introDots"); if(dots) dots.innerHTML = INTRO_STEPS.map((_,i)=>'<span class="dot'+(i===introIdx?' on':'')+'" style="cursor:pointer" onclick="introIdx='+i+';renderIntro()"></span>').join("");
+  const prev = el("introPrev"), next = el("introNext");
+  if(prev){ prev.style.visibility = introIdx===0 ? "hidden" : "visible"; prev.onclick = function(){ introStep(-1); }; }
+  if(next){ next.textContent = introIdx===INTRO_STEPS.length-1 ? (appSettings.lang==="en"?"✨ Start ✨":"✨ 进入应用 ✨") : (appSettings.lang==="en"?"Next ▶":"下一步 ▶"); }
+}
+function introStep(d){
+  introIdx = Math.max(0, Math.min(INTRO_STEPS.length-1, introIdx+d));
+  if(introIdx===INTRO_STEPS.length-1 && d>0){
+    closeIntro(true); return;
+  }
+  renderIntro();
 }
 
-/* 全局搜索 */
 function globalSearch(kw){
   const box = el("globalSearchResult");
   kw = (kw||"").trim().toLowerCase();
@@ -3723,12 +4399,66 @@ function parseVoice(txt){
 loadCalendarMarks();
 loadTrips();
 ccLoadState();
+flushFeedbackQueue();
 loadRecurrings();
 initVoice();
 loadThemeCustom();
 applyTheme();
 renderThemeUI();
+loadSettings();
+applyAllSettings();
+uiInitEffects();
+bootMicroInteractions();
+setTimeout(maybeShowIntro, 700);
 try{ if(window.innerWidth<=768 && el("importHintBody") && el("importHintBody").style.display!=="none"){ el("importHintBody").style.display="none"; el("importHintToggle").textContent="展开 ▼"; } }catch(e){}
+/* 高级动效助手 */
+function animateMoney(id,target){
+  const n = el(id); if(!n || !isFinite(target)) return;
+  const cur = parseFloat(String(n.textContent||"").replace(/[^\d.\-]/g,"")) || 0;
+  const from = isFinite(cur)?cur:0, t0=performance.now(), dur=640;
+  function fmt(v){ return fmtMoney(v); }
+  function step(t){
+    const p=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-p,3), v=from+(target-from)*e;
+    n.textContent = id==="hmToday" ? ((v>0?"+":"")+fmt(v)) : fmt(v);
+    if(p<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+function uiInitEffects(){
+  const tb = el("topbar");
+  const onScroll = function(){ if(tb){ if((window.scrollY||0)>6) tb.classList.add("shadowed"); else tb.classList.remove("shadowed"); } };
+  window.addEventListener("scroll", onScroll, {passive:true});
+  onScroll();
+}
+function bootMicroInteractions(){
+  // 点击涟漪
+  document.addEventListener("pointerdown", function(e){
+    const t = e.target.closest && e.target.closest(".btn,.quick-btn,.opt-btn,.bg-option,.tab,.prod,.setting-row");
+    if(!t || typeof t.getBoundingClientRect!=="function") return;
+    const r = t.getBoundingClientRect(), size = Math.max(r.width, r.height);
+    const sp = document.createElement("span"); sp.className="ripple";
+    sp.style.width = size+"px"; sp.style.height = size+"px";
+    sp.style.left = (e.clientX - r.left - size/2)+"px"; sp.style.top = (e.clientY - r.top - size/2)+"px";
+    t.appendChild(sp); setTimeout(function(){ try{ sp.remove(); }catch(err){} }, 650);
+  });
+  // 鼠标 3D 倾斜（桌面）
+  if(!window.matchMedia || !window.matchMedia("(pointer:fine)").matches) return;
+  const selector = ".card,.prod,.oc,.quick-btn,.setting-row";
+  document.addEventListener("mouseover", function(e){
+    const t = e.target && e.target.closest ? e.target.closest(selector) : null;
+    if(!t || t.dataset.tiltReady) return;
+    t.dataset.tiltReady = "1"; t.classList.add("tilt-zone");
+    t.addEventListener("mousemove", function(ev){
+      const r = t.getBoundingClientRect(); if(!r.width || !r.height) return;
+      const px = (ev.clientX - r.left)/r.width - .5, py = (ev.clientY - r.top)/r.height - .5;
+      t.style.setProperty("--ry", (px*8)+"deg");
+      t.style.setProperty("--rx", (-py*8)+"deg");
+    });
+    t.addEventListener("mouseleave", function(){
+      t.style.setProperty("--rx","0deg"); t.style.setProperty("--ry","0deg");
+    });
+  }, {passive:true});
+}
 /* ================= 移动端首页 & 主题 ================= */
 function renderHome(){
   const cash = sum(ledger.accounts.map(a=>accountBalance(a.name)));
@@ -3741,10 +4471,10 @@ function renderHome(){
   const ym = currentYm();
   const inc = sum(es.filter(e=>e.type==="income").map(e=>e.amount));
   const exp = sum(es.filter(e=>e.type==="expense").map(e=>e.amount));
-  el("hmNet").textContent = fmtMoney(net);
-  el("hmCash").textContent = fmtMoney(cash);
-  el("hmInvest").textContent = fmtMoney(invest+fixed);
-  el("hmToday").textContent = (today>=0?"+":"") + fmtMoney(today);
+  animateMoney("hmNet", net);
+  animateMoney("hmCash", cash);
+  animateMoney("hmInvest", invest+fixed);
+  animateMoney("hmToday", today);
   el("hmMin").textContent = fmtMoney(inc);
   el("hmMexp").textContent = fmtMoney(exp);
   el("hmMbal").textContent = (inc-exp>=0?"+":"") + fmtMoney(inc-exp);
@@ -3808,6 +4538,114 @@ try{
 showPage("home");
 </script>
 
+
+<div class="modal-bg" id="settingsModal">
+  <div class="modal" style="max-width:640px">
+    <h3><span data-i18n="settings.title">⚙️ 设置</span> <button class="close" onclick="closeSettings()">✕</button></h3>
+
+    <div class="setting-row">
+      <div>
+        <div class="lbl"><span data-i18n="settings.font">🔤 字体大小</span></div>
+        <div class="desc" data-i18n="settings.fontDesc">调整整个界面的字体大小，对手机和电脑都生效</div>
+      </div>
+      <div class="opt-btns">
+        <button class="opt-btn font-btn" id="fsOpt_small" onclick="setFontSize('small')">A-</button>
+        <button class="opt-btn font-btn" id="fsOpt_normal" onclick="setFontSize('normal')">标准</button>
+        <button class="opt-btn font-btn" id="fsOpt_big" onclick="setFontSize('big')">A</button>
+        <button class="opt-btn font-btn" id="fsOpt_xl" onclick="setFontSize('xl')">A+</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="lbl"><span data-i18n="settings.lang">🌐 语言 / Language</span></div>
+        <div class="desc" data-i18n="settings.langDesc">切换界面语言</div>
+      </div>
+      <div class="opt-btns">
+        <button class="opt-btn" id="langOpt_zh" onclick="setLang('zh')">🇨🇳 中文</button>
+        <button class="opt-btn" id="langOpt_en" onclick="setLang('en')">🇺🇸 English</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="lbl"><span data-i18n="settings.bg">🖼 更换背景</span></div>
+        <div class="desc" data-i18n="settings.bgDesc">预设渐变风格，或上传你自己的图片作背景</div>
+      </div>
+    </div>
+    <div style="margin:2px 2px 12px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px" data-i18n="settings.bgStyle">背景风格</div>
+      <div class="bg-options" id="bgOptions">
+        <button class="bg-option" onclick="setBg('default')" id="bgOpt_default" data-i18n="settings.bgDefault">🈳 默认</button>
+        <button class="bg-option" onclick="setBg('mist')" id="bgOpt_mist" data-i18n="settings.bgMist">🌫 雾蓝</button>
+        <button class="bg-option" onclick="setBg('grad')" id="bgOpt_grad" data-i18n="settings.bgGrad">🌊 青绿渐变</button>
+        <button class="bg-option" onclick="setBg('sunset')" id="bgOpt_sunset" data-i18n="settings.bgSunset">🌅 日落</button>
+        <button class="bg-option" onclick="setBg('photo')" id="bgOpt_photo" data-i18n="settings.bgPhoto">📷 自定义图片</button>
+        <button class="bg-option" onclick="setBg('aurora')" id="bgOpt_aurora" data-i18n="settings.bgAurora">🌌 极光</button>
+        <button class="bg-option" onclick="setBg('ocean')" id="bgOpt_ocean" data-i18n="settings.bgOcean">🌊 深海</button>
+        <button class="bg-option" onclick="setBg('neon')" id="bgOpt_neon" data-i18n="settings.bgNeon">💜 霓虹</button>
+        <button class="bg-option" onclick="setBg('forest')" id="bgOpt_forest" data-i18n="settings.bgForest">🌲 幽林</button>
+        <button class="bg-option" onclick="setBg('graphite')" id="bgOpt_graphite" data-i18n="settings.bgGraphite">🖤 石墨</button>
+      </div>
+      <div id="bgBlurRow" style="display:none;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <div><div class="lbl" style="font-weight:700;font-size:13px" data-i18n="settings.bgBlur">🧊 背景模糊强度</div><div class="desc" style="font-size:11px;color:var(--muted)">控制自定义图片的虚化程度</div></div>
+        <div class="opt-btns">
+          <button class="opt-btn font-btn" id="blurOpt_clear" onclick="setBgBlur('clear')" data-i18n="settings.blurClear">清晰</button>
+          <button class="opt-btn font-btn" id="blurOpt_soft" onclick="setBgBlur('soft')" data-i18n="settings.blurSoft">柔和</button>
+          <button class="opt-btn font-btn" id="blurOpt_max" onclick="setBgBlur('max')" data-i18n="settings.blurMax">极柔</button>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin:10px 0 6px" data-i18n="settings.bgUpload">上传图片作背景（建议 ≤3MB，会自动压缩；深色模式自动压暗）</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <label class="btn btn-ghost" style="cursor:pointer;display:inline-flex;align-items:center;gap:4px">
+          ⬆️ <span data-i18n="settings.chooseImg">选择图片</span>
+          <input type="file" id="bgFile" accept="image/*" style="display:none" onchange="uploadBgImage(this)">
+        </label>
+        <button class="btn btn-danger btn-sm" onclick="clearCustomBg()" id="bgClear" style="display:none"><span data-i18n="settings.clearBg">🗑 移除背景图</span></button>
+        <span id="bgHint" style="font-size:12px;color:var(--primary);font-weight:600"></span>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="lbl"><span data-i18n="settings.tutorial">📖 新手教程</span></div>
+        <div class="desc" data-i18n="settings.tutorialDesc">快速了解记账 / 理财 / 资产 / 共享等全部功能</div>
+      </div>
+      <button class="btn btn-primary" onclick="openTutorial()"><span data-i18n="settings.tutorialBtn">开始学习</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="tutoModal">
+  <div class="modal" style="max-width:560px">
+    <h3><span data-i18n="tuto.title">📖 新手教程</span> <button class="close" onclick="closeTutorial()">✕</button></h3>
+    <div class="tuto-progress"><i id="tutoProg" style="width:20%"></i></div>
+    <div class="tuto-card animate" id="tutoStage"></div>
+    <div class="tuto-dots" id="tutoDots"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" id="tutoPrev" onclick="tutoStep(-1)">◀ <span data-i18n="tuto.prev">上一步</span></button>
+      <label style="font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px"><input type="checkbox" id="tutoAuto" onchange="tutoAutoToggle()" style="width:auto"> <span data-i18n="tuto.auto">自动播放</span></label>
+      <button class="btn btn-primary btn-sm" id="tutoNext" onclick="tutoStep(1)"><span data-i18n="tuto.next">下一步</span> ▶</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="dlModal">
+  <div class="modal" style="max-width:680px">
+    <h3>⬇️ 下载客户端 <button class="close" onclick="closeDownloads()">✕</button></h3>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">电脑安装包（安装到桌面用）</div>
+    <div id="dlList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"><div class="unit">正在读取可下载安装包…</div></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px;margin-top:12px">📱 安卓 App（推荐直接安装）</div>
+    <div id="dlMobile" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">📱 安卓 / 苹果（网页即应用，也不用安装）</div>
+    <div style="font-size:13px;line-height:1.8;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px">
+      • <b>安卓</b>：用 Chrome 打开本页 → 右上角菜单 → 「添加到主屏幕 / 安装应用」<br>
+      • <b>苹果</b>：用 Safari 打开本页 → 分享按钮 → 「添加到主屏幕」<br>
+      <span style="opacity:.75">添加后桌面就有图标，点开就是 App，完整支持理财 / 记账 / 云社区。</span>
+    </div>
+  </div>
+</div>
+
 <div class="modal-bg" id="importModal">
   <div class="modal" style="max-width:740px">
     <h3>⬆️ 导入微信 / 支付宝账单 <button class="close" onclick="closeImport()">✕</button></h3>
@@ -3844,11 +4682,11 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 </script>
 <nav class="bottom-nav" id="bottomNav">
-  <button data-page="home" class="active" onclick="showPage('home')"><span class="bi">🏠</span>首页</button>
-  <button data-page="ledger" onclick="showPage('ledger')"><span class="bi">✏️</span>记账</button>
-  <button data-page="trip" onclick="showPage('trip')"><span class="bi">👥</span>共享</button>
-  <button data-page="asset" onclick="showPage('asset')"><span class="bi">💰</span>资产</button>
-  <button data-page="community" onclick="showPage('community')"><span class="bi">🌐</span>社区</button>
+  <button data-page="home" class="active" onclick="showPage('home')"><span class="bi">🏠</span><span data-i18n="nav.home">首页</span></button>
+  <button data-page="ledger" onclick="showPage('ledger')"><span class="bi">✏️</span><span data-i18n="nav.ledger">记账</span></button>
+  <button data-page="trip" onclick="showPage('trip')"><span class="bi">👥</span><span data-i18n="nav.trip">共享</span></button>
+  <button data-page="asset" onclick="showPage('asset')"><span class="bi">💰</span><span data-i18n="nav.asset">资产</span></button>
+  <button data-page="community" onclick="showPage('community')"><span class="bi">🌐</span><span data-i18n="nav.community">社区</span></button>
 </nav>
 <div class="modal-bg" id="dayModal">
   <div class="modal" style="max-width:560px">
